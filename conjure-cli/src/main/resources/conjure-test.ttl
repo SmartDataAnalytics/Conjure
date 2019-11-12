@@ -1,0 +1,10 @@
+@prefix dataid: <http://dataid.dbpedia.org/ns/core#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix eg: <http://www.example.org/>
+
+<http://mydata>
+  dataid:group eg:mygrp ;
+  dcat:distribution [
+    dcat:downloadURL <http://localhost/~raven/009e80050fa7f4279596956477157ec2.hdt>
+  ]
+  .

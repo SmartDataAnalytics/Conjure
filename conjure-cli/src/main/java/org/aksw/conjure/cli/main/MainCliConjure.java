@@ -34,6 +34,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.apache.jena.system.JenaSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -76,6 +77,7 @@ public class MainCliConjure{
 	
 	
 	public static void main(String[] args) throws Exception {
+		JenaSystem.init();
 		
 		cm = new CommandMain();
 //		CommandShow cmShow = new CommandShow();

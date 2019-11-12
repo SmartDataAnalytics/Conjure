@@ -13,7 +13,7 @@ public class ConfigGroovy {
 	public BeanDefinitionReader createBeanDefinitionReader(
 			GenericApplicationContext context) {
 		GroovyBeanDefinitionReader result = new GroovyBeanDefinitionReader(context);
-		result.loadBeanDefinitions("test.groovy");
+		result.loadBeanDefinitions("conjure-test.groovy");
 		return result;
 	}
 }
