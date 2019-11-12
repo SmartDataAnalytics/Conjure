@@ -16,6 +16,7 @@ import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.OpExecutorDefault;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
 import org.aksw.jena_sparql_api.conjure.job.api.Job;
+import org.aksw.jena_sparql_api.conjure.plugin.JenaPluginConjure;
 import org.aksw.jena_sparql_api.http.repository.api.HttpResourceRepositoryFromFileSystem;
 import org.aksw.jena_sparql_api.http.repository.impl.HttpResourceRepositoryFromFileSystemImpl;
 import org.aksw.jena_sparql_api.mapper.proxy.JenaPluginUtils;
@@ -37,7 +38,9 @@ import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.system.JenaSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
 import com.beust.jcommander.JCommander;
@@ -78,6 +81,7 @@ public class MainCliConjure{
 	
 	public static void main(String[] args) throws Exception {
 		JenaSystem.init();
+		JenaPluginConjure.init();
 		
 		cm = new CommandMain();
 //		CommandShow cmShow = new CommandShow();
@@ -108,9 +112,13 @@ public class MainCliConjure{
         		.collect(Collectors.toList());
 
         // ApplicationContext ctx = 
-        SpringApplication.run(new Class<?>[] {ConfigGroovy.class, MainCliConjure.class}, args);
+        ConfigurableApplicationContext ctx = SpringApplication.run(new Class<?>[] {ConfigGroovy.class, MainCliConjure.class}, args);
+        ConfigurableListableBeanFactory beanFactory = ctx.getBeanFactory();
+        System.out.println("Bean factory: " + beanFactory);
+        Job job = (Job)ctx.getBean("job");
+        logger.info("Job is: " + job);
         
-        Job job = null;
+        //Job job = null;
         executeJob(job);
 //		HttpResourceRepositoryFromFileSystem repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
 //		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo, null);

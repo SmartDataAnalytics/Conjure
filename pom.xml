@@ -97,12 +97,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>org.aksw.sparql-conjure</groupId>
-				<artifactId>conjure-cli</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-
-			<dependency>
 				<groupId>com.beust</groupId>
 				<artifactId>jcommander</artifactId>
 				<version>1.72</version>
