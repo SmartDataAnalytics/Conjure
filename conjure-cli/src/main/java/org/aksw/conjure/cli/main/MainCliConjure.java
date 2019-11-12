@@ -36,11 +36,29 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.Configuration;
 
 import com.beust.jcommander.JCommander;
 
-public class MainCliConjure {
+
+
+@Configuration
+public class MainCliConjure{
 	private static final Logger logger = LoggerFactory.getLogger(MainCliConjure.class);
+	
+	
+	public static CommandMain cm;
+	
+	
+	public MainCliConjure() {
+	}
+	
+	public void run() {
+		
+		
+	}
+	
 	
 	
 	public static Op loadConjureJob(String fileOrUri) {
@@ -59,7 +77,7 @@ public class MainCliConjure {
 	
 	public static void main(String[] args) throws Exception {
 		
-		CommandMain cm = new CommandMain();
+		cm = new CommandMain();
 //		CommandShow cmShow = new CommandShow();
 
 		
@@ -76,6 +94,10 @@ public class MainCliConjure {
             return;
         }
 
+        if(cm.inputModelFile == null) {
+        	throw new RuntimeException("No input (catalog) model provided");
+        }
+
         Model inputModel = RDFDataMgr.loadModel(cm.inputModelFile);
 
         // TODO Extend to multiple files
@@ -83,7 +105,9 @@ public class MainCliConjure {
         		.map(x -> ResourceFactory.createResource())
         		.collect(Collectors.toList());
 
-
+        // ApplicationContext ctx = 
+        SpringApplication.run(new Class<?>[] {ConfigGroovy.class, MainCliConjure.class}, args);
+        
         Job job = null;
         executeJob(job);
 //		HttpResourceRepositoryFromFileSystem repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
@@ -142,7 +166,7 @@ public class MainCliConjure {
 				"}";
 		
 		Query dcatQuery = parser.apply(queryStr).getAsQueryStmt().getQuery();
-	
+
 		
 		List<TaskContext> taskContexts = new ArrayList<>();
 		//List<Resource> inputRecords;

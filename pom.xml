@@ -16,10 +16,7 @@
 
 	<modules>
 		<module>conjure-cli</module>
-<!--
-		<module>sparql-integrate-bundle</module>
-		<module>sparql-integrate-dummy</module>
--->
+		<!-- <module>sparql-integrate-bundle</module> <module>sparql-integrate-dummy</module> -->
 	</modules>
 
 	<issueManagement>
@@ -59,7 +56,7 @@
 
 		<jena-sparql-api.version>${jena.version}-${jena-sparql-api.subversion}</jena-sparql-api.version>
 
-		<spring-boot.version>1.5.8.RELEASE</spring-boot.version>
+		<spring-boot.version>2.2.1.RELEASE</spring-boot.version>
 
 		<!-- Project Settings -->
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -74,18 +71,24 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-autoconfigure</artifactId>
+				<version>${spring-boot.version}</version>
+			</dependency>
 
-                <dependency>
-                        <groupId>org.aksw.jena-sparql-api</groupId>
-                        <artifactId>jena-sparql-api-conjure</artifactId>
-			<version>${jena-sparql-api.version}</version>
-                </dependency>
+			<dependency>
+				<groupId>org.codehaus.groovy</groupId>
+				<artifactId>groovy-all</artifactId>
+				<version>2.4.13</version>
+			</dependency>
 
-                        <dependency>
-                                <groupId>org.aksw.sparql-conjure</groupId>
-                                <artifactId>conjure-cli</artifactId>
-                                <version>${project.version}</version>
-                        </dependency>
+
+			<dependency>
+				<groupId>org.aksw.jena-sparql-api</groupId>
+				<artifactId>jena-sparql-api-conjure</artifactId>
+				<version>${jena-sparql-api.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.aksw.sparql-conjure</groupId>
@@ -93,11 +96,17 @@
 				<version>${project.version}</version>
 			</dependency>
 
-                        <dependency>
-                                <groupId>com.beust</groupId>
-                                <artifactId>jcommander</artifactId>
-                                <version>1.72</version>
-                        </dependency>
+			<dependency>
+				<groupId>org.aksw.sparql-conjure</groupId>
+				<artifactId>conjure-cli</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.beust</groupId>
+				<artifactId>jcommander</artifactId>
+				<version>1.72</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -166,7 +175,32 @@
 						<target>${maven.compiler.target}</target>
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
+					<executions>
+						<execution>
+							<id>test-compile</id>
+							<phase>process-test-sources</phase>
+							<goals>
+								<goal>testCompile</goal>
+							</goals>
+							<configuration>
+								<compilerId>groovy-eclipse-compiler</compilerId>
+							</configuration>
+						</execution>
+					</executions>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-eclipse-compiler</artifactId>
+							<version>2.9.2-01</version>
+						</dependency>
+						<dependency>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-eclipse-batch</artifactId>
+							<version>2.4.3-01</version>
+						</dependency>
+					</dependencies>
 				</plugin>
+
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
