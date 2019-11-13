@@ -1,7 +1,5 @@
 package org.aksw.conjure.cli.main;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -9,7 +7,6 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.groovy.GroovyBeanDefinitionReader;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.context.ApplicationContextException;
 import org.springframework.context.annotation.Configuration;
 
 //@Configuration
@@ -39,11 +36,9 @@ public class ConfigGroovy implements BeanDefinitionRegistryPostProcessor {
         log.info("Loading Groovy config '{}'", config);
 
         GroovyBeanDefinitionReader reader = new GroovyBeanDefinitionReader(registry);
-        try {
-            reader.importBeans(config);
-        } catch (IOException e) {
-            throw new ApplicationContextException("Can't open Groovy config '" + config + "'");
-        }
+        int numBeans = reader.loadBeanDefinitions(config);
+		System.out.println("Beans loaded: " + numBeans);
+        System.out.println("Registry: " + registry);
     }
 
     @Override

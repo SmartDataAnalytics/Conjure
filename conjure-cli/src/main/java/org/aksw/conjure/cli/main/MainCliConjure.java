@@ -35,20 +35,21 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
-import org.apache.jena.system.JenaSystem;
+import org.apache.jena.sys.JenaSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.Banner;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Configuration;
 
 import com.beust.jcommander.JCommander;
 
 
 
-@Configuration
-public class MainCliConjure{
+@SpringBootApplication
+public class MainCliConjure {
 	private static final Logger logger = LoggerFactory.getLogger(MainCliConjure.class);
 	
 	
@@ -56,14 +57,7 @@ public class MainCliConjure{
 	
 	
 	public MainCliConjure() {
-	}
-	
-	public void run() {
-		
-		
-	}
-	
-	
+	}	
 	
 	public static Op loadConjureJob(String fileOrUri) {
 		Model model = RDFDataMgr.loadModel(fileOrUri);
@@ -111,15 +105,25 @@ public class MainCliConjure{
         		.map(x -> ResourceFactory.createResource())
         		.collect(Collectors.toList());
 
+		try (ConfigurableApplicationContext ctx = new SpringApplicationBuilder()
+				.sources(ConfigGroovy.class, ConfigCliConjure.class)
+				.bannerMode(Banner.Mode.OFF)
+				// If true, Desktop.isDesktopSupported() will return false, meaning we can't
+				// launch a browser
+				.headless(false)
+				.web(WebApplicationType.NONE)
+				.run(args)) {
+		}
+
         // ApplicationContext ctx = 
-        ConfigurableApplicationContext ctx = SpringApplication.run(new Class<?>[] {ConfigGroovy.class, MainCliConjure.class}, args);
-        ConfigurableListableBeanFactory beanFactory = ctx.getBeanFactory();
-        System.out.println("Bean factory: " + beanFactory);
-        Job job = (Job)ctx.getBean("job");
-        logger.info("Job is: " + job);
+        //ConfigurableApplicationContext ctx = SpringApplication.run(new Class<?>[] {ConfigGroovy.class, MainCliConjure.class}, args);
+//        ConfigurableListableBeanFactory beanFactory = ctx.getBeanFactory();
+//        System.out.println("Bean factory: " + beanFactory);
+//        Job job = (Job)ctx.getBean("job");
+//        logger.info("Job is: " + job);
         
         //Job job = null;
-        executeJob(job);
+        //executeJob(job);
 //		HttpResourceRepositoryFromFileSystem repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
 //		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo, null);
 
