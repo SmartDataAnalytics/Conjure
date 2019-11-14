@@ -16,7 +16,6 @@ import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.OpExecutorDefault;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
 import org.aksw.jena_sparql_api.conjure.job.api.Job;
-import org.aksw.jena_sparql_api.conjure.plugin.JenaPluginConjure;
 import org.aksw.jena_sparql_api.http.repository.api.HttpResourceRepositoryFromFileSystem;
 import org.aksw.jena_sparql_api.http.repository.impl.HttpResourceRepositoryFromFileSystemImpl;
 import org.aksw.jena_sparql_api.mapper.proxy.JenaPluginUtils;
@@ -35,7 +34,6 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
-import org.apache.jena.sys.JenaSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
@@ -74,9 +72,6 @@ public class MainCliConjure {
 	
 	
 	public static void main(String[] args) throws Exception {
-		JenaSystem.init();
-		JenaPluginConjure.init();
-		
 		cm = new CommandMain();
 //		CommandShow cmShow = new CommandShow();
 
@@ -160,7 +155,7 @@ public class MainCliConjure {
 		
 		Function<String, SparqlStmt> parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false);
 		HttpResourceRepositoryFromFileSystem repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
-		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo, null);
+		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo, new TaskContext(job, new HashMap<>(), new HashMap<>()));
 
 		
 		

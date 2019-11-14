@@ -1,6 +1,6 @@
 package org.aksw.conjure.cli.main;
 
-import org.aksw.jena_sparql_api.conjure.dataset.algebra.Op;
+import org.aksw.jena_sparql_api.conjure.job.api.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +17,9 @@ public class ConfigCliConjure {
 
 	@Bean
 	@Autowired
-	public ApplicationRunner applicationRunner(Op job) {
-		System.out.println("Job: " + job);
+	public ApplicationRunner applicationRunner(Job job) {
 		return args -> {
-			System.out.println("Job: " + job);
+			MainCliConjure.executeJob(job);
 		};
 	}
 
