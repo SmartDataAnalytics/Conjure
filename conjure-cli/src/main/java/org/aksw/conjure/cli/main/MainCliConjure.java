@@ -12,6 +12,7 @@ import org.aksw.jena_sparql_api.conjure.datapod.api.RdfDataPod;
 import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef;
 import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRefDcat;
 import org.aksw.jena_sparql_api.conjure.dataset.algebra.Op;
+import org.aksw.jena_sparql_api.conjure.dataset.algebra.OpDataRefResource;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.OpExecutorDefault;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
@@ -150,8 +151,11 @@ public class MainCliConjure {
 	}
 	
 	
-	public static void executeJob(Job job) throws Exception {
-		Op basicWorkflow = job.getOp();
+	public static void executeJob(DataRef catalogDataRef, Job job) throws Exception {
+		// TODO This line changes the catalogDataRef - we shouldn't do that
+		Op catalogWorkflow = OpDataRefResource.from(catalogDataRef.getModel(), catalogDataRef);
+
+		//Op catalogCreationWorkflow = job.getOp();
 		
 		Function<String, SparqlStmt> parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false);
 		HttpResourceRepositoryFromFileSystem repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
@@ -180,20 +184,20 @@ public class MainCliConjure {
 		List<TaskContext> taskContexts = new ArrayList<>();
 		//List<Resource> inputRecords;
 //		try(RdfDataObject catalog = DataObjects.fromSparqlEndpoint("https://databus.dbpedia.org/repo/sparql", null, null)) {			
-		try(RdfDataPod catalog = basicWorkflow.accept(catalogExecutor)) {			
+		try(RdfDataPod catalog = catalogWorkflow.accept(catalogExecutor)) {
 			try(RDFConnection conn = catalog.openConnection()) {
 				
-	    	    List<Resource> inputRecords = SparqlRx.execConstructGrouped(conn, Vars.a, dcatQuery)
+	    	    List<Resource> catalogRecords = SparqlRx.execConstructGrouped(conn, Vars.a, dcatQuery)
 		    	        .map(RDFNode::asResource)
 	    	    		.toList()
 	    	    		.blockingGet();
 
 	    		// For every input record is a dcat entry, assign an anonymous dataref
-	    		for(Resource inputRecord : inputRecords) {
+	    		for(Resource catalogRecord : catalogRecords) {
 	    			Map<String, DataRef> nameToDataRef = new HashMap<>();
 
 	    			Query q = parser.apply("SELECT DISTINCT ?x { ?x dcat:distribution [] }").getQuery();
-	    			Model m = inputRecord.getModel();
+	    			Model m = catalogRecord.getModel();
 
 	    			// QueryExecution qe = 
 
@@ -216,11 +220,11 @@ public class MainCliConjure {
 	    				nameToDataRef.put("unnamedDataRef" + (i++), dr);
 	    			}
 	    			
-		    		logger.info("Registered data refs for input " + inputRecord + " are: " + nameToDataRef);
+		    		logger.info("Registered data refs for input " + catalogRecord + " are: " + nameToDataRef);
 	    			Map<String, Model> nameToModel = new HashMap<>();
-	    			nameToModel.put("http://input", inputRecord.getModel());
+	    			nameToModel.put("http://input", catalogRecord.getModel());
 		    		
-		    		TaskContext taskContext = new TaskContext(inputRecord, nameToDataRef, nameToModel);
+		    		TaskContext taskContext = new TaskContext(catalogRecord, nameToDataRef, nameToModel);
 	    			taskContexts.add(taskContext);
 	    			// Note, that the dcat ref query was run on the inputContext models
 	    			// So the following assertion is assumed to hold:

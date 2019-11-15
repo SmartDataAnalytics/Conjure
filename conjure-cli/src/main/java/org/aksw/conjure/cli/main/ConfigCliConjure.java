@@ -1,5 +1,6 @@
 package org.aksw.conjure.cli.main;
 
+import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef;
 import org.aksw.jena_sparql_api.conjure.job.api.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -17,9 +18,9 @@ public class ConfigCliConjure {
 
 	@Bean
 	@Autowired
-	public ApplicationRunner applicationRunner(Job job) {
+	public ApplicationRunner applicationRunner(DataRef catalogDataRef, Job job) {
 		return args -> {
-			MainCliConjure.executeJob(job);
+			MainCliConjure.executeJob(catalogDataRef, job);
 		};
 	}
 
