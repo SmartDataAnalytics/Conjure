@@ -17,7 +17,7 @@ import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.OpExecutorDefault;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
 import org.aksw.jena_sparql_api.conjure.job.api.Job;
-import org.aksw.jena_sparql_api.http.repository.api.HttpResourceRepositoryFromFileSystem;
+import org.aksw.jena_sparql_api.http.repository.api.ResourceStore;
 import org.aksw.jena_sparql_api.http.repository.impl.HttpResourceRepositoryFromFileSystemImpl;
 import org.aksw.jena_sparql_api.mapper.proxy.JenaPluginUtils;
 import org.aksw.jena_sparql_api.rx.SparqlRx;
@@ -154,11 +154,18 @@ public class MainCliConjure {
 	public static void executeJob(DataRef catalogDataRef, Job job) throws Exception {
 		// TODO This line changes the catalogDataRef - we shouldn't do that
 		Op catalogWorkflow = OpDataRefResource.from(catalogDataRef.getModel(), catalogDataRef);
+	    
 
+//	    String origHash = ResourceTreeUtils.createGenericHash(conjureWorkflow);
+//	    String coreHash = ResourceTreeUtils.createGenericHash(coreOp);
+
+
+		
 		//Op catalogCreationWorkflow = job.getOp();
 		
 		Function<String, SparqlStmt> parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false);
-		HttpResourceRepositoryFromFileSystem repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
+		HttpResourceRepositoryFromFileSystemImpl repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
+		ResourceStore cacheStore = repo.getCacheStore();
 		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo, new TaskContext(job, new HashMap<>(), new HashMap<>()));
 
 		
@@ -186,6 +193,7 @@ public class MainCliConjure {
 //		try(RdfDataObject catalog = DataObjects.fromSparqlEndpoint("https://databus.dbpedia.org/repo/sparql", null, null)) {			
 		try(RdfDataPod catalog = catalogWorkflow.accept(catalogExecutor)) {
 			try(RDFConnection conn = catalog.openConnection()) {
+				
 				
 	    	    List<Resource> catalogRecords = SparqlRx.execConstructGrouped(conn, Vars.a, dcatQuery)
 		    	        .map(RDFNode::asResource)
@@ -258,7 +266,7 @@ public class MainCliConjure {
 
 //		logger.info("Retrieved " + inputRecords.size() + " contexts for processing " + inputRecords);
 		
-		ExecutionUtils.executeJob(job, repo, taskContexts);
+		ExecutionUtils.executeJob(job, taskContexts, repo, cacheStore);
 
 	}
 }
