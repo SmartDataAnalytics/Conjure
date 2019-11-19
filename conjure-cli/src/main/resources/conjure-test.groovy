@@ -21,19 +21,21 @@ cj = new ConjureBuilderImpl(ctx)
 
 
 parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false)
-
-
 model = ModelFactory.createDefaultModel()
 
+//v = OpVar.create(model, "dataRef");
+varName = "dataRef";
+		
 beans {
 	dataref FactoryBeanObject, DataRefOp.create(
 		OpUpdateRequest.create(model, OpData.create(model),
-	    parser.apply("INSERT DATA { <http://mydata> dataid:group eg:mygrp ; dcat:distribution [ dcat:downloadURL <http://localhost/~raven/009e80050fa7f4279596956477157ec2.hdt> ] }").toString()));
+	    parser.apply("INSERT DATA { <http://mydata> dataid:group eg:mygrp ; dcat:distribution [ dcat:downloadURL <http://localhost/~raven/test.hdt> ] }").toString()));
 
 	job FactoryBeanObject, Job.create(ctxModel)
 		.setOp(cj.coalesce(
-			cj.fromUrl(url).hdtHeader().construct("CONSTRUCT WHERE { ?s <urn:tripleCount> ?o }"),
-			cj.fromUrl(url).tripleCount().cache()).getOp())
+			cj.fromVar(varName).hdtHeader().construct("CONSTRUCT WHERE { ?s <http://rdfs.org/ns/void#triples> ?o }"),
+			cj.fromVar(varName).hdtHeader().construct("CONSTRUCT WHERE { ?s <http://purl.org/HDT/hdt#triplesnumTriples> ?o }"),
+			cj.fromVar(varName).tripleCount().cache()).getOp())
 		.addJobBinding("datasetId", OpTraversalSelf.create(ctxModel))
 		;
 }
