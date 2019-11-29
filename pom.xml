@@ -15,7 +15,8 @@
 	<url>https://github.com/SmartDataAnalytics/Conjure</url>
 
 	<modules>
-		<module>conjure-cli</module>
+		<module>conjure-cli-simple</module>
+		<module>conjure-cli-spark</module>
 		<!-- <module>sparql-integrate-bundle</module> <module>sparql-integrate-dummy</module> -->
 	</modules>
 
@@ -58,6 +59,15 @@
 
 		<spring-boot.version>2.2.1.RELEASE</spring-boot.version>
 
+		<scala.version>2.11.12</scala.version>
+		<scala.binary.version>2.11</scala.binary.version>
+		<scala.classifier>${scala.binary.version}</scala.classifier>
+		<scala.version.suffix>_${scala.binary.version}</scala.version.suffix>
+
+		<spark.version>2.4.3</spark.version>
+		<hadoop.version>2.9.2</hadoop.version>
+
+
 		<!-- Project Settings -->
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -71,6 +81,28 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- SPARK -->
+			<dependency>
+				<groupId>org.apache.spark</groupId>
+				<artifactId>spark-core_${scala.binary.version}</artifactId>
+				<version>${spark.version}</version>
+				<!-- Experimental exclusions ~ Claus, 5.1 -->
+				<exclusions>
+					<exclusion>
+						<groupId>javax.ws.rs</groupId>
+						<artifactId>javax.ws.rs-api</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.spark</groupId>
+				<artifactId>spark-sql_${scala.binary.version}</artifactId>
+				<version>${spark.version}</version>
+			</dependency>
+
+
+
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-autoconfigure</artifactId>
@@ -91,8 +123,8 @@
 			</dependency>
 
 			<dependency>
-				<groupId>org.aksw.sparql-conjure</groupId>
-				<artifactId>conjure-cli</artifactId>
+				<groupId>org.aksw.conjure</groupId>
+				<artifactId>conjure-cli-simple</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -169,18 +201,18 @@
 						<target>${maven.compiler.target}</target>
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
-<!-- 					<executions> -->
-<!-- 						<execution> -->
-<!-- 							<id>test-compile</id> -->
-<!-- 							<phase>process-test-sources</phase> -->
-<!-- 							<goals> -->
-<!-- 								<goal>testCompile</goal> -->
-<!-- 							</goals> -->
-<!-- 							<configuration> -->
-<!-- 								<compilerId>groovy-eclipse-compiler</compilerId> -->
-<!-- 							</configuration> -->
-<!-- 						</execution> -->
-<!-- 					</executions> -->
+					<!-- <executions> -->
+					<!-- <execution> -->
+					<!-- <id>test-compile</id> -->
+					<!-- <phase>process-test-sources</phase> -->
+					<!-- <goals> -->
+					<!-- <goal>testCompile</goal> -->
+					<!-- </goals> -->
+					<!-- <configuration> -->
+					<!-- <compilerId>groovy-eclipse-compiler</compilerId> -->
+					<!-- </configuration> -->
+					<!-- </execution> -->
+					<!-- </executions> -->
 					<dependencies>
 						<dependency>
 							<groupId>org.codehaus.groovy</groupId>

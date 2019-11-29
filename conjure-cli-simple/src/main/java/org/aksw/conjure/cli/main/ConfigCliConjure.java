@@ -20,7 +20,7 @@ public class ConfigCliConjure {
 	@Autowired
 	public ApplicationRunner applicationRunner(DataRef catalogDataRef, Job job) {
 		return args -> {
-			MainCliConjure.executeJob(catalogDataRef, job);
+			MainCliConjureSimple.executeJob(catalogDataRef, job);
 		};
 	}
 

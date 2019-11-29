@@ -1,5 +1,7 @@
 package org.aksw.conjure.cli.main;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.aksw.dcat.jena.domain.api.DcatDataset;
 import org.aksw.jena_sparql_api.common.DefaultPrefixes;
 import org.aksw.jena_sparql_api.conjure.datapod.api.RdfDataPod;
 import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef;
@@ -17,6 +20,7 @@ import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.OpExecutorDefault;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
 import org.aksw.jena_sparql_api.conjure.job.api.Job;
+import org.aksw.jena_sparql_api.http.repository.api.HttpResourceRepositoryFromFileSystem;
 import org.aksw.jena_sparql_api.http.repository.api.ResourceStore;
 import org.aksw.jena_sparql_api.http.repository.impl.HttpResourceRepositoryFromFileSystemImpl;
 import org.aksw.jena_sparql_api.mapper.proxy.JenaPluginUtils;
@@ -24,6 +28,8 @@ import org.aksw.jena_sparql_api.rx.SparqlRx;
 import org.aksw.jena_sparql_api.stmt.SparqlStmt;
 import org.aksw.jena_sparql_api.stmt.SparqlStmtParserImpl;
 import org.aksw.jena_sparql_api.utils.Vars;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.Syntax;
@@ -48,14 +54,14 @@ import com.beust.jcommander.JCommander;
 
 
 @SpringBootApplication
-public class MainCliConjure {
-	private static final Logger logger = LoggerFactory.getLogger(MainCliConjure.class);
+public class MainCliConjureSimple {
+	private static final Logger logger = LoggerFactory.getLogger(MainCliConjureSimple.class);
 	
 	
 	public static CommandMain cm;
 	
 	
-	public MainCliConjure() {
+	public MainCliConjureSimple() {
 	}	
 	
 	public static Op loadConjureJob(String fileOrUri) {
@@ -75,7 +81,6 @@ public class MainCliConjure {
 	public static void main(String[] args) throws Exception {
 		cm = new CommandMain();
 //		CommandShow cmShow = new CommandShow();
-
 		
 		// CommandCommit commit = new CommandCommit();
 		JCommander jc = JCommander.newBuilder()
@@ -149,9 +154,9 @@ public class MainCliConjure {
 		//Model deserializedWorkflowModel = RDFDataMgr.loadModel(tmpFile.toString());		
 
 	}
+
 	
-	
-	public static void executeJob(DataRef catalogDataRef, Job job) throws Exception {
+	public static List<TaskContext> createTasksContexts(DataRef catalogDataRef, Job job, HttpResourceRepositoryFromFileSystem repo) throws Exception {
 		// TODO This line changes the catalogDataRef - we shouldn't do that
 		Op catalogWorkflow = OpDataRefResource.from(catalogDataRef.getModel(), catalogDataRef);
 	    
@@ -164,8 +169,8 @@ public class MainCliConjure {
 		//Op catalogCreationWorkflow = job.getOp();
 		
 		Function<String, SparqlStmt> parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false);
-		HttpResourceRepositoryFromFileSystemImpl repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
-		ResourceStore cacheStore = repo.getCacheStore();
+		//HttpResourceRepositoryFromFileSystemImpl repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
+		//ResourceStore cacheStore = repo.getCacheStore();
 		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo, new TaskContext(job, new HashMap<>(), new HashMap<>()));
 
 		
@@ -255,18 +260,84 @@ public class MainCliConjure {
 //					.blockingGet();				
 			}			
 		}
+		
+		return taskContexts;
 
+	}
+	
+	public static List<DcatDataset> executeJob(DataRef catalogDataRef, Job job) throws Exception {
+		//Function<String, SparqlStmt> parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false);
+		HttpResourceRepositoryFromFileSystemImpl repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
+		ResourceStore cacheStore = repo.getCacheStore();
+		//OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo, new TaskContext(job, new HashMap<>(), new HashMap<>()));
 		
-		// Check the contexts for well-known data refs; i.e. dcat entries
-		
-		
-		
-		
+	
+		List<TaskContext> taskContexts = createTasksContexts(catalogDataRef, job, repo);
+		List<DcatDataset> result = executeJob(taskContexts, job, repo, cacheStore);
+		return result;
+	}
+	
+	
+	public static List<DcatDataset> executeJob(List<TaskContext> taskContexts, Job job, HttpResourceRepositoryFromFileSystem repo, ResourceStore cacheStore) throws Exception {
+
+		// Check the contexts for well-known data refs; i.e. dcat entries		
 		// Ready for workflow execution!
 
 //		logger.info("Retrieved " + inputRecords.size() + " contexts for processing " + inputRecords);
 		
-		ExecutionUtils.executeJob(job, taskContexts, repo, cacheStore);
-
+		List<DcatDataset> resultDatasets = ExecutionUtils.executeJob(job, taskContexts, repo, cacheStore);
+		return resultDatasets;
+//		for(DcatDataset resultDataset : resultDatasets) {
+//			DcatDataset closure = resultDataset.inModel(ResourceUtils.reachableClosure(resultDataset)).as(DcatDataset.class);
+//			RDFDataMgrEx.execSparql(closure.getModel(), "replacens.sparql", ImmutableMap.<String, String>builder()
+//					.put("SOURCE_NS", cm.repoBase)
+//					.put("TARGET_NS", cm.webBase)
+//					.build()::get);
+//
+//			RDFDataMgr.write(System.out, closure.getModel(), RDFFormat.TURTLE_PRETTY);
+//		}
 	}
+
+
+	public Path stringToPath(String str) {
+		Path result = str != null && str.startsWith("file://")
+				? Paths.get(str)
+				: null;
+		return result;
+	}
+	
+	public Function<Node, Node> asNodeTransform(Function<Path, String> pathToIri) {
+		return o -> {
+			String str =
+					o.isURI() ? o.getURI() :
+					o.isLiteral() ? o.getLiteralLexicalForm() :
+					null;
+
+			Path path = stringToPath(str);
+			String iri = pathToIri.apply(path);
+			Node r = iri == null ? o : NodeFactory.createURI(iri);
+			return r;
+		};		
+	}
+	
+
+//	public void replaceNs(Model model, Function<Path, String> pathToIri) {
+//		StmtIterator it = model.listStatements();
+//		while(it.hasNext()) {
+//			Statement stmt = it.next();
+//			RDFNode o = stmt.getObject();
+//			
+//		}
+//		
+//		for(DcatDataset resultDataset : resultDatasets) {
+//			DcatDataset closure = resultDataset.inModel(ResourceUtils.reachableClosure(resultDataset)).as(DcatDataset.class);
+//			RDFDataMgrEx.execSparql(closure.getModel(), "replacens.sparql", ImmutableMap.<String, String>builder()
+//					.put("SOURCE_NS", cm.repoBase)
+//					.put("TARGET_NS", cm.webBase)
+//					.build()::get);
+//
+//			RDFDataMgr.write(System.out, closure.getModel(), RDFFormat.TURTLE_PRETTY);
+//		}
+//
+//	}
 }
