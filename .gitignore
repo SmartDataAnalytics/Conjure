@@ -18,6 +18,8 @@ bin
 *.iml
 *.log
 
+scalastyle-output.xml
+.cache-main
 
 pom.xml.releaseBackup
 pom.xml.versionsBackup

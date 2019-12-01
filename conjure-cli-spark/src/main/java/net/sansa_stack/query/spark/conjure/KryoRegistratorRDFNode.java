@@ -1,11 +1,10 @@
 package net.sansa_stack.query.spark.conjure;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.google.gson.Gson;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.spark.serializer.KryoRegistrator;
 
-import java.util.function.Function;
+import com.esotericsoftware.kryo.Kryo;
+import com.google.gson.Gson;
 
 // TODO Merge into JenaKryoRegistrator in sansa-rdf
 public class KryoRegistratorRDFNode
