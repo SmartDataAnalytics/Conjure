@@ -33,7 +33,23 @@
 
 		<scalastyle.config.path>${project.basedir}/scalastyle-config.xml</scalastyle.config.path>
 	</properties>
+
 	<dependencies>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+		</dependency>
+
 
 		<!-- <dependency> -->
 		<!-- <groupId>org.apache.spark</groupId> -->
@@ -45,10 +61,10 @@
 			<artifactId>conjure-cli-simple</artifactId>
 		</dependency>
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.beust</groupId> -->
-<!-- 			<artifactId>jcommander</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.beust</groupId> -->
+		<!-- <artifactId>jcommander</artifactId> -->
+		<!-- </dependency> -->
 
 
 		<dependency>
@@ -86,25 +102,6 @@
 			<groupId>de.javakaffee</groupId>
 			<artifactId>kryo-serializers</artifactId>
 			<version>0.41</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>2.6.7</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.6.7</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<version>2.6.7</version>
 		</dependency>
 
 		<dependency>
@@ -151,10 +148,10 @@
 			<version>${jsa.version}</version>
 		</dependency>
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.aksw.jena-sparql-api</groupId> -->
-<!-- 			<artifactId>jena-sparql-api-conjure</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
+		<!-- <artifactId>jena-sparql-api-conjure</artifactId> -->
+		<!-- </dependency> -->
 
 		<dependency>
 			<groupId>org.aksw.jena-sparql-api</groupId>

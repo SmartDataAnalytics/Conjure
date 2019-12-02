@@ -62,7 +62,7 @@ object MainCliConjureSpark extends LazyLogging {
 // }
 
     val ctx: ConfigurableApplicationContext = new SpringApplicationBuilder()
-      .sources(classOf[ConfigGroovy], classOf[ConfigCliConjure])
+      .sources(classOf[ConfigGroovy], classOf[ConfigConjureCliSpark])
       .bannerMode(Banner.Mode.OFF)
       // If true, Desktop.isDesktopSupported() will return false, meaning we can't
       // launch a browser
@@ -79,6 +79,8 @@ object MainCliConjureSpark extends LazyLogging {
 
   def mainSpark(cm: CommandMain, catalogDataRef: DataRef, job: Job): Unit = { /* args: Array[String]): Unit = { */
 
+    logger.info("Setting up spark for conjure job execution")
+    
     // val catalogUrl = if (args.length == 0) "http://localhost/~raven/conjure.test.dcat.ttl" else args(0)
     val args = Array[String]()
     val limit = if (args.length > 1) args(1).toInt else 10
@@ -188,7 +190,7 @@ object MainCliConjureSpark extends LazyLogging {
 
     logger.info("NUM PARTITIONS = " + dcatRdd.getNumPartitions)
 
-    val executiveRdd = dcatRdd.mapPartitions(taskContextIt => {
+    val resultCatalogRdd = dcatRdd.mapPartitions(taskContextIt => {
       val jobRdfNode = jobBroadcast.value;
       val baos = new ByteArrayOutputStream
       RDFDataMgr.write(baos, jobRdfNode.getModel, RDFFormat.TURTLE_PRETTY)
@@ -214,7 +216,8 @@ object MainCliConjureSpark extends LazyLogging {
       val taskContexts: java.util.List[ConjureTaskContext] = taskContextIt.toList.asJava
       val dcatDatasets = MainCliConjureSimple.executeJob(taskContexts, job, repo, cacheStore)
 
-      dcatDatasets.asScala.map(x => (x, true, "some data")).iterator
+      dcatDatasets.asScala.iterator
+        .map(x => (x.asResource(), true, "some data"))
 
       // it.map(taskContextsIt => {
       // val taskContexts = taskContextsIt.l
@@ -225,7 +228,7 @@ object MainCliConjureSpark extends LazyLogging {
     })
 
     val stopwatch = Stopwatch.createStarted()
-    val evalResult = executiveRdd.collect
+    val evalResult = resultCatalogRdd.collect
 
     logger.info("RESULTS: ----------------------------")
     for (item <- evalResult) {
