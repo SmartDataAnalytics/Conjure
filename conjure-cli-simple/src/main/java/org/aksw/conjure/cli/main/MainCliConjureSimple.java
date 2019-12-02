@@ -39,6 +39,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.apache.jena.sparql.graph.NodeTransform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
@@ -266,17 +267,18 @@ public class MainCliConjureSimple {
 //		}
 	}
 
-	public Path stringToPath(String str) {
-		Path result = str != null && str.startsWith("file://") ? Paths.get(str) : null;
+	public static Path stringToPath(String str) {
+		String URL_SCHEMA_FILE = "file://";
+		Path result = str.startsWith(URL_SCHEMA_FILE) ? Paths.get(str.substring(URL_SCHEMA_FILE.length())) : null;
 		return result;
 	}
 
-	public Function<Node, Node> asNodeTransform(Function<Path, String> pathToIri) {
+	public static NodeTransform asNodeTransform(Function<Path, String> pathToIri) {
 		return o -> {
 			String str = o.isURI() ? o.getURI() : o.isLiteral() ? o.getLiteralLexicalForm() : null;
 
-			Path path = stringToPath(str);
-			String iri = pathToIri.apply(path);
+			Path path = str == null ? null : stringToPath(str);
+			String iri = path == null ? null : pathToIri.apply(path);
 			Node r = iri == null ? o : NodeFactory.createURI(iri);
 			return r;
 		};

@@ -4,13 +4,14 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.InetAddress
 import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.JavaConverters.seqAsJavaListConverter
+import scala.compat.java8.FunctionConverters._
 
 import org.aksw.conjure.cli.main.CommandMain
-import org.aksw.conjure.cli.main.ConfigCliConjure
 import org.aksw.conjure.cli.main.ConfigGroovy
 import org.aksw.conjure.cli.main.MainCliConjureSimple
 import org.aksw.dcat.ap.utils.DcatUtils
@@ -21,6 +22,7 @@ import org.aksw.jena_sparql_api.conjure.job.api.Job
 import org.aksw.jena_sparql_api.http.repository.impl.HttpResourceRepositoryFromFileSystemImpl
 import org.aksw.jena_sparql_api.mapper.proxy.JenaPluginUtils
 import org.aksw.jena_sparql_api.stmt.SparqlStmtParserImpl
+import org.aksw.jena_sparql_api.transform.result_set.QueryExecutionTransformResult
 import org.apache.jena.ext.com.google.common.base.StandardSystemProperty
 import org.apache.jena.ext.com.google.common.base.Stopwatch
 import org.apache.jena.ext.com.google.common.collect.ImmutableRangeSet
@@ -105,7 +107,7 @@ object MainCliConjureSpark extends LazyLogging {
     // File.createTempFile("spark-events")
     val numPartitions = numThreads * 1
 
-    val masterHostname = InetAddress.getLocalHost.getHostName;
+    val masterHostname = InetAddress.getLocalHost.getHostName
 
     val builder = SparkSession.builder
 
@@ -190,7 +192,7 @@ object MainCliConjureSpark extends LazyLogging {
 
     logger.info("NUM PARTITIONS = " + dcatRdd.getNumPartitions)
 
-    val resultCatalogRdd = dcatRdd.mapPartitions(taskContextIt => {
+    val resultCatalogRdd = dcatRdd.mapPartitions(taskContextIt => {      
       val jobRdfNode = jobBroadcast.value;
       val baos = new ByteArrayOutputStream
       RDFDataMgr.write(baos, jobRdfNode.getModel, RDFFormat.TURTLE_PRETTY)
@@ -209,6 +211,7 @@ object MainCliConjureSpark extends LazyLogging {
       // val repo = HttpResourceRepositoryFromFileSystemImpl.createDefault
       // val executor = new OpExecutorDefault(repo)
       val parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false)
+      val repoPath = HttpResourceRepositoryFromFileSystemImpl.getDefaultPath;
       val repo = HttpResourceRepositoryFromFileSystemImpl.createDefault
       val cacheStore = repo.getCacheStore
       // val catalogExecutor = new OpExecutorDefault(repo, new ConjureTaskContext(job, new HashMap[String, DataRef](), new HashMap[String, Model]()));
@@ -216,8 +219,22 @@ object MainCliConjureSpark extends LazyLogging {
       val taskContexts: java.util.List[ConjureTaskContext] = taskContextIt.toList.asJava
       val dcatDatasets = MainCliConjureSimple.executeJob(taskContexts, job, repo, cacheStore)
 
+      val hostName = InetAddress.getLocalHost.getHostName
+      val publicBaseIri = "http://" + hostName + "/"
+      val pathToUri: Path => String = p => {
+        println("GOT PATHS " + p + " - " + repoPath)
+        publicBaseIri + repoPath.relativize(p).toString()
+      }
+      val nodeTransform = MainCliConjureSimple.asNodeTransform(pathToUri.asJava)
+      
       dcatDatasets.asScala.iterator
-        .map(x => (x.asResource(), true, "some data"))
+        .map(x => {
+          val tmpR = x.asResource()
+          //val g = r.getModel.getGraph
+          val r = QueryExecutionTransformResult.applyNodeTransform(nodeTransform, tmpR)
+          
+          (r, true, "some data")
+        })
 
       // it.map(taskContextsIt => {
       // val taskContexts = taskContextsIt.l
@@ -233,6 +250,7 @@ object MainCliConjureSpark extends LazyLogging {
     logger.info("RESULTS: ----------------------------")
     for (item <- evalResult) {
       logger.info("Result status: " + item)
+      RDFDataMgr.write(System.err, item._1.getModel, RDFFormat.TURTLE_PRETTY)
     }
 
     logger.info("Processed " + evalResult.length + " items in " + (stopwatch.stop.elapsed(TimeUnit.MILLISECONDS) * 0.001) + " seconds")
