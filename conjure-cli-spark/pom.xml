@@ -27,10 +27,8 @@
 		<spark.version>2.4.3</spark.version>
 		<hadoop.version>2.9.2</hadoop.version>
 
-		<jena.version>3.12.0</jena.version>
-		<jsa.subversion>2-SNAPSHOT</jsa.subversion>
-		<jsa.version>${jena.version}-${jsa.subversion}</jsa.version>
-
+		<!-- <jena.version>3.12.0</jena.version> <jsa.subversion>2-SNAPSHOT</jsa.subversion> 
+			<jsa.version>${jena.version}-${jsa.subversion}</jsa.version> -->
 		<scalastyle.config.path>${project.basedir}/scalastyle-config.xml</scalastyle.config.path>
 	</properties>
 
@@ -38,7 +36,6 @@
 		<dependency>
 			<groupId>org.apache.jena</groupId>
 			<artifactId>jena-arq</artifactId>
-			<version>${jena.version}</version>
 
 			<exclusions>
 				<exclusion>
@@ -116,12 +113,6 @@
 			<version>0.41</version>
 		</dependency>
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.jena</groupId> -->
-<!-- 			<artifactId>jena-arq</artifactId> -->
-<!-- 			<version>${jena.version}</version> -->
-<!-- 		</dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.apache.jena</groupId> -->
 		<!-- <artifactId>jena-core</artifactId> -->
@@ -154,22 +145,20 @@
 		<!-- <version>27.0.1-jre</version> -->
 		<!-- </dependency> -->
 
-		<dependency>
-			<groupId>org.aksw.jena-sparql-api</groupId>
-			<artifactId>jena-sparql-api-core</artifactId>
-			<version>${jsa.version}</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
+		<!-- <artifactId>jena-sparql-api-core</artifactId> -->
+		<!-- </dependency> -->
 
 		<!-- <dependency> -->
 		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
 		<!-- <artifactId>jena-sparql-api-conjure</artifactId> -->
 		<!-- </dependency> -->
 
-		<dependency>
-			<groupId>org.aksw.jena-sparql-api</groupId>
-			<artifactId>jena-sparql-api-mapper-annotations</artifactId>
-			<version>${jsa.version}</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
+		<!-- <artifactId>jena-sparql-api-mapper-annotations</artifactId> -->
+		<!-- </dependency> -->
 
 		<!-- <dependency> -->
 		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
@@ -188,6 +177,20 @@
 		<!-- <version>${jsa.version}</version> -->
 		<!-- </dependency> -->
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>dist</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-shade-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<build>
 

@@ -53,8 +53,8 @@
 	</developers>
 
 	<properties>
-		<jena.version>3.12.0</jena.version>
-		<jena-sparql-api.subversion>2-SNAPSHOT</jena-sparql-api.subversion>
+		<jena.version>3.13.1</jena.version>
+		<jena-sparql-api.subversion>1-SNAPSHOT</jena-sparql-api.subversion>
 
 		<jena-sparql-api.version>${jena.version}-${jena-sparql-api.subversion}</jena-sparql-api.version>
 
@@ -83,25 +83,17 @@
 	<dependencyManagement>
 		<dependencies>
 
-<!--
 			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-core</artifactId>
-				<version>2.6.7</version>
+				<groupId>org.apache.jena</groupId>
+				<artifactId>jena-arq</artifactId>
+				<version>${jena.version}</version>
 			</dependency>
 
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>2.6.7</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-annotations</artifactId>
-				<version>2.6.7</version>
-			</dependency>
--->
+			<!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-core</artifactId> 
+				<version>2.6.7</version> </dependency> <dependency> <groupId>com.fasterxml.jackson.core</groupId> 
+				<artifactId>jackson-databind</artifactId> <version>2.6.7</version> </dependency> 
+				<dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-annotations</artifactId> 
+				<version>2.6.7</version> </dependency> -->
 
 			<!-- SPARK -->
 			<dependency>

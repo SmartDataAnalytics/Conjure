@@ -1,0 +1,7 @@
+[ a                              <http://www.example.org/OpPath> ;
+  <http://www.example.org/name>  "/home/raven/.dcat/repository/cache/mydata/1683fdb8212476213a94245d4f8f2a737c71ba302435f8e6c99c94bf21c93f16/data/_content/data.ttl"
+] .
+[ a                              <http://www.example.org/OpPath> ;
+  <http://www.example.org/name>  "/home/raven/.dcat/repository/cache/mydata/1683fdb8212476213a94245d4f8f2a737c71ba302435f8e6c99c94bf21c93f16/dcat/_content/data.ttl"
+] .
+GOT PATHS /home/raven/.dcat/repository/cache/mydata/1683fdb8212476213a94245d4f8f2a737c71ba302435f8e6c99c94bf21c93f16/data/_content/data.ttl - /home/raven/.dcat/repository
