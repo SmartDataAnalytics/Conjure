@@ -18,6 +18,9 @@ bin
 *.iml
 *.log
 
+
+output.txt
+
 scalastyle-output.xml
 .cache-main
 
