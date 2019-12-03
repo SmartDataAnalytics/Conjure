@@ -208,8 +208,8 @@ object ConjureSparkUtils extends LazyLogging {
 
     logger.info("RESULTS: ----------------------------")
     for (item <- evalResult) {
-      logger.info("Result status: " + item)
-      RDFDataMgr.write(System.err, item.getDcatRecord.getModel, RDFFormat.TURTLE_PRETTY)
+      // logger.info("Result status: " + item)
+      RDFDataMgr.write(System.out, item.getDcatRecord.getModel, RDFFormat.TURTLE_PRETTY)
     }
 
     logger.info("Processed " + evalResult.length + " items in " + (stopwatch.stop.elapsed(TimeUnit.MILLISECONDS) * 0.001) + " seconds")

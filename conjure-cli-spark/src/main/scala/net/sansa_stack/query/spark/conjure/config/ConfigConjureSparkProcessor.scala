@@ -67,7 +67,7 @@ class ConfigConjureSparkProcessor {
     val hostName = InetAddress.getLocalHost.getHostName
     val publicBaseIri = "http://" + hostName + "/"
     val pathToUri: Path => String = p => {
-      println("GOT PATHS " + p + " - " + repoPath)
+      // println("GOT PATHS " + p + " - " + repoPath)
       publicBaseIri + repoPath.relativize(p).toString()
     }
     val nodeTransform = MainCliConjureNative.asNodeTransform(pathToUri.asJava)
