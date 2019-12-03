@@ -1,7 +1,9 @@
 package net.sansa_stack.query.spark.conjure
 
 import com.typesafe.scalalogging.LazyLogging
-import org.aksw.conjure.cli.main.MainCliConjureSimple
+import org.aksw.conjure.cli.config.ConfigConjureSparkBase
+import org.aksw.conjure.cli.config.ConjureCliArgs
+import org.aksw.conjure.cli.main.MainCliConjureNative
 import org.springframework.boot.Banner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.WebApplicationType
@@ -16,8 +18,9 @@ object MainCliConjureSpark extends LazyLogging {
     val conjureCliArgs = ConjureCliArgs.parse(args)
     val conjureConfig = ConfigConjureSparkBase.parseArgs(conjureCliArgs)
 
-    val sourcePaths = conjureConfig.getSourcePathToContent.keySet
-    val effectiveSources = sourcePaths.asScala.map(e => MainCliConjureSimple.toFileUri(e)).toSet.asJava
+    // val sourcePaths = conjureConfig.getSourceToContent.keySet
+    // val effectiveSources = //sourcePaths.asScala.map(e => MainCliConjureNative.toFileUri(e)).toSet.asJava
+    val effectiveSources = conjureConfig.getSources
 
     val app: SpringApplication = new SpringApplicationBuilder()
       .sources(classOf[ConfigConjureSparkBase], classOf[ConfigConjureSparkMaster])

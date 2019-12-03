@@ -1,14 +1,18 @@
 package net.sansa_stack.query.spark.conjure
 
-import com.google.common.hash.Hashing
-import com.typesafe.scalalogging.LazyLogging
 import java.io.File
 import java.net.InetAddress
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
+
+import com.google.common.hash.Hashing
+import com.typesafe.scalalogging.LazyLogging
+import org.aksw.conjure.cli.config.ConjureConfig
+import org.aksw.conjure.cli.config.ConjureProcessor
 import org.aksw.conjure.cli.main.CommandMain
-import org.aksw.conjure.cli.main.MainCliConjureSimple
+import org.aksw.conjure.cli.main.MainCliConjureNative
 import org.aksw.dcat.ap.utils.DcatUtils
 import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef
 import org.aksw.jena_sparql_api.conjure.job.api.Job
@@ -141,7 +145,7 @@ object ConjureSparkUtils extends LazyLogging {
     val jobBroadcast: Broadcast[Resource] = sparkSession.sparkContext.broadcast(job.asResource)
 
     val repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();
-    val initialTaskContexts = MainCliConjureSimple.createTasksContexts(catalogDataRef, job, repo).asScala
+    val initialTaskContexts = MainCliConjureNative.createTasksContexts(catalogDataRef, job, repo).asScala
 
     // val url = DcatUtils.getFirstDownloadUrl(dcat)
     // r = MainCliConjureSimple.executeJob(taskContexts, job, repo, cacheStore);
@@ -166,20 +170,13 @@ object ConjureSparkUtils extends LazyLogging {
     val resultCatalogRdd = dcatRdd.mapPartitions(taskContextIt => {
       // Get the config files from the broadcast variable and write them to temporary files
       // Then start a spring application from them
-      val conjureConfig = configBroadcast.value
-
-      val fileNameToContent = conjureConfig.getSourcePathToContent.asScala
-        .map(e => (e._1.getFileName, e._2))
-        .asJava
+      val config = configBroadcast.value
 
       // TODO Allocate a fresh folder (e.g. with timestamp or counter)
       val tmpPath = Files.createTempDirectory("conjure-config")
 
-      val relToAbs = MainCliConjureSimple.writeFiles(tmpPath, fileNameToContent)
-
-      val effectiveSources = relToAbs.values.asScala
-        .map(absPath => MainCliConjureSimple.toFileUri(absPath))
-        .asJava
+      val sourceToPath = MainCliConjureNative.writeFiles(tmpPath, conjureConfig.getSourceToContent)
+      val effectiveSources = ConjureConfig.effectiveSources(config.getSources, sourceToPath)
 
       // New set up the spring app for this partition
 
@@ -212,7 +209,7 @@ object ConjureSparkUtils extends LazyLogging {
     logger.info("RESULTS: ----------------------------")
     for (item <- evalResult) {
       logger.info("Result status: " + item)
-      RDFDataMgr.write(System.err, item.dcatRecord.getModel, RDFFormat.TURTLE_PRETTY)
+      RDFDataMgr.write(System.err, item.getDcatRecord.getModel, RDFFormat.TURTLE_PRETTY)
     }
 
     logger.info("Processed " + evalResult.length + " items in " + (stopwatch.stop.elapsed(TimeUnit.MILLISECONDS) * 0.001) + " seconds")

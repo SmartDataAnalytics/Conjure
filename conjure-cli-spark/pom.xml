@@ -58,7 +58,7 @@
 
 		<dependency>
 			<groupId>org.aksw.conjure</groupId>
-			<artifactId>conjure-cli-simple</artifactId>
+			<artifactId>conjure-cli-native</artifactId>
 		</dependency>
 
 		<!-- <dependency> -->

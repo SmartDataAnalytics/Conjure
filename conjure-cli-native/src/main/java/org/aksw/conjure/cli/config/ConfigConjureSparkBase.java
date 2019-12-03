@@ -1,15 +1,14 @@
-package net.sansa_stack.query.spark.conjure;
+package org.aksw.conjure.cli.config;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.aksw.conjure.cli.main.CommandMain;
-import org.aksw.conjure.cli.main.MainCliConjureSimple;
+import org.aksw.conjure.cli.main.MainCliConjureNative;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.annotation.Bean;
@@ -49,23 +48,18 @@ public class ConfigConjureSparkBase {
 		CommandMain cm = args.getCm();
 		
 	    List<String> rawSources = cm.nonOptionArgs;
+	    Set<String> canonicalSources = rawSources.stream()
+	    		.map(MainCliConjureNative::canonicalizeSource)
+	    		.collect(Collectors.toSet());
 
 	    Path basePath = Paths.get(StandardSystemProperty.USER_DIR.value());
 
-	    List<Path> sourcePaths = rawSources.stream()
-	    		.map(src -> MainCliConjureSimple.resolvePath(basePath, src))
-	    		.collect(Collectors.toList());
+//	    List<String> canonicalSources = rawSources.stream()
+//	    		.map(src -> MainCliConjureNative.resolvePath(basePath, src))
+//	    		.collect(Collectors.toList());
 	    
-	    Map<Path, byte[]> sourcePathToContent = sourcePaths.stream()
-	    		.collect(Collectors.toMap(path -> path, path -> {
-					try {
-						return Files.readAllBytes(path);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}));
-	    		
-	    ConjureConfig result = new ConjureConfig(sourcePathToContent);
+	    Map<String, byte[]> sourceToContent = MainCliConjureNative.loadSources(basePath, canonicalSources);
+	    ConjureConfig result = new ConjureConfig(canonicalSources, sourceToContent);
 	    return result;
     }
 }

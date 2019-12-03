@@ -1,19 +1,26 @@
 package org.aksw.conjure.cli.main;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.aksw.conjure.cli.config.ConfigConjureSparkBase;
+import org.aksw.conjure.cli.config.ConjureCliArgs;
+import org.aksw.conjure.cli.config.ConjureConfig;
 import org.aksw.dcat.jena.domain.api.DcatDataset;
 import org.aksw.jena_sparql_api.common.DefaultPrefixes;
 import org.aksw.jena_sparql_api.conjure.datapod.api.RdfDataPod;
@@ -49,31 +56,59 @@ import org.apache.jena.sparql.graph.NodeTransform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.beust.jcommander.JCommander;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 @SpringBootApplication
-public class MainCliConjureSimple {
+public class MainCliConjureNative {
 	public static String URL_SCHEME_FILE = "file://";
 
 	
-	private static final Logger logger = LoggerFactory.getLogger(MainCliConjureSimple.class);
+	private static final Logger logger = LoggerFactory.getLogger(MainCliConjureNative.class);
 
 	public static CommandMain cm;
 
-	public MainCliConjureSimple() {
+	public MainCliConjureNative() {
 	}
 	
-	public static BiMap<Path, Path> writeFiles(Path baseFolder, Map<Path, byte[]> relPathToContent) throws IOException {
-		BiMap<Path, Path> relToAbs = HashBiMap.create();
-		for(Entry<Path, byte[]> e : relPathToContent.entrySet()) {
-			Path relPath = e.getKey();
+	public static Map<String, byte[]> loadSources(Path basePath, Collection<String> sources) {
+		Map<String, byte[]> result = new HashMap<>();
+		for(String source : sources) {
+			Path path = resolvePath(basePath, source);
+			if(path != null) {
+				try {
+					byte[] content = Files.readAllBytes(path);
+					result.put(source, content);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Write a sourceToContent map to physical files, and return a map with
+	 * sourceToPath, where path is the path to the written file
+	 * 
+	 * @param baseFolder
+	 * @param sourceToContent
+	 * @return
+	 * @throws IOException
+	 */
+	public static BiMap<String, Path> writeFiles(Path baseFolder, Map<String, byte[]> sourceToContent) throws IOException {
+		BiMap<String, Path> result = HashBiMap.create();
+		for(Entry<String, byte[]> e : sourceToContent.entrySet()) {
+			String source = e.getKey();
+			Path tmpPath = Paths.get(source);
+			Path relPath = tmpPath.getFileName();
+
 			byte[] content = e.getValue();
 
 			Path absPath = baseFolder.resolve(relPath);
@@ -81,13 +116,21 @@ public class MainCliConjureSimple {
 			Files.createDirectories(absPath.getParent());
 			Files.write(absPath, content, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 			
-			relToAbs.put(relPath, absPath);
+			result.put(source, absPath);
 		}
 		
-		return relToAbs;
+		return result;
 	}
 	
 	
+	public static Set<String> toFileUris(Collection<Path> paths) {
+		Set<String> result = paths.stream()
+			.map(MainCliConjureNative::toFileUri)
+			.collect(Collectors.toSet());
+		
+		return result;
+	}
+
 	public static String toFileUri(Path path) {
 		String result;
 		try {
@@ -98,11 +141,47 @@ public class MainCliConjureSimple {
 
 		return result;
 	}
+
+	public static URL existsOnClassPath(ClassLoader classLoader, String path) {
+		URL result = classLoader.getResource(path);
+		try(InputStream in = result.openStream()) {
+
+		} catch (IOException e) {
+			result = null;
+		}
+		
+		return result;
+	}
+	
+	
+//	public static Path urlAsPath(Path basePath, String arg) {
+//		Path result =
+//				arg.startsWith(URL_SCHEME_FILE) ? Paths.get(arg.substring(URL_SCHEME_FILE.length())) :
+//				arg.startsWith("/") ? Paths.get(arg) :
+//				null;
+//
+//		return result;
+//	}
+	
+	// We may need canonicalization to make cli arg handling and spring interop nicer
+	public static String canonicalizeSource(String rawSource) {
+		return rawSource;
+//		String result =
+//				arg.startsWith(URL_SCHEME_FILE) ? Paths.get(arg.substring(URL_SCHEME_FILE.length())) :
+//				arg.startsWith("/") ? Paths.get(arg) :
+//				existsOnClassPath(MainCliConjureNative.class.getClassLoader(), arg) != null ? null :
+//				arg.contains(":/") ? null : // URL-like arguments of any kind
+//				basePath.resolve(arg);
+//		return result;
+	}
 	
 	public static Path resolvePath(Path basePath, String arg) {
+
 		Path result =
 				arg.startsWith(URL_SCHEME_FILE) ? Paths.get(arg.substring(URL_SCHEME_FILE.length())) :
 				arg.startsWith("/") ? Paths.get(arg) :
+				existsOnClassPath(MainCliConjureNative.class.getClassLoader(), arg) != null ? null :
+				arg.contains(":/") ? null : // URL-like arguments of any kind
 				basePath.resolve(arg);
 				
 		return result;
@@ -121,72 +200,26 @@ public class MainCliConjureSimple {
 	}
 
 	public static void main(String[] args) throws Exception {
-		cm = new CommandMain();
-//		CommandShow cmShow = new CommandShow();
+		ConjureCliArgs cliArgs = ConjureCliArgs.parse(args);
 
-		// CommandCommit commit = new CommandCommit();
-		JCommander jc = JCommander.newBuilder().addObject(cm)
-//				.addCommand("show", cmShow)
-				.build();
-
-		jc.parse(args);
-
-		if (cm.help) {
-			jc.usage();
+		if (cliArgs.getCm().help) {
+			cliArgs.getJcommander().usage();
 			return;
 		}
 
-		if (cm.inputModelFile == null) {
-			throw new RuntimeException("No input (catalog) model provided");
+		ConjureConfig config = ConfigConjureSparkBase.parseArgs(cliArgs);
+		Set<String> sources = config.getSources();
+		
+		SpringApplication app = new SpringApplicationBuilder()
+			.sources(ConfigCliConjureNative.class).bannerMode(Banner.Mode.OFF)
+			.headless(false)
+			.web(WebApplicationType.NONE)
+			.build();
+
+		app.setSources(sources);
+		
+		try (ConfigurableApplicationContext ctx = app.run(args)) {
 		}
-
-//        Model inputModel = RDFDataMgr.loadModel(cm.inputModelFile);
-//
-//        // TODO Extend to multiple files
-//        List<Resource> jobModels = cm.nonOptionArgs.stream()
-//        		.map(x -> ResourceFactory.createResource())
-//        		.collect(Collectors.toList());
-
-		try (ConfigurableApplicationContext ctx = new SpringApplicationBuilder()
-				.sources(ConfigGroovy.class, ConfigCliConjure.class).bannerMode(Banner.Mode.OFF)
-				// If true, Desktop.isDesktopSupported() will return false, meaning we can't
-				// launch a browser
-				.headless(false).web(WebApplicationType.NONE).run(args)) {
-		}
-
-		// ApplicationContext ctx =
-		// ConfigurableApplicationContext ctx = SpringApplication.run(new Class<?>[]
-		// {ConfigGroovy.class, MainCliConjure.class}, args);
-//        ConfigurableListableBeanFactory beanFactory = ctx.getBeanFactory();
-//        System.out.println("Bean factory: " + beanFactory);
-//        Job job = (Job)ctx.getBean("job");
-//        logger.info("Job is: " + job);
-
-		// Job job = null;
-		// executeJob(job);
-//		HttpResourceRepositoryFromFileSystem repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();		
-//		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo, null);
-
-		// ExecutionUtils.executeJob(job, repo, taskContexts);
-
-		// Op conjureWorkflow = JenaPluginUtils.polymorphicCast(deserializedWorkflowRes,
-		// Op.class);
-
-//		Model workflowModel = RDFDataMgr.loadModel(tmpFile.toString());		
-//		Resource deserializedWorkflowRes = deserializedWorkflowModel.createResource(workflowUri);
-
-		// cm.nonOptionArgs
-
-		// JCommander deploySubCommands = jc.getCommands().get("deploy");
-
-		// Inputs:
-		// catalog kb (background knowledge)
-		// catalog selector (set of resources in the catalog)
-		// process template
-
-//		String processTemplate;
-		// Model deserializedWorkflowModel = RDFDataMgr.loadModel(tmpFile.toString());
-
 	}
 
 	public static List<TaskContext> createTasksContexts(DataRef catalogDataRef, Job job,

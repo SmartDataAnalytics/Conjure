@@ -15,7 +15,7 @@
 	<url>https://github.com/SmartDataAnalytics/Conjure</url>
 
 	<modules>
-		<module>conjure-cli-simple</module>
+		<module>conjure-cli-native</module>
 		<module>conjure-cli-spark</module>
 		<module>conjure-debian-cli</module>
 		<!-- <module>sparql-integrate-bundle</module> <module>sparql-integrate-dummy</module> -->
@@ -144,7 +144,7 @@
 
 			<dependency>
 				<groupId>org.aksw.conjure</groupId>
-				<artifactId>conjure-cli-simple</artifactId>
+				<artifactId>conjure-cli-native</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

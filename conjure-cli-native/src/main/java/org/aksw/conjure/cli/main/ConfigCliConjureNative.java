@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ConfigCliConjure {
+public class ConfigCliConjureNative {
 	
 //	@Bean
 //	public Object applicationRunner() {
@@ -20,7 +20,7 @@ public class ConfigCliConjure {
 	@Autowired
 	public ApplicationRunner applicationRunner(DataRef catalogDataRef, Job job) {
 		return args -> {
-			MainCliConjureSimple.executeJob(catalogDataRef, job);
+			MainCliConjureNative.executeJob(catalogDataRef, job);
 		};
 	}
 

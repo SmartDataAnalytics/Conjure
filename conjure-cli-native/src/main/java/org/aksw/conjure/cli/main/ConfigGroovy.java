@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 //	}
 //}
 
+@Deprecated
 @Configuration
 public class ConfigGroovy implements BeanDefinitionRegistryPostProcessor {
     private static final Logger log = LoggerFactory.getLogger(ConfigGroovy.class);

@@ -1,4 +1,4 @@
-package net.sansa_stack.query.spark.conjure;
+package org.aksw.conjure.cli.config;
 
 import org.apache.jena.rdf.model.Resource;
 

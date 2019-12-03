@@ -1,4 +1,4 @@
-package net.sansa_stack.query.spark.conjure;
+package org.aksw.conjure.cli.config;
 
 import org.aksw.conjure.cli.main.CommandMain;
 
@@ -36,11 +36,6 @@ public class ConjureCliArgs {
 	    	  .build();
 
 		jc.parse(args);
-
-//	    if (cm.help) {
-//	      jc.usage();
-//	      return ;
-//	    }
 		
 		ConjureCliArgs result = new ConjureCliArgs(jc, cm);
 		return result;

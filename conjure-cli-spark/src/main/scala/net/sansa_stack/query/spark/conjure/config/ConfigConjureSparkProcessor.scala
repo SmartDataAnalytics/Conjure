@@ -3,7 +3,7 @@ package net.sansa_stack.query.spark.conjure
 import java.net.InetAddress
 import java.nio.file.Path
 
-import org.aksw.conjure.cli.main.MainCliConjureSimple
+import org.aksw.conjure.cli.main.MainCliConjureNative
 import org.aksw.jena_sparql_api.common.DefaultPrefixes
 import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils
 import org.aksw.jena_sparql_api.conjure.dataset.engine.{ TaskContext => ConjureTaskContext }
@@ -17,6 +17,8 @@ import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.aksw.conjure.cli.config.ConjureProcessor
+import org.aksw.conjure.cli.config.ConjureResult
 import scala.compat.java8.FunctionConverters._
 
 @Configuration
@@ -68,7 +70,7 @@ class ConfigConjureSparkProcessor {
       println("GOT PATHS " + p + " - " + repoPath)
       publicBaseIri + repoPath.relativize(p).toString()
     }
-    val nodeTransform = MainCliConjureSimple.asNodeTransform(pathToUri.asJava)
+    val nodeTransform = MainCliConjureNative.asNodeTransform(pathToUri.asJava)
 
     val result = new ConjureProcessor() {
       def process(taskContext: ConjureTaskContext): ConjureResult = {

@@ -1,4 +1,4 @@
-package net.sansa_stack.query.spark.conjure;
+package org.aksw.conjure.cli.config;
 
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
 

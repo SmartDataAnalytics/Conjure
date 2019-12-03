@@ -10,7 +10,7 @@
 		<version>1.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>conjure-cli-simple</artifactId>
+	<artifactId>conjure-cli-native</artifactId>
 	<packaging>jar</packaging>
 
 
