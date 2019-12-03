@@ -142,14 +142,16 @@ public class MainCliConjureNative {
 		return result;
 	}
 
-	public static URL existsOnClassPath(ClassLoader classLoader, String path) {
+	public static URL resolveOnClassPath(ClassLoader classLoader, String path) {
 		URL result = classLoader.getResource(path);
-		try(InputStream in = result.openStream()) {
-
-		} catch (IOException e) {
-			result = null;
+		if(result != null) {
+			try(InputStream in = result.openStream()) {
+	
+			} catch (IOException e) {
+				result = null;
+			}
 		}
-		
+
 		return result;
 	}
 	
@@ -180,7 +182,7 @@ public class MainCliConjureNative {
 		Path result =
 				arg.startsWith(URL_SCHEME_FILE) ? Paths.get(arg.substring(URL_SCHEME_FILE.length())) :
 				arg.startsWith("/") ? Paths.get(arg) :
-				existsOnClassPath(MainCliConjureNative.class.getClassLoader(), arg) != null ? null :
+				resolveOnClassPath(MainCliConjureNative.class.getClassLoader(), arg) != null ? null :
 				arg.contains(":/") ? null : // URL-like arguments of any kind
 				basePath.resolve(arg);
 				
