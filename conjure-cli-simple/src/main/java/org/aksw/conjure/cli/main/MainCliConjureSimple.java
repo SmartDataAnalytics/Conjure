@@ -1,12 +1,18 @@
 package org.aksw.conjure.cli.main;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.aksw.dcat.jena.domain.api.DcatDataset;
 import org.aksw.jena_sparql_api.common.DefaultPrefixes;
@@ -49,16 +55,59 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.beust.jcommander.JCommander;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 @SpringBootApplication
 public class MainCliConjureSimple {
+	public static String URL_SCHEME_FILE = "file://";
+
+	
 	private static final Logger logger = LoggerFactory.getLogger(MainCliConjureSimple.class);
 
 	public static CommandMain cm;
 
 	public MainCliConjureSimple() {
 	}
+	
+	public static BiMap<Path, Path> writeFiles(Path baseFolder, Map<Path, byte[]> relPathToContent) throws IOException {
+		BiMap<Path, Path> relToAbs = HashBiMap.create();
+		for(Entry<Path, byte[]> e : relPathToContent.entrySet()) {
+			Path relPath = e.getKey();
+			byte[] content = e.getValue();
 
+			Path absPath = baseFolder.resolve(relPath);
+			logger.info("Writing file " + relPath + " with " + content.length + " to " + absPath);
+			Files.createDirectories(absPath.getParent());
+			Files.write(absPath, content, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+			
+			relToAbs.put(relPath, absPath);
+		}
+		
+		return relToAbs;
+	}
+	
+	
+	public static String toFileUri(Path path) {
+		String result;
+		try {
+			result = path.toUri().toURL().toString();
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+
+		return result;
+	}
+	
+	public static Path resolvePath(Path basePath, String arg) {
+		Path result =
+				arg.startsWith(URL_SCHEME_FILE) ? Paths.get(arg.substring(URL_SCHEME_FILE.length())) :
+				arg.startsWith("/") ? Paths.get(arg) :
+				basePath.resolve(arg);
+				
+		return result;
+	}
+	
 	public static Op loadConjureJob(String fileOrUri) {
 		Model model = RDFDataMgr.loadModel(fileOrUri);
 		List<Op> ops = model.listSubjects().mapWith(x -> JenaPluginUtils.polymorphicCast(x, Op.class))
@@ -242,34 +291,36 @@ public class MainCliConjureSimple {
 		// TaskContext(job, new HashMap<>(), new HashMap<>()));
 
 		List<TaskContext> taskContexts = createTasksContexts(catalogDataRef, job, repo);
-		List<DcatDataset> result = executeJob(taskContexts, job, repo, cacheStore);
+		
+		List<DcatDataset> result = taskContexts.stream()
+				.map(taskContext -> ExecutionUtils.executeJob(job, taskContext, repo, cacheStore))
+				.collect(Collectors.toList());
 		return result;
 	}
 
-	public static List<DcatDataset> executeJob(List<TaskContext> taskContexts, Job job,
-			HttpResourceRepositoryFromFileSystem repo, ResourceStore cacheStore) throws Exception {
-
-		// Check the contexts for well-known data refs; i.e. dcat entries
-		// Ready for workflow execution!
-
-//		logger.info("Retrieved " + inputRecords.size() + " contexts for processing " + inputRecords);
-
-		List<DcatDataset> resultDatasets = ExecutionUtils.executeJob(job, taskContexts, repo, cacheStore);
-		return resultDatasets;
-//		for(DcatDataset resultDataset : resultDatasets) {
-//			DcatDataset closure = resultDataset.inModel(ResourceUtils.reachableClosure(resultDataset)).as(DcatDataset.class);
-//			RDFDataMgrEx.execSparql(closure.getModel(), "replacens.sparql", ImmutableMap.<String, String>builder()
-//					.put("SOURCE_NS", cm.repoBase)
-//					.put("TARGET_NS", cm.webBase)
-//					.build()::get);
+//	public static List<DcatDataset> executeJob(List<TaskContext> taskContexts, Job job,
+//			HttpResourceRepositoryFromFileSystem repo, ResourceStore cacheStore) throws Exception {
 //
-//			RDFDataMgr.write(System.out, closure.getModel(), RDFFormat.TURTLE_PRETTY);
-//		}
-	}
+//		// Check the contexts for well-known data refs; i.e. dcat entries
+//		// Ready for workflow execution!
+//
+////		logger.info("Retrieved " + inputRecords.size() + " contexts for processing " + inputRecords);
+//
+//		List<DcatDataset> resultDatasets = ExecutionUtils.executeJob(job, taskContexts, repo, cacheStore);
+//		return resultDatasets;
+////		for(DcatDataset resultDataset : resultDatasets) {
+////			DcatDataset closure = resultDataset.inModel(ResourceUtils.reachableClosure(resultDataset)).as(DcatDataset.class);
+////			RDFDataMgrEx.execSparql(closure.getModel(), "replacens.sparql", ImmutableMap.<String, String>builder()
+////					.put("SOURCE_NS", cm.repoBase)
+////					.put("TARGET_NS", cm.webBase)
+////					.build()::get);
+////
+////			RDFDataMgr.write(System.out, closure.getModel(), RDFFormat.TURTLE_PRETTY);
+////		}
+//	}
 
 	public static Path stringToPath(String str) {
-		String URL_SCHEMA_FILE = "file://";
-		Path result = str.startsWith(URL_SCHEMA_FILE) ? Paths.get(str.substring(URL_SCHEMA_FILE.length())) : null;
+		Path result = str.startsWith(URL_SCHEME_FILE) ? Paths.get(str.substring(URL_SCHEME_FILE.length())) : null;
 		return result;
 	}
 

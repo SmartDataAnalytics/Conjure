@@ -1,33 +1,24 @@
 package net.sansa_stack.query.spark.conjure
 
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.InetAddress
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
-import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.collection.JavaConverters.seqAsJavaListConverter
-import scala.compat.java8.FunctionConverters._
+import scala.collection.JavaConverters._
 
 import org.aksw.conjure.cli.main.CommandMain
-import org.aksw.conjure.cli.main.ConfigGroovy
 import org.aksw.conjure.cli.main.MainCliConjureSimple
 import org.aksw.dcat.ap.utils.DcatUtils
-import org.aksw.jena_sparql_api.common.DefaultPrefixes
 import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef
-import org.aksw.jena_sparql_api.conjure.dataset.engine.{ TaskContext => ConjureTaskContext }
 import org.aksw.jena_sparql_api.conjure.job.api.Job
 import org.aksw.jena_sparql_api.http.repository.impl.HttpResourceRepositoryFromFileSystemImpl
-import org.aksw.jena_sparql_api.mapper.proxy.JenaPluginUtils
-import org.aksw.jena_sparql_api.stmt.SparqlStmtParserImpl
-import org.aksw.jena_sparql_api.transform.result_set.QueryExecutionTransformResult
 import org.apache.jena.ext.com.google.common.base.StandardSystemProperty
 import org.apache.jena.ext.com.google.common.base.Stopwatch
 import org.apache.jena.ext.com.google.common.collect.ImmutableRangeSet
 import org.apache.jena.ext.com.google.common.collect.Range
-import org.apache.jena.query.Syntax
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.riot.RDFDataMgr
@@ -36,41 +27,35 @@ import org.apache.jena.sys.JenaSystem
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.sql.SparkSession
 import org.springframework.boot.Banner
+import org.springframework.boot.SpringApplication
 import org.springframework.boot.WebApplicationType
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.ConfigurableApplicationContext
 
-import com.beust.jcommander.JCommander
 import com.google.common.hash.Hashing
 import com.typesafe.scalalogging.LazyLogging
 
 object MainCliConjureSpark extends LazyLogging {
+
   def main(args: Array[String]): Unit = {
-    val cm = new CommandMain
+    val conjureCliArgs = ConjureCliArgs.parse(args)
+    val conjureConfig = ConfigConjureSparkBase.parseArgs(conjureCliArgs)
+    
+    val sourcePaths = conjureConfig.getSourcePathToContent.keySet
+    val effectiveSources = sourcePaths.asScala.map(e => MainCliConjureSimple.toFileUri(e)).toSet.asJava
 
-    val jc = new JCommander.Builder()
-      .addObject(cm)
-      .build()
-
-    jc.parse(args: _*);
-
-    if (cm.help) {
-      jc.usage();
-      return ;
-    }
-
-// if (cm.inputModelFile == null) {
-//   throw new RuntimeException("No input (catalog) model provided");
-// }
-
-    val ctx: ConfigurableApplicationContext = new SpringApplicationBuilder()
-      .sources(classOf[ConfigGroovy], classOf[ConfigConjureCliSpark])
+    val app: SpringApplication = new SpringApplicationBuilder()
+      .sources(classOf[ConfigConjureSparkBase], classOf[ConfigBootstrapConjureSpark])
       .bannerMode(Banner.Mode.OFF)
       // If true, Desktop.isDesktopSupported() will return false, meaning we can't
       // launch a browser
       .headless(false)
       .web(WebApplicationType.NONE)
-      .run(args: _*)
+      .build()
+      
+    app.setSources(effectiveSources)
+      
+    val ctx: ConfigurableApplicationContext = app.run(args: _*)
   }
 
   def createPartitionKey(dcatDataset: Resource): String = {
@@ -79,8 +64,10 @@ object MainCliConjureSpark extends LazyLogging {
     return key
   }
 
-  def mainSpark(cm: CommandMain, catalogDataRef: DataRef, job: Job): Unit = { /* args: Array[String]): Unit = { */
-
+  def mainSpark(cm: CommandMain, catalogDataRef: DataRef, job: Job, conjureConfig: ConjureConfig): Unit = { /* args: Array[String]): Unit = { */
+    
+    // val sourcePathToContent: java.util.Map[Path, Array[Byte]] = conjureConfig.getSourcePathToContent
+    
     logger.info("Setting up spark for conjure job execution")
     
     // val catalogUrl = if (args.length == 0) "http://localhost/~raven/conjure.test.dcat.ttl" else args(0)
@@ -128,6 +115,11 @@ object MainCliConjureSpark extends LazyLogging {
 
     sparkSession.conf.set("spark.sql.crossJoin.enabled", "true")
 
+    //val sourcePathToContent: java.util.Map[Path, Array[Byte]] = null
+    
+    val configBroadcast: Broadcast[ConjureConfig] =
+      sparkSession.sparkContext.broadcast(conjureConfig)
+    
     val hostToPortRangesBroadcast: Broadcast[String => ImmutableRangeSet[Integer]] =
       sparkSession.sparkContext.broadcast(hostToPortRanges)
 
@@ -168,7 +160,7 @@ object MainCliConjureSpark extends LazyLogging {
     // The .asResource behavior is subject to change. If it breaks, create an implicit
     // function such as Resource.toDefaultResource
     val jobBroadcast: Broadcast[Resource] = sparkSession.sparkContext.broadcast(job.asResource)
-
+    
     val repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();
     val initialTaskContexts = MainCliConjureSimple.createTasksContexts(catalogDataRef, job, repo).asScala
 
@@ -192,56 +184,48 @@ object MainCliConjureSpark extends LazyLogging {
 
     logger.info("NUM PARTITIONS = " + dcatRdd.getNumPartitions)
 
-    val resultCatalogRdd = dcatRdd.mapPartitions(taskContextIt => {      
-      val jobRdfNode = jobBroadcast.value;
-      val baos = new ByteArrayOutputStream
-      RDFDataMgr.write(baos, jobRdfNode.getModel, RDFFormat.TURTLE_PRETTY)
-
-      // scalastyle:off
-      //      val job = JenaPluginUtils.polymorphicCast(jobRdfNode, classOf[org.aksw.jena_sparql_api.conjure.dataset.algebra.Op])
-      val job = JenaPluginUtils.polymorphicCast(jobRdfNode, classOf[Job])
-      // scalastyle:on
-
-      if (job == null) {
-        throw new RuntimeException("op of workflow was null, workflow itself was: " + job)
-      }
-
-      // Set up the repo on the worker
-      // TODO Test for race conditions
-      // val repo = HttpResourceRepositoryFromFileSystemImpl.createDefault
-      // val executor = new OpExecutorDefault(repo)
-      val parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false)
-      val repoPath = HttpResourceRepositoryFromFileSystemImpl.getDefaultPath;
-      val repo = HttpResourceRepositoryFromFileSystemImpl.createDefault
-      val cacheStore = repo.getCacheStore
-      // val catalogExecutor = new OpExecutorDefault(repo, new ConjureTaskContext(job, new HashMap[String, DataRef](), new HashMap[String, Model]()));
-
-      val taskContexts: java.util.List[ConjureTaskContext] = taskContextIt.toList.asJava
-      val dcatDatasets = MainCliConjureSimple.executeJob(taskContexts, job, repo, cacheStore)
-
-      val hostName = InetAddress.getLocalHost.getHostName
-      val publicBaseIri = "http://" + hostName + "/"
-      val pathToUri: Path => String = p => {
-        println("GOT PATHS " + p + " - " + repoPath)
-        publicBaseIri + repoPath.relativize(p).toString()
-      }
-      val nodeTransform = MainCliConjureSimple.asNodeTransform(pathToUri.asJava)
+    val resultCatalogRdd = dcatRdd.mapPartitions(taskContextIt => {
+      // Get the config files from the broadcast variable and write them to temporary files
+      // Then start a spring application from them
+      val conjureConfig = configBroadcast.value
       
-      dcatDatasets.asScala.iterator
-        .map(x => {
-          val tmpR = x.asResource()
-          //val g = r.getModel.getGraph
-          val r = QueryExecutionTransformResult.applyNodeTransform(nodeTransform, tmpR)
-          
-          (r, true, "some data")
-        })
+      val fileNameToContent = conjureConfig.getSourcePathToContent.asScala
+        .map(e => (e._1.getFileName, e._2))
+        .asJava
+      
+      // TODO Allocate a fresh folder (e.g. with timestamp or counter)
+      val tmpPath = Files.createTempDirectory("conjure-config")
+      
+      val relToAbs = MainCliConjureSimple.writeFiles(tmpPath, fileNameToContent)
+      
+      val effectiveSources = relToAbs.values.asScala
+        .map(absPath => MainCliConjureSimple.toFileUri(absPath))
+        .asJava
 
-      // it.map(taskContextsIt => {
-      // val taskContexts = taskContextsIt.l
-      // r = MainCliConjureSimple.executeJob(taskContexts, job, repo, cacheStore);
-      // r
-      // ("entry", true, "some data")
-      // })
+      // New set up the spring app for this partition
+      
+//      val properties = ImmutableMap.builder[String, Object]
+//        .put("task", sourcePathToContent)
+//        .build
+        
+
+      val app: SpringApplication = new SpringApplicationBuilder()
+//        .properties(properties)
+        .sources(classOf[AppConjurePartition])
+        .bannerMode(Banner.Mode.OFF)
+        // If true, Desktop.isDesktopSupported() will return false, meaning we can't
+        // launch a browser
+        .headless(false)
+        .web(WebApplicationType.NONE)
+        .build()
+
+      app.setSources(effectiveSources)
+      
+      val ctx: ConfigurableApplicationContext = app.run(args: _*)
+
+      val processor: ConjureProcessor = ctx.getBean(classOf[ConjureProcessor])
+      
+      taskContextIt.map(x => processor.process(x))
     })
 
     val stopwatch = Stopwatch.createStarted()
@@ -250,7 +234,7 @@ object MainCliConjureSpark extends LazyLogging {
     logger.info("RESULTS: ----------------------------")
     for (item <- evalResult) {
       logger.info("Result status: " + item)
-      RDFDataMgr.write(System.err, item._1.getModel, RDFFormat.TURTLE_PRETTY)
+      RDFDataMgr.write(System.err, item.dcatRecord.getModel, RDFFormat.TURTLE_PRETTY)
     }
 
     logger.info("Processed " + evalResult.length + " items in " + (stopwatch.stop.elapsed(TimeUnit.MILLISECONDS) * 0.001) + " seconds")

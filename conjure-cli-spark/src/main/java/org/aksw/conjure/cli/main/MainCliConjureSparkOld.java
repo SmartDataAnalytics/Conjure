@@ -13,7 +13,6 @@ import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef;
 import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRefDcat;
 import org.aksw.jena_sparql_api.conjure.dataset.algebra.Op;
 import org.aksw.jena_sparql_api.conjure.dataset.algebra.OpDataRefResource;
-import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.OpExecutorDefault;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
 import org.aksw.jena_sparql_api.conjure.job.api.Job;
@@ -56,6 +55,13 @@ public class MainCliConjureSparkOld {
 	public MainCliConjureSparkOld() {
 	}
 
+	
+//	public Map<Path, String> fileToContent(Collection<String> args) {
+//		for(String arg : args) {
+//			Path path = 
+//		}
+//	}
+	
 	public static Op loadConjureJob(String fileOrUri) {
 		Model model = RDFDataMgr.loadModel(fileOrUri);
 		List<Op> ops = model.listSubjects().mapWith(x -> JenaPluginUtils.polymorphicCast(x, Op.class))
@@ -229,7 +235,7 @@ public class MainCliConjureSparkOld {
 
 //		logger.info("Retrieved " + inputRecords.size() + " contexts for processing " + inputRecords);
 
-		List<DcatDataset> resultDatasets = ExecutionUtils.executeJob(job, taskContexts, repo, cacheStore);
+		List<DcatDataset> resultDatasets = null; // ExecutionUtils.executeJob(job, taskContexts, repo, cacheStore);
 		for (DcatDataset resultDataset : resultDatasets) {
 			DcatDataset closure = resultDataset.inModel(ResourceUtils.reachableClosure(resultDataset))
 					.as(DcatDataset.class);
