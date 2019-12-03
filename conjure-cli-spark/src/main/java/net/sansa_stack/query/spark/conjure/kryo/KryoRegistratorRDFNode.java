@@ -1,5 +1,6 @@
 package net.sansa_stack.query.spark.conjure.kryo;
 
+import org.aksw.conjure.cli.config.ConjureConfig;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.impl.ModelCom;
@@ -25,6 +26,8 @@ public class KryoRegistratorRDFNode
 		kryo.register(ModelCom.class, new SerializerModel(RDFFormat.TURTLE_BLOCKS));
 
 		kryo.register(TaskContext.class, new SerializerTaskContext());
+
+		kryo.register(ConjureConfig.class); //, new SerializerTaskContext());
 
 		//kryo.register(DataRefOp.class, new SerializerRDFNode<>(RDFNode::asResource, gson));
 	}

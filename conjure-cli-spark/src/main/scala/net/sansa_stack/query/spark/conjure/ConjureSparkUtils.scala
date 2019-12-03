@@ -91,7 +91,7 @@ object ConjureSparkUtils extends LazyLogging {
       .config("spark.eventLog.enabled", "true")
       .config("spark.kryo.registrator", String.join(
         ", ",
-        "net.sansa_stack.query.spark.conjure.KryoRegistratorRDFNode"))
+        "net.sansa_stack.query.spark.conjure.kryo.KryoRegistratorRDFNode"))
       .config("spark.default.parallelism", s"$numThreads")
       .config("spark.sql.shuffle.partitions", s"$numThreads")
       .getOrCreate()
