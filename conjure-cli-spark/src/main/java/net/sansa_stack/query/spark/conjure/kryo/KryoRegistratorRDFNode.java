@@ -1,4 +1,4 @@
-package net.sansa_stack.query.spark.conjure;
+package net.sansa_stack.query.spark.conjure.kryo;
 
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
 import org.apache.jena.rdf.model.RDFNode;

@@ -1,4 +1,4 @@
-package net.sansa_stack.query.spark.conjure;
+package net.sansa_stack.query.spark.conjure.kryo;
 
 import java.util.Map;
 import java.util.Map.Entry;

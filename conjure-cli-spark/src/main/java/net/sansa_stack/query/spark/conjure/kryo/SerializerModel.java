@@ -1,4 +1,4 @@
-package net.sansa_stack.query.spark.conjure;
+package net.sansa_stack.query.spark.conjure.kryo;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;

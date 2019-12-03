@@ -4,6 +4,12 @@ import org.aksw.conjure.cli.main.CommandMain;
 
 import com.beust.jcommander.JCommander;
 
+/**
+ * Bean that holds Conjure JCommander CLI information
+ * 
+ * @author raven
+ *
+ */
 public class ConjureCliArgs {
 	protected JCommander jcommander;
 	protected CommandMain cm;

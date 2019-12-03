@@ -17,6 +17,14 @@ import org.springframework.context.annotation.Configuration;
 
 import com.google.common.base.StandardSystemProperty;
 
+/**
+ * Configuration class which creates beans related to
+ * parsing the conjure command line arguments 
+ * eventually into a ConjureConfig bean
+ * 
+ * @author raven
+ *
+ */
 @Configuration
 public class ConfigConjureSparkBase {
 

@@ -1,4 +1,4 @@
-package net.sansa_stack.query.spark.conjure;
+package net.sansa_stack.query.spark.conjure.kryo;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;

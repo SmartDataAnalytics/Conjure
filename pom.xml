@@ -17,6 +17,7 @@
 	<modules>
 		<module>conjure-cli-simple</module>
 		<module>conjure-cli-spark</module>
+		<module>conjure-debian-cli</module>
 		<!-- <module>sparql-integrate-bundle</module> <module>sparql-integrate-dummy</module> -->
 	</modules>
 
