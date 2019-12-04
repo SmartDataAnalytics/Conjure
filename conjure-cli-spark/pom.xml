@@ -25,6 +25,7 @@
 		<scala.version.suffix>_${scala.binary.version}</scala.version.suffix>
 
 		<spark.version>2.4.3</spark.version>
+		<spark.scope>compile</spark.scope>
 		<hadoop.version>2.9.2</hadoop.version>
 
 		<!-- <jena.version>3.12.0</jena.version> <jsa.subversion>2-SNAPSHOT</jsa.subversion> 
@@ -86,12 +87,14 @@
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_${scala.binary.version}</artifactId>
 			<version>${spark.version}</version>
+			<scope>${spark.scope}</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_${scala.binary.version}</artifactId>
 			<version>${spark.version}</version>
+			<scope>${spark.scope}</scope>
 		</dependency>
 
 		<dependency>
@@ -181,6 +184,9 @@
 	<profiles>
 		<profile>
 			<id>dist</id>
+			<properties>
+				<spark.scope>provided</spark.scope>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
