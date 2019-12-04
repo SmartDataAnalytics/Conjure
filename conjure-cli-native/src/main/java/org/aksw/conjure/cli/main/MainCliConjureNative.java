@@ -166,15 +166,10 @@ public class MainCliConjureNative {
 //	}
 	
 	// We may need canonicalization to make cli arg handling and spring interop nicer
-	public static String canonicalizeSource(String rawSource) {
-		return rawSource;
-//		String result =
-//				arg.startsWith(URL_SCHEME_FILE) ? Paths.get(arg.substring(URL_SCHEME_FILE.length())) :
-//				arg.startsWith("/") ? Paths.get(arg) :
-//				existsOnClassPath(MainCliConjureNative.class.getClassLoader(), arg) != null ? null :
-//				arg.contains(":/") ? null : // URL-like arguments of any kind
-//				basePath.resolve(arg);
-//		return result;
+	public static String canonicalizeSource(Path basePath, String arg) {
+		Path path = resolvePath(basePath, arg);
+		String result = path == null ? arg : toFileUri(path);
+		return result;
 	}
 	
 	public static Path resolvePath(Path basePath, String arg) {

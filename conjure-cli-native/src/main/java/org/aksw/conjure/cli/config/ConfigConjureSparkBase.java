@@ -44,15 +44,15 @@ public class ConfigConjureSparkBase {
     }
 
 	public static ConjureConfig parseArgs(ConjureCliArgs args) {
+
+		Path basePath = Paths.get(StandardSystemProperty.USER_DIR.value());
 		
 		CommandMain cm = args.getCm();
 		
 	    List<String> rawSources = cm.nonOptionArgs;
 	    Set<String> canonicalSources = rawSources.stream()
-	    		.map(MainCliConjureNative::canonicalizeSource)
+	    		.map(rawSource -> MainCliConjureNative.canonicalizeSource(basePath, rawSource))
 	    		.collect(Collectors.toSet());
-
-	    Path basePath = Paths.get(StandardSystemProperty.USER_DIR.value());
 
 //	    List<String> canonicalSources = rawSources.stream()
 //	    		.map(src -> MainCliConjureNative.resolvePath(basePath, src))
