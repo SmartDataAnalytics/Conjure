@@ -13,6 +13,38 @@
 	<artifactId>conjure-cli-native</artifactId>
 	<packaging>jar</packaging>
 
+	<!-- scm section needs to be duplicated on child module for github-release-plugin; 
+		see https://github.com/jutzig/github-release-plugin/issues/14 -->
+	<scm>
+		<url>https://github.com/SmartDataAnalytics/Conjure</url>
+		<connection>scm:git:git@github.com:SmartDataAnalytics/Conjure.git</connection>
+		<developerConnection>scm:git:git@github.com:SmartDataAnalytics/Conjure.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>de.jutzig</groupId>
+				<artifactId>github-release-plugin</artifactId>
+				<version>1.4.0</version>
+				<configuration>
+					<tag>${project.artifactId}-${project.version}</tag>
+					<!-- <description>Facete 3 Release</description> -->
+					<!-- <releaseName>${project.version}</releaseName> -->
+					<fileSets>
+						<fileSet>
+							<directory>${project.build.directory}</directory>
+							<includes>
+								<!-- <include>${project.artifactId}*-jar-with-dependencies.jar</include> -->
+								<include>*dependencies.jar</include>
+							</includes>
+						</fileSet>
+					</fileSets>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<dependencies>
 
