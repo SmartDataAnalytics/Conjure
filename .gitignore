@@ -6,7 +6,7 @@ evaluations
 .settings
 target
 
-bin
+#bin
 
 # Package Files #
 *.jar

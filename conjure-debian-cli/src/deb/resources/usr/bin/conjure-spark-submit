@@ -1,0 +1,32 @@
+#!/bin/sh
+
+MAIN_CLASS="net.sansa_stack.query.spark.conjure.MainCliConjureSpark"
+JAR_PATH="/usr/conjure-spark-bundle-jar-with-dependencies.jar"
+
+if [ -z "$SPARK_HOME"]; then
+  echo "SPARK_HOME environment variable not set; required to locate spark-submit"
+  exit 1
+fi
+
+$SPARK_HOME/bin/spark-submit \
+--class "$MAIN_CLASS" \
+$SPARK_OPTS \
+"$JAR_PATH" \
+$@
+
+#--master spark://qrowd3:7077 \
+#--conf "spark.eventLog.enabled=true" \
+#--conf "spark.eventLog.dir=/data/tmp/spark/spark-events" \
+#--conf spark.cores.max=100 \
+#--conf spark.executor.cores=5 \
+#--executor-memory 5G \
+#--total-executor-cores 100 \
+#"$JAR_PATH" \
+
+#WORK_DIR=`dirname "$0"`
+
+#LIB_DIR="/usr/share/lib/conjure-rdf-cli/"
+#MAIN_CLASS="net.sansa_stack.query.spark.conjure.MainCliConjureSpark"
+#java -cp "$LIB_DIR:$LIB_DIR/lib/*" "-Dloader.main=${MAIN_CLASS}" "org.springframework.boot.loader.PropertiesLauncher" "$@"
+#java -cp "$LIB_DIR:$LIB_DIR/lib/*" "${MAIN_CLASS}" "$@"
+
