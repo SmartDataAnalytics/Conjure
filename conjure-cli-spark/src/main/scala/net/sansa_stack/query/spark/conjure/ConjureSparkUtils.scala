@@ -196,7 +196,7 @@ object ConjureSparkUtils extends LazyLogging {
 
       app.setSources(effectiveSources)
 
-      val ctx: ConfigurableApplicationContext = app.run(args: _*)
+      val ctx: ConfigurableApplicationContext = app.run() // args: _*)
 
       val processor: ConjureProcessor = ctx.getBean(classOf[ConjureProcessor])
 

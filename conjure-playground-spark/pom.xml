@@ -1,0 +1,715 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.aksw.conjure</groupId>
+		<artifactId>conjure-parent</artifactId>
+		<version>1.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>conjure-playground-spark</artifactId>
+	<packaging>jar</packaging>
+
+	<properties>
+		<!-- shaded jar and deb package will be build with dist profile (mvn -P 
+			dist package) -->
+		<deb.packageName>conjure-rdf-spark-cli</deb.packageName>
+		<deb.jarFile>${project.artifactId}-${project.version}-jar-with-dependencies.jar</deb.jarFile>
+
+
+		<maven.version>3.1</maven.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<scala.version>2.11.11</scala.version>
+		<scala.binary.version>2.11</scala.binary.version>
+		<scala.classifier>${scala.binary.version}</scala.classifier>
+		<scala.version.suffix>_${scala.binary.version}</scala.version.suffix>
+
+		<spark.version>2.4.3</spark.version>
+		<spark.scope>compile</spark.scope>
+		<hadoop.version>2.9.2</hadoop.version>
+
+		<!-- <jena.version>3.12.0</jena.version> <jsa.subversion>2-SNAPSHOT</jsa.subversion> 
+			<jsa.version>${jena.version}-${jsa.subversion}</jsa.version> -->
+		<scalastyle.config.path>${project.basedir}/scalastyle-config.xml</scalastyle.config.path>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-core_${scala.binary.version}</artifactId>
+			<version>${spark.version}</version>
+			<scope>${spark.scope}</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql_${scala.binary.version}</artifactId>
+			<version>${spark.version}</version>
+			<scope>${spark.scope}</scope>
+		</dependency>
+
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>dist</id>
+			<properties>
+				<spark.scope>provided</spark.scope>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-shade-plugin</artifactId>
+					</plugin>
+
+					<plugin>
+						<artifactId>jdeb</artifactId>
+						<groupId>org.vafer</groupId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jdeb</goal>
+								</goals>
+								<configuration>
+									<deb>${project.build.directory}/${deb.packageName}_[[version]]_all.deb</deb>
+									<changesOut>${project.build.directory}/${deb.packageName}_[[version]]_all.changes</changesOut>
+
+									<!-- <timestamped>true</timestamped> -->
+									<snapshotExpand>true</snapshotExpand>
+									<snapshotEnv />
+
+									<signPackage>${jdeb.signPackage}</signPackage>
+									<signMethod>dpkg-sig</signMethod>
+									<signRole>builder</signRole>
+									<keyring>${jdeb.keyring}</keyring>
+									<key>${jdeb.key}</key>
+									<passphrase>${jdeb.passphrase}</passphrase>
+
+									<dataSet>
+
+										<!-- Uncomment for including an existing etc folder -->
+										<!-- <data> -->
+										<!-- <type>directory</type> -->
+										<!-- <src>${basedir}/src/deb/resources/etc</src> -->
+										<!-- <mapper> -->
+										<!-- <type>perm</type> -->
+										<!-- <prefix>/etc</prefix> -->
+										<!-- </mapper> -->
+										<!-- </data> -->
+
+										<data>
+											<type>directory</type>
+											<src>${basedir}/src/deb/resources/usr/bin</src>
+											<mapper>
+												<type>perm</type>
+												<prefix>/usr/bin</prefix>
+												<filemode>755</filemode>
+											</mapper>
+										</data>
+
+										<data>
+											<type>file</type>
+											<src>${project.build.directory}/${deb.jarFile}</src>
+											<mapper>
+												<type>perm</type>
+												<prefix>/usr/share/lib/${deb.packageName}</prefix>
+											</mapper>
+										</data>
+
+										<!-- <data> -->
+										<!-- <type>directory</type> -->
+										<!-- <src>${project.build.directory}/lib</src> -->
+										<!-- <mapper> -->
+										<!-- <type>perm</type> -->
+										<!-- <prefix>/usr/share/lib/${deb.packageName}/lib</prefix> -->
+										<!-- <filemode>755</filemode> -->
+										<!-- </mapper> -->
+										<!-- </data> -->
+
+										<data>
+											<type>link</type>
+											<symlink>true</symlink>
+											<linkName>/usr/share/lib/${deb.packageName}/${deb.packageName}.jar</linkName>
+											<linkTarget>/usr/share/lib/${deb.packageName}/${deb.jarFile}</linkTarget>
+										</data>
+
+
+										<!-- <data> <type>file</type> <src>${basedir}/../sparqlify-core/target/sparqlify-core-${version}.jar</src> 
+											<mapper> <type>perm</type> <prefix>/usr/share/lib/${deb.packageName}</prefix> 
+											</mapper> </data> -->
+										<!-- <data> <type>file</type> <src>${project.build.directory}/${project.build.finalName}.jar</src> 
+											<mapper> <type>perm</type> <prefix>/usr/share/lib/${deb.packageName}</prefix> 
+											</mapper> </data> -->
+									</dataSet>
+
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+
+
+			</build>
+		</profile>
+	</profiles>
+
+	<build>
+
+		<plugins>
+			<!-- Plugins that need to be repeated on every submodule -->
+
+			<plugin>
+				<groupId>org.scalastyle</groupId>
+				<artifactId>scalastyle-maven-plugin</artifactId>
+			</plugin>
+
+
+			<!-- General plugins suitable for declaration in parent pom -->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>com.amashchenko.maven.plugin</groupId>
+				<artifactId>gitflow-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.scalatest</groupId>
+				<artifactId>scalatest-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+			</plugin>
+
+			<!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId> 
+				</plugin> -->
+		</plugins>
+
+
+		<!-- <sourceDirectory>src/main/java</sourceDirectory> -->
+		<!-- <sourceDirectory>src/main/scala</sourceDirectory> -->
+		<!-- <build> <plugins> <plugin> <groupId>org.apache.maven.plugins</groupId> 
+			<artifactId>maven-compiler-plugin</artifactId> </plugin> <plugin> <groupId>net.alchim31.maven</groupId> 
+			<artifactId>scala-maven-plugin</artifactId> </plugin> <plugin> <groupId>org.scalastyle</groupId> 
+			<artifactId>scalastyle-maven-plugin</artifactId> </plugin> </plugins> </build> -->
+
+
+		<pluginManagement>
+			<plugins>
+
+				<!-- Scala Maven -->
+				<plugin>
+					<groupId>net.alchim31.maven</groupId>
+					<artifactId>scala-maven-plugin</artifactId>
+					<version>4.0.2</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>add-source</goal>
+								<goal>compile</goal>
+								<goal>testCompile</goal>
+							</goals>
+							<configuration>
+								<scalaVersion>${scala.version}</scalaVersion>
+								<recompileMode>incremental</recompileMode>
+								<useZincServer>true</useZincServer>
+								<args>
+									<arg>-target:jvm-1.8</arg>
+									<arg>-unchecked</arg>
+									<arg>-deprecation</arg>
+									<arg>-feature</arg>
+									<arg>-dependencyfile</arg>
+									<arg>${project.build.directory}/.scala_dependencies</arg>
+									<arg>-Xmax-classfile-name</arg>
+									<arg>128</arg>
+								</args>
+								<jvmArgs>
+									<jvmArg>-Xss10m</jvmArg>
+									<jvmArg>-Xms1024m</jvmArg>
+									<jvmArg>-Xmx1024m</jvmArg>
+									<jvmArg>-XX:PermSize=${PermGen}</jvmArg>
+									<jvmArg>-XX:MaxPermSize=${MaxPermGen}</jvmArg>
+									<jvmArg>-XX:ReservedCodeCacheSize=${CodeCacheSize}</jvmArg>
+								</jvmArgs>
+								<!--<javacArgs> -->
+								<!--<javacArg>-source</javacArg> -->
+								<!--<javacArg>${java.version}</javacArg> -->
+								<!--<javacArg>-target</javacArg> -->
+								<!--<javacArg>${java.version}</javacArg> -->
+								<!--<javacArg>-Xlint:all,-serial,-path</javacArg> -->
+								<!--</javacArgs> -->
+
+							</configuration>
+						</execution>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>doc-jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.1</version>
+					<configuration>
+						<source>${maven.compiler.source}</source>
+						<target>${maven.compiler.target}</target>
+						<encoding>${project.build.sourceEncoding}</encoding>
+					</configuration>
+				</plugin>
+
+				<!-- Surefire -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<!-- <version>2.18.1</version> -->
+					<version>2.20.1</version>
+
+					<configuration>
+						<useFile>false</useFile>
+						<disableXmlReport>true</disableXmlReport>
+						<!-- If you have classpath issue like NoDefClassError,... -->
+						<!-- useManifestOnlyJar>false</useManifestOnlyJar -->
+						<includes>
+							<include>**/*Test.*</include>
+							<include>**/*Suite.*</include>
+						</includes>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>2.9</version>
+					<configuration>
+						<dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+						<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-report-plugin</artifactId>
+					<version>2.20</version>
+				</plugin>
+
+				<!-- Scalatest -->
+				<plugin>
+					<groupId>org.scalatest</groupId>
+					<artifactId>scalatest-maven-plugin</artifactId>
+					<version>2.0.0</version>
+					<configuration>
+						<tagsToExclude>net.sansa_stack.test.conformance.IntegrationTestSuite</tagsToExclude>
+						<reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+						<junitxml>.</junitxml>
+						<filereports>SANSA-RDF-Tests.txt</filereports>
+					</configuration>
+					<executions>
+						<execution>
+							<id>test</id>
+							<goals>
+								<goal>test</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- <plugin> -->
+				<!-- <groupId>org.scalatest</groupId> -->
+				<!-- <artifactId>scalatest-maven-plugin</artifactId> -->
+				<!-- <version>2.0.0</version> -->
+				<!-- <configuration> -->
+				<!-- <tagsToExclude>net.sansa_stack.test.conformance.IntegrationTestSuite</tagsToExclude> -->
+				<!-- </configuration> -->
+				<!-- </plugin> -->
+
+
+				<!-- Legacy scalatest dependency - remove if the newer one works -->
+				<!-- <plugin> -->
+				<!-- <groupId>org.scalatest</groupId> -->
+				<!-- <artifactId>scalatest-maven-plugin</artifactId> -->
+				<!-- <version>1.0</version> -->
+				<!-- <configuration> -->
+				<!-- <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory> -->
+				<!-- <junitxml>.</junitxml> -->
+				<!-- <filereports>SANSA-RDF-Tests.txt</filereports> -->
+				<!-- </configuration> -->
+				<!-- <executions> -->
+				<!-- <execution> -->
+				<!-- <id>test</id> -->
+				<!-- <goals> -->
+				<!-- <goal>test</goal> -->
+				<!-- </goals> -->
+				<!-- </execution> -->
+				<!-- </executions> -->
+				<!-- </plugin> -->
+
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>2.5</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>3.0.0-M1</version>
+					<executions>
+						<execution>
+							<id>enforce-versions</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<rules>
+									<requireMavenVersion>
+										<version>${maven.version}</version>
+									</requireMavenVersion>
+									<!--<requireJavaVersion> -->
+									<!--<version>${java.version}</version> -->
+									<!--</requireJavaVersion> -->
+									<bannedDependencies>
+										<excludes>
+											<!-- Akka depends on io.netty:netty, which puts classes under 
+												the org.jboss.netty package. This conflicts with the classes in org.jboss.netty:netty 
+												artifact, so we have to ban that artifact here. In Netty 4.x, the classes 
+												are under the io.netty package, so it's fine for us to depend on both io.netty:netty 
+												and io.netty:netty-all. -->
+											<exclude>org.jboss.netty</exclude>
+											<exclude>org.codehaus.groovy</exclude>
+										</excludes>
+										<searchTransitive>true</searchTransitive>
+									</bannedDependencies>
+								</rules>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>3.0.0</version>
+					<executions>
+						<execution>
+							<id>add-source</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>add-source</goal>
+							</goals>
+							<configuration>
+								<sources>
+									<source>src/main/scala_${scala.binary.version}</source>
+								</sources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>com.versioneye</groupId>
+					<artifactId>versioneye-maven-plugin</artifactId>
+					<version>3.11.4</version>
+				</plugin>
+
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.0.0-M1</version>
+					<configuration>
+						<failOnError>false</failOnError>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>3.1.1</version>
+					<executions>
+						<!-- Run shade goal on package phase -->
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>shade</goal>
+							</goals>
+							<configuration>
+								<!-- <minimizeJar>true</minimizeJar> -->
+								<shadedArtifactAttached>true</shadedArtifactAttached>
+								<shadedClassifierName>jar-with-dependencies</shadedClassifierName>
+								<filters>
+									<filter>
+										<artifact>*:*</artifact>
+										<excludes>
+											<exclude>META-INF/*.SF</exclude>
+											<exclude>META-INF/*.DSA</exclude>
+											<exclude>META-INF/*.RSA</exclude>
+										</excludes>
+									</filter>
+								</filters>
+								<transformers>
+									<transformer
+										implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+									<transformer
+										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+										<mainClass>net.sansa_stack.query.spark.conjure.MainCliConjureSpark</mainClass>
+									</transformer>
+								</transformers>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.0.2</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.0.2</version>
+				</plugin>
+
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>cobertura-maven-plugin</artifactId>
+					<version>2.7</version>
+					<configuration>
+						<format>xml</format>
+						<maxmem>256m</maxmem>
+						<!-- aggregated reports for multi-module projects -->
+						<aggregate>true</aggregate>
+					</configuration>
+				</plugin>
+
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>3.8</version>
+					<configuration>
+						<linkXref>true</linkXref>
+						<sourceEncoding>utf-8</sourceEncoding>
+						<minimumTokens>100</minimumTokens>
+						<targetJdk>1.8</targetJdk>
+					</configuration>
+				</plugin>
+
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>jdepend-maven-plugin</artifactId>
+					<version>2.0</version>
+				</plugin>
+
+				<!-- Scalastyle -->
+				<plugin>
+					<groupId>org.scalastyle</groupId>
+					<artifactId>scalastyle-maven-plugin</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<verbose>false</verbose>
+						<failOnViolation>true</failOnViolation>
+						<includeTestSourceDirectory>true</includeTestSourceDirectory>
+						<failOnWarning>false</failOnWarning>
+						<sourceDirectory>${project.basedir}/src/main/scala</sourceDirectory>
+						<testSourceDirectory>${project.basedir}/src/test/scala</testSourceDirectory>
+						<!-- we use a central config located in the root directory -->
+						<configLocation>${scalastyle.config.path}</configLocation>
+						<outputFile>${project.basedir}/scalastyle-output.xml</outputFile>
+						<outputEncoding>UTF-8</outputEncoding>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											net.alchim31.maven
+										</groupId>
+										<artifactId>
+											scala-maven-plugin
+										</artifactId>
+										<versionRange>
+											[3.3.1,)
+										</versionRange>
+										<goals>
+											<goal>testCompile</goal>
+											<goal>compile</goal>
+											<goal>add-source</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+
+
+				<plugin>
+					<groupId>org.eluder.coveralls</groupId>
+					<artifactId>coveralls-maven-plugin</artifactId>
+					<version>4.3.0</version>
+					<configuration>
+						<repoToken>${env.COVERALLS_TOKEN}</repoToken>
+						<sourceEncoding>UTF-8</sourceEncoding>
+						<sourceDirectories>
+							<!-- <sourceDirectory>${basedir}/src/main/java</sourceDirectory> -->
+							<sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
+						</sourceDirectories>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.4</version>
+					<executions>
+						<execution>
+							<id>prepare-agent</id>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.basepom.maven</groupId>
+					<artifactId>duplicate-finder-maven-plugin</artifactId>
+					<version>1.3.0</version>
+					<executions>
+						<execution>
+							<id>default</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<printEqualFiles>false</printEqualFiles>
+						<failBuildInCaseOfDifferentContentConflict>false</failBuildInCaseOfDifferentContentConflict>
+						<failBuildInCaseOfEqualContentConflict>false</failBuildInCaseOfEqualContentConflict>
+						<failBuildInCaseOfConflict>false</failBuildInCaseOfConflict>
+						<checkCompileClasspath>true</checkCompileClasspath>
+						<checkRuntimeClasspath>true</checkRuntimeClasspath>
+						<checkTestClasspath>true</checkTestClasspath>
+						<skip>false</skip>
+						<quiet>false</quiet>
+						<preferLocal>true</preferLocal>
+						<useResultFile>true</useResultFile>
+						<resultFileMinClasspathCount>2</resultFileMinClasspathCount>
+						<resultFile>${project.build.directory}/duplicate-finder-result.xml</resultFile>
+
+						<!-- Version 1.1.1+ -->
+						<includeBootClasspath>false</includeBootClasspath>
+						<bootClasspathProperty>sun.boot.class.path</bootClasspathProperty>
+						<useDefaultResourceIgnoreList>true</useDefaultResourceIgnoreList>
+						<!-- Version 1.1.1+ -->
+
+						<!-- Version 1.2.0+ -->
+						<includePomProjects>false</includePomProjects>
+						<!-- Version 1.2.0+ -->
+
+						<!-- Version 1.2.1+ -->
+						<useDefaultResourceIgnoreList>true</useDefaultResourceIgnoreList>
+					</configuration>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>
+
