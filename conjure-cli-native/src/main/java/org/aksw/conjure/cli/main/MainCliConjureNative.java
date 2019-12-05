@@ -235,7 +235,7 @@ public class MainCliConjureNative {
 		// HttpResourceRepositoryFromFileSystemImpl.createDefault();
 		// ResourceStore cacheStore = repo.getCacheStore();
 		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo,
-				new TaskContext(job, new HashMap<>(), new HashMap<>()));
+				new TaskContext(job, new HashMap<>(), new HashMap<>()), new HashMap<>());
 
 		String queryStr = "CONSTRUCT {\n" + "        ?a ?b ?c .\n" + "        ?c ?d ?e\n" + "      } {\n" + "\n"
 				+ "        { SELECT DISTINCT ?a {\n" + "          ?a dcat:distribution [\n" +

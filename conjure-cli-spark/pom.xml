@@ -14,6 +14,12 @@
 	<packaging>jar</packaging>
 
 	<properties>
+		<!-- shaded jar and deb package will be build with dist profile (mvn -P 
+			dist package) -->
+		<deb.packageName>conjure-rdf-spark-cli</deb.packageName>
+		<deb.jarFile>${project.artifactId}-${project.version}-jar-with-dependencies.jar</deb.jarFile>
+
+
 		<maven.version>3.1</maven.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -193,7 +199,96 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-shade-plugin</artifactId>
 					</plugin>
+
+					<plugin>
+						<artifactId>jdeb</artifactId>
+						<groupId>org.vafer</groupId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jdeb</goal>
+								</goals>
+								<configuration>
+									<deb>${project.build.directory}/${deb.packageName}_[[version]]_all.deb</deb>
+									<changesOut>${project.build.directory}/${deb.packageName}_[[version]]_all.changes</changesOut>
+
+									<!-- <timestamped>true</timestamped> -->
+									<snapshotExpand>true</snapshotExpand>
+									<snapshotEnv />
+
+									<signPackage>${jdeb.signPackage}</signPackage>
+									<signMethod>dpkg-sig</signMethod>
+									<signRole>builder</signRole>
+									<keyring>${jdeb.keyring}</keyring>
+									<key>${jdeb.key}</key>
+									<passphrase>${jdeb.passphrase}</passphrase>
+
+									<dataSet>
+
+										<!-- Uncomment for including an existing etc folder -->
+										<!-- <data> -->
+										<!-- <type>directory</type> -->
+										<!-- <src>${basedir}/src/deb/resources/etc</src> -->
+										<!-- <mapper> -->
+										<!-- <type>perm</type> -->
+										<!-- <prefix>/etc</prefix> -->
+										<!-- </mapper> -->
+										<!-- </data> -->
+
+										<data>
+											<type>directory</type>
+											<src>${basedir}/src/deb/resources/usr/bin</src>
+											<mapper>
+												<type>perm</type>
+												<prefix>/usr/bin</prefix>
+												<filemode>755</filemode>
+											</mapper>
+										</data>
+
+										<data>
+											<type>file</type>
+											<src>${project.build.directory}/${deb.jarFile}</src>
+											<mapper>
+												<type>perm</type>
+												<prefix>/usr/share/lib/${deb.packageName}</prefix>
+											</mapper>
+										</data>
+
+										<!-- <data> -->
+										<!-- <type>directory</type> -->
+										<!-- <src>${project.build.directory}/lib</src> -->
+										<!-- <mapper> -->
+										<!-- <type>perm</type> -->
+										<!-- <prefix>/usr/share/lib/${deb.packageName}/lib</prefix> -->
+										<!-- <filemode>755</filemode> -->
+										<!-- </mapper> -->
+										<!-- </data> -->
+
+										<data>
+											<type>link</type>
+											<symlink>true</symlink>
+											<linkName>/usr/share/lib/${deb.packageName}/${deb.packageName}.jar</linkName>
+											<linkTarget>/usr/share/lib/${deb.packageName}/${deb.jarFile}</linkTarget>
+										</data>
+
+
+										<!-- <data> <type>file</type> <src>${basedir}/../sparqlify-core/target/sparqlify-core-${version}.jar</src> 
+											<mapper> <type>perm</type> <prefix>/usr/share/lib/${deb.packageName}</prefix> 
+											</mapper> </data> -->
+										<!-- <data> <type>file</type> <src>${project.build.directory}/${project.build.finalName}.jar</src> 
+											<mapper> <type>perm</type> <prefix>/usr/share/lib/${deb.packageName}</prefix> 
+											</mapper> </data> -->
+									</dataSet>
+
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
+
+
 			</build>
 		</profile>
 	</profiles>
@@ -552,10 +647,10 @@
 								<transformers>
 									<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-									<!-- add Main-Class to manifest file -->
-									<!-- <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
-									<!-- <mainClass>com.mkyong.core.utils.App</mainClass> -->
-									<!-- </transformer> -->
+									<transformer
+										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+										<mainClass>net.sansa_stack.query.spark.conjure.MainCliConjureSpark</mainClass>
+									</transformer>
 								</transformers>
 							</configuration>
 						</execution>
