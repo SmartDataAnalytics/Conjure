@@ -177,8 +177,8 @@ object ConjureSparkUtils extends LazyLogging {
       val sourceToPath = MainCliConjureNative.writeFiles(tmpPath, conjureConfig.getSourceToContent)
       val effectiveSources = ConjureConfig.effectiveSources(config.getSources, sourceToPath)
 
-      logger.info("HOST " + hostname + " Raw file sources: " + sourceToPath.keySet)
-      logger.info("HOST " + hostname + " Effective file sources: " + effectiveSources)
+      println("HOST " + hostname + " Raw file sources: " + sourceToPath.keySet)
+      println("HOST " + hostname + " Effective file sources: " + effectiveSources)
 
       // New set up the spring app for this partition
 
@@ -187,7 +187,7 @@ object ConjureSparkUtils extends LazyLogging {
       //        .build
 
       val app: SpringApplication = new SpringApplicationBuilder()
-        //        .properties(properties)
+        // .properties(properties)
         .sources(classOf[ConfigConjureSparkProcessor])
         .bannerMode(Banner.Mode.OFF)
         // If true, Desktop.isDesktopSupported() will return false, meaning we can't
