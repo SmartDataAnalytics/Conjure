@@ -6,8 +6,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
-import com.google.common.hash.Hashing
-import com.typesafe.scalalogging.LazyLogging
+import scala.collection.JavaConverters.asScalaBufferConverter
+
 import org.aksw.conjure.cli.config.ConjureConfig
 import org.aksw.conjure.cli.config.ConjureProcessor
 import org.aksw.conjure.cli.main.CommandMain
@@ -32,7 +32,9 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.WebApplicationType
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.ConfigurableApplicationContext
-import scala.collection.JavaConverters.asScalaBufferConverter
+
+import com.google.common.hash.Hashing
+import com.typesafe.scalalogging.LazyLogging
 
 object ConjureSparkUtils extends LazyLogging {
 
@@ -170,10 +172,13 @@ object ConjureSparkUtils extends LazyLogging {
       val config = configBroadcast.value
 
       // TODO Allocate a fresh folder (e.g. with timestamp or counter)
-      val tmpPath = Files.createTempDirectory("conjure-config")
+      val tmpPath = Files.createTempDirectory("conjure-config-")
 
       val sourceToPath = MainCliConjureNative.writeFiles(tmpPath, conjureConfig.getSourceToContent)
       val effectiveSources = ConjureConfig.effectiveSources(config.getSources, sourceToPath)
+
+      logger.info("HOST " + hostname + " Raw file sources: " + sourceToPath.keySet)
+      logger.info("HOST " + hostname + " Effective file sources: " + effectiveSources)
 
       // New set up the spring app for this partition
 
@@ -190,9 +195,6 @@ object ConjureSparkUtils extends LazyLogging {
         .headless(false)
         .web(WebApplicationType.NONE)
         .build()
-
-      logger.info("HOST " + hostname + " Sources: " + sourceToPath.keySet)
-      logger.info("HOST " + hostname + " Effective Sources: " + effectiveSources)
 
       app.setSources(effectiveSources)
 
