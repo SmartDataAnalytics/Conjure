@@ -6,8 +6,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
-import scala.collection.JavaConverters.asScalaBufferConverter
-
+import com.google.common.hash.Hashing
+import com.typesafe.scalalogging.LazyLogging
 import org.aksw.conjure.cli.config.ConjureConfig
 import org.aksw.conjure.cli.config.ConjureProcessor
 import org.aksw.conjure.cli.main.CommandMain
@@ -32,9 +32,7 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.WebApplicationType
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.ConfigurableApplicationContext
-
-import com.google.common.hash.Hashing
-import com.typesafe.scalalogging.LazyLogging
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 object ConjureSparkUtils extends LazyLogging {
 
@@ -165,8 +163,8 @@ object ConjureSparkUtils extends LazyLogging {
     logger.info("NUM PARTITIONS = " + dcatRdd.getNumPartitions)
 
     val resultCatalogRdd = dcatRdd.mapPartitions(taskContextIt => {
-      val hostname =  InetAddress.getLocalHost.getHostName
-      
+      val hostname = InetAddress.getLocalHost.getHostName
+
       // Get the config files from the broadcast variable and write them to temporary files
       // Then start a spring application from them
       val config = configBroadcast.value
