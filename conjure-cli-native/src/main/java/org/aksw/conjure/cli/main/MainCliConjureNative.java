@@ -2,7 +2,6 @@ package org.aksw.conjure.cli.main;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -132,15 +131,20 @@ public class MainCliConjureNative {
 	}
 
 	public static String toFileUri(Path path) {
-		String result;
-		try {
-			result = path.toUri().toURL().toString();
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-
+		String result = path.toUri().toString();
 		return result;
 	}
+
+//	public static String toFileUri(Path path) {
+//		String result;
+//		try {
+//			result = path.toUri().toURL().toString();
+//		} catch (MalformedURLException e) {
+//			throw new RuntimeException(e);
+//		}
+//
+//		return result;
+//	}
 
 	public static URL resolveOnClassPath(ClassLoader classLoader, String path) {
 		URL result = classLoader.getResource(path);
@@ -197,6 +201,11 @@ public class MainCliConjureNative {
 	}
 
 	public static void main(String[] args) throws Exception {
+		if(true) {
+			System.out.println(MainCliConjureNative.toFileUri(Paths.get("test")));
+			return;
+		}
+		
 		ConjureCliArgs cliArgs = ConjureCliArgs.parse(args);
 
 		if (cliArgs.getCm().help) {

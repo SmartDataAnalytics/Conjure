@@ -177,7 +177,7 @@ object ConjureSparkUtils extends LazyLogging {
       val sourceToPath = MainCliConjureNative.writeFiles(tmpPath, conjureConfig.getSourceToContent)
       val effectiveSources = ConjureConfig.effectiveSources(config.getSources, sourceToPath)
 
-      println("HOST " + hostname + " Raw file sources: " + sourceToPath.keySet)
+      println("HOST " + hostname + " Serialized source files: " + sourceToPath)
       println("HOST " + hostname + " Effective file sources: " + effectiveSources)
 
       // New set up the spring app for this partition
