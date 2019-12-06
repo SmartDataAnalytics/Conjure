@@ -29,7 +29,7 @@ varName = "dataRef";
 beans {
 	dataref FactoryBeanObject, DataRefOp.create(
 		OpUpdateRequest.create(model, OpData.create(model),
-	    parser.apply("INSERT DATA { <http://mydata> dataid:group eg:mygrp ; dcat:distribution [ dcat:downloadURL <file:///home/raven/public_html/test.hdt> ] }").toString()));
+	    parser.apply("INSERT DATA { <http://mydata> dataid:group eg:mygrp ; dcat:distribution [ dcat:downloadURL <file:///home/raven/public_html/buggy1.hdt> ] }").toString()));
 
 	job FactoryBeanObject, Job.create(ctxModel)
 		.setOp(
@@ -37,7 +37,7 @@ beans {
 			cj.fromVar(varName).hdtHeader().construct("CONSTRUCT WHERE { ?s <http://rdfs.org/ns/void#triples> ?o }"),
 			cj.fromVar(varName).hdtHeader().construct("CONSTRUCT WHERE { ?s <http://purl.org/HDT/hdt#triplesnumTriples> ?o }"),
 			cj.fromVar(varName).tripleCount().cache())
-                  .construct("CONSTRUCT { ?s <http://rdfs.org/ns/void#triples> ?fix } { ?s <http://rdfs.org/ns/void#triples> ?o BIND(xsd:int(STR(?o)) AS ?fix) }")
+                  .construct("CONSTRUCT { ?s <http://rdfs.org/ns/void#triples> ?fix } { ?s <http://rdfs.org/ns/void#triples> ?o BIND(xsd:decimal(STR(?o)) AS ?fix) }")
                   .getOp())
 		.addJobBinding("datasetId", OpTraversalSelf.create(ctxModel))
 		;

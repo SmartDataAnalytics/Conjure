@@ -246,11 +246,19 @@ public class MainCliConjureNative {
 		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo,
 				new TaskContext(job, new HashMap<>(), new HashMap<>()), new HashMap<>());
 
-		String queryStr = "CONSTRUCT {\n" + "        ?a ?b ?c .\n" + "        ?c ?d ?e\n" + "      } {\n" + "\n"
-				+ "        { SELECT DISTINCT ?a {\n" + "          ?a dcat:distribution [\n" +
+		String queryStr = "CONSTRUCT {\n"
+						+ "        ?a ?b ?c .\n"
+						+ "        ?c ?d ?e\n" + "      } {\n"
+						+ "\n"
+						+ "        { SELECT DISTINCT ?a {\n"
+						+ "          ?a dcat:distribution [\n"
+						+
 //				"            dcat:byteSize ?byteSize\n" + 
-				"          ]\n" + "        } LIMIT 10 }\n" + "\n" + "        ?a ?b ?c\n"
-				+ "        OPTIONAL { ?c ?d ?e }\n" + "}";
+						"          ]\n"
+						+ "        } }\n"
+						+ "\n"
+						+ "        ?a ?b ?c\n"
+						+ "        OPTIONAL { ?c ?d ?e }\n" + "}";
 
 		Query dcatQuery = parser.apply(queryStr).getAsQueryStmt().getQuery();
 

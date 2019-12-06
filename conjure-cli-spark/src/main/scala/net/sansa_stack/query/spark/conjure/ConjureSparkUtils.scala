@@ -52,7 +52,7 @@ object ConjureSparkUtils extends LazyLogging {
 
     // val catalogUrl = if (args.length == 0) "http://localhost/~raven/conjure.test.dcat.ttl" else args(0)
     val args = Array[String]()
-    val limit = if (args.length > 1) args(1).toInt else 10
+    // val limit = if (args.length > 1) args(1).toInt else 10
     val numThreads = if (args.length > 2) args(2).toInt else 4
 
     // Fix for an issue with non-existing directory
