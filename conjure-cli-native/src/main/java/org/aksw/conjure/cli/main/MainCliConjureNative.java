@@ -201,10 +201,10 @@ public class MainCliConjureNative {
 	}
 
 	public static void main(String[] args) throws Exception {
-		if(true) {
-			System.out.println(MainCliConjureNative.toFileUri(Paths.get("test")));
-			return;
-		}
+//		if(true) {
+//			System.out.println(MainCliConjureNative.toFileUri(Paths.get("test")));
+//			return;
+//		}
 		
 		ConjureCliArgs cliArgs = ConjureCliArgs.parse(args);
 
