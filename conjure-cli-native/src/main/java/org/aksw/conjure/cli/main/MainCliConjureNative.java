@@ -228,10 +228,21 @@ public class MainCliConjureNative {
 		}
 	}
 
+	
+	public static RDFNode clone(RDFNode rdfNode) {
+		Model clone = ModelFactory.createDefaultModel();
+		clone.add(rdfNode.getModel());
+		RDFNode result = rdfNode.inModel(clone);
+		return result;
+	}
+	
 	public static List<TaskContext> createTasksContexts(DataRef catalogDataRef, Job job,
 			HttpResourceRepositoryFromFileSystem repo) throws Exception {
-		// TODO This line changes the catalogDataRef - we shouldn't do that
-		Op catalogWorkflow = OpDataRefResource.from(catalogDataRef.getModel(), catalogDataRef);
+
+		// Create a copy of data catalogDataRef to prevent changing it
+		DataRef clone = JenaPluginUtils.polymorphicCast(clone(catalogDataRef), DataRef.class);
+		
+		Op catalogWorkflow = OpDataRefResource.from(clone.getModel(), clone);
 
 //	    String origHash = ResourceTreeUtils.createGenericHash(conjureWorkflow);
 //	    String coreHash = ResourceTreeUtils.createGenericHash(coreOp);
