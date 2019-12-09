@@ -78,9 +78,9 @@ object ConjureSparkUtils extends LazyLogging {
 
     val builder = SparkSession.builder
 
-    if (!masterHostname.toLowerCase.contains("qrowd")) {
-      builder.master(s"local[$numThreads]")
-    }
+    // if (!masterHostname.toLowerCase.contains("qrowd")) {
+    builder.master(s"local[$numThreads]")
+    // }
 
     val sparkSession = builder
       .appName("Sansa-Conjure Test")
