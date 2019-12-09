@@ -56,7 +56,8 @@ object ConjureSparkUtils extends LazyLogging {
 
     // val limit = if (args.length > 1) args(1).toInt else 10
     val numThreads = cm.numThreads
-    val sparkMaster = cm.sparkMaster + "[" + cm.numThreads + "]"
+    // val sparkMaster = cm.sparkMaster + "[" + cm.numThreads + "]"
+    val sparkMaster = cm.sparkMaster.trim
 
     // Fix for a spark issue with non-existing directory
     val tmpDirStr = StandardSystemProperty.JAVA_IO_TMPDIR.value()
@@ -81,9 +82,12 @@ object ConjureSparkUtils extends LazyLogging {
 
     val builder = SparkSession.builder
 
-    // if (!masterHostname.toLowerCase.contains("qrowd")) {
-    builder.master(sparkMaster)
-    // }
+    if (!sparkMaster.isEmpty) {
+      val tmp = if (sparkMaster.toLowerCase.equals("local"))
+        { sparkMaster + "[" + numThreads + "]" } else { sparkMaster }
+
+      builder.master(tmp)
+    }
 
     val sparkSession = builder
       .appName("Sansa-Conjure Test")

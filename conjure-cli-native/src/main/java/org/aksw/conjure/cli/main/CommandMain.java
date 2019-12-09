@@ -25,8 +25,8 @@ public class CommandMain {
 	@Parameter(names = "--help", help = true)
 	public boolean help = false;
 
-	@Parameter(names="--m", description="Spark Master")
-	public String sparkMaster = "local";
+	@Parameter(names="--m", description="Spark Master; e.g. local - leave empty for external conf")
+	public String sparkMaster = "";
 
 	@Parameter(names="--n", description="numThreads")
 	public int numThreads = 2;
