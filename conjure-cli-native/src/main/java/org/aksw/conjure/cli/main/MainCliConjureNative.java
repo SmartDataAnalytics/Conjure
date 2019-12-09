@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import org.aksw.conjure.cli.config.ConfigConjureSparkBase;
 import org.aksw.conjure.cli.config.ConjureCliArgs;
-import org.aksw.conjure.cli.config.ConjureConfig;
+import org.aksw.conjure.cli.config.SpringSourcesConfig;
 import org.aksw.dcat.jena.domain.api.DcatDataset;
 import org.aksw.jena_sparql_api.common.DefaultPrefixes;
 import org.aksw.jena_sparql_api.conjure.datapod.api.RdfDataPod;
@@ -213,7 +213,7 @@ public class MainCliConjureNative {
 			return;
 		}
 
-		ConjureConfig config = ConfigConjureSparkBase.parseArgs(cliArgs);
+		SpringSourcesConfig config = ConfigConjureSparkBase.parseArgs(cliArgs);
 		Set<String> sources = config.getSources();
 		
 		SpringApplication app = new SpringApplicationBuilder()

@@ -8,8 +8,9 @@ import java.util.concurrent.TimeUnit
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 
-import org.aksw.conjure.cli.config.ConjureConfig
+import org.aksw.conjure.cli.config.ConjureCliArgs
 import org.aksw.conjure.cli.config.ConjureProcessor
+import org.aksw.conjure.cli.config.SpringSourcesConfig
 import org.aksw.conjure.cli.main.CommandMain
 import org.aksw.conjure.cli.main.MainCliConjureNative
 import org.aksw.dcat.ap.utils.DcatUtils
@@ -32,7 +33,6 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.WebApplicationType
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.ConfigurableApplicationContext
-
 import com.google.common.hash.Hashing
 import com.typesafe.scalalogging.LazyLogging
 
@@ -44,18 +44,21 @@ object ConjureSparkUtils extends LazyLogging {
     return key
   }
 
-  def mainSpark(cm: CommandMain, catalogDataRef: DataRef, job: Job, conjureConfig: ConjureConfig): Unit = { /* args: Array[String]): Unit = { */
+  def mainSpark(cliArgs: ConjureCliArgs, catalogDataRef: DataRef, job: Job, sourcesConfig: SpringSourcesConfig): Unit = { /* args: Array[String]): Unit = { */
 
     // val sourcePathToContent: java.util.Map[Path, Array[Byte]] = conjureConfig.getSourcePathToContent
 
     logger.info("Setting up spark for conjure job execution")
 
     // val catalogUrl = if (args.length == 0) "http://localhost/~raven/conjure.test.dcat.ttl" else args(0)
-    val args = Array[String]()
-    // val limit = if (args.length > 1) args(1).toInt else 10
-    val numThreads = if (args.length > 2) args(2).toInt else 4
 
-    // Fix for an issue with non-existing directory
+    val cm = cliArgs.getCm
+
+    // val limit = if (args.length > 1) args(1).toInt else 10
+    val numThreads = cm.numThreads
+    val sparkMaster = cm.sparkMaster + "[" + cm.numThreads + "]"
+
+    // Fix for a spark issue with non-existing directory
     val tmpDirStr = StandardSystemProperty.JAVA_IO_TMPDIR.value()
     if (tmpDirStr == null) {
       throw new RuntimeException("Could not obtain temporary directory")
@@ -79,7 +82,7 @@ object ConjureSparkUtils extends LazyLogging {
     val builder = SparkSession.builder
 
     // if (!masterHostname.toLowerCase.contains("qrowd")) {
-    builder.master(s"local[$numThreads]")
+    builder.master(sparkMaster)
     // }
 
     val sparkSession = builder
@@ -97,8 +100,8 @@ object ConjureSparkUtils extends LazyLogging {
 
     // val sourcePathToContent: java.util.Map[Path, Array[Byte]] = null
 
-    val configBroadcast: Broadcast[ConjureConfig] =
-      sparkSession.sparkContext.broadcast(conjureConfig)
+    val configBroadcast: Broadcast[SpringSourcesConfig] =
+      sparkSession.sparkContext.broadcast(sourcesConfig)
 
     val hostToPortRangesBroadcast: Broadcast[String => ImmutableRangeSet[Integer]] =
       sparkSession.sparkContext.broadcast(hostToPortRanges)
@@ -174,8 +177,8 @@ object ConjureSparkUtils extends LazyLogging {
       // TODO Allocate a fresh folder (e.g. with timestamp or counter)
       val tmpPath = Files.createTempDirectory("conjure-config-")
 
-      val sourceToPath = MainCliConjureNative.writeFiles(tmpPath, conjureConfig.getSourceToContent)
-      val effectiveSources = ConjureConfig.effectiveSources(config.getSources, sourceToPath)
+      val sourceToPath = MainCliConjureNative.writeFiles(tmpPath, sourcesConfig.getSourceToContent)
+      val effectiveSources = SpringSourcesConfig.effectiveSources(config.getSources, sourceToPath)
 
       println("HOST " + hostname + " Serialized source files: " + sourceToPath)
       println("HOST " + hostname + " Effective file sources: " + effectiveSources)

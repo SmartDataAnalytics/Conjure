@@ -37,13 +37,13 @@ public class ConfigConjureSparkBase {
 	
 	@Bean
 	@Autowired
-    public ConjureConfig conjureMasterConfig(ConjureCliArgs args) 
+    public SpringSourcesConfig conjureMasterConfig(ConjureCliArgs args) 
     {
-		ConjureConfig result = parseArgs(args);
+		SpringSourcesConfig result = parseArgs(args);
 		return result;
     }
 
-	public static ConjureConfig parseArgs(ConjureCliArgs args) {
+	public static SpringSourcesConfig parseArgs(ConjureCliArgs args) {
 
 		Path basePath = Paths.get(StandardSystemProperty.USER_DIR.value());
 		
@@ -59,7 +59,10 @@ public class ConfigConjureSparkBase {
 //	    		.collect(Collectors.toList());
 	    
 	    Map<String, byte[]> sourceToContent = MainCliConjureNative.loadSources(basePath, canonicalSources);
-	    ConjureConfig result = new ConjureConfig(canonicalSources, sourceToContent);
+	    SpringSourcesConfig result = new SpringSourcesConfig(canonicalSources, sourceToContent);
+	    
+	    
+	    
 	    return result;
     }
 }

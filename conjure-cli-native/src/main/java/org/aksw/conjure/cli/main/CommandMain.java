@@ -10,19 +10,24 @@ import com.beust.jcommander.Parameters;
 
 @Parameters(separators = "=", commandDescription = "Show DCAT information")
 public class CommandMain {
-	@Parameter(names="--r", description="DCAT repo path", help=false)
+	@Parameter(names="--r", description="DCAT repo path")
 	public String repoBase = HttpResourceRepositoryFromFileSystemImpl.getDefaultPath().toUri().toString();
 
-	@Parameter(names="--w", description="Web base URL", help=false)
+	@Parameter(names="--w", description="Web base URL")
 	public String webBase = "http://localhost/";
-
 	
 	@Parameter(description="Non option args")
 	public List<String> nonOptionArgs = new ArrayList<>();
 
-	@Parameter(names="--f", description="Input catalog/model file", help=false)
+	@Parameter(names="--f", description="Input catalog/model file")
 	public String inputModelFile;
 	
 	@Parameter(names = "--help", help = true)
 	public boolean help = false;
+
+	@Parameter(names="--m", description="Spark Master")
+	public String sparkMaster = "local";
+
+	@Parameter(names="--n", description="numThreads")
+	public int numThreads = 2;
 }
