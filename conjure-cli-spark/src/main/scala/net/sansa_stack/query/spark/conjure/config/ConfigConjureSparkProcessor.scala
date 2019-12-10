@@ -35,6 +35,13 @@ class ConfigConjureSparkProcessor {
     }
   }
 
+  @Bean
+  @Autowired
+  def conjureFormatConfig(): ConjureFormatConfig = {
+    val r = new ConjureFormatConfig
+    r
+  }
+
   // configsBroadcast: Broadcast[java.util.Map[Path, Array[Byte]]]
   @Bean
   @Autowired
