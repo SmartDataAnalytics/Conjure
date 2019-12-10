@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import org.aksw.conjure.cli.main.CommandMain;
 import org.aksw.conjure.cli.main.MainCliConjureNative;
+import org.aksw.jena_sparql_api.conjure.dataset.engine.ConjureFormatConfig;
+import org.aksw.jena_sparql_api.utils.hdt.JenaPluginHdt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +36,26 @@ public class ConfigConjureSparkBase {
 		ConjureCliArgs result = ConjureCliArgs.parse(args.getSourceArgs());
 		return result;
     }
+	
+	
+	@Bean
+	@Autowired
+    public ConjureFormatConfig formatConfig(ConjureCliArgs args) 
+    {
+		ConjureFormatConfig result = new ConjureFormatConfig();
+		// result.setDatasetFormat(JenaPluginHdt.FORMAT_HDT);
+		return result;
+
+		// TODO Map to cli arg to a format via the writer registry
+		//String preferredRdfFormat = args.getCm().preferredRdfFormat;
+		//RDFWriterRegistry.getJenaWriterNames()
+		// Lang x;
+		
+		//RDFLanguages.getRegisteredLanguages()
+		//HttpHeaderUtils.langToContentTypes(lang)
+		
+    }
+
 	
 	@Bean
 	@Autowired

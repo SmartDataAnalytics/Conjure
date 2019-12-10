@@ -9,5 +9,8 @@ LIB_DIR="/usr/share/lib/conjure-rdf-cli/"
 MAIN_CLASS="org.aksw.conjure.cli.main.MainCliConjureNative"
 
 # java -cp "$LIB_DIR:$LIB_DIR/lib/*" "-Dloader.main=${MAIN_CLASS}" "org.springframework.boot.loader.PropertiesLauncher" "$@"
-java -cp "$LIB_DIR:$LIB_DIR/lib/*" "${MAIN_CLASS}" "$@"
+
+# Note: HDT.close calls System.gc() which slows everything down
+# -XX:+DisableExplicitGC can be removed once issue is fixed and we upgraded: https://github.com/rdfhdt/hdt-java/issues/102
+java -XX:+DisableExplicitGC -cp "$LIB_DIR:$LIB_DIR/lib/*" "${MAIN_CLASS}" "$@"
 

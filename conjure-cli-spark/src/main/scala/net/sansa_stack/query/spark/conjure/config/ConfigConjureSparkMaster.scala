@@ -1,6 +1,7 @@
 package net.sansa_stack.query.spark.conjure
 
 import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef
+import org.aksw.jena_sparql_api.conjure.dataset.engine.ConjureFormatConfig
 import org.aksw.jena_sparql_api.conjure.job.api.Job
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
@@ -14,10 +15,16 @@ import org.aksw.conjure.cli.config.SpringSourcesConfig
 class ConfigConjureSparkMaster {
   @Bean
   @Autowired
-  def applicationRunner(catalogDataRef: DataRef, job: Job, cliArgs: ConjureCliArgs, sourcesConfig: SpringSourcesConfig): ApplicationRunner = {
+  def applicationRunner(
+      catalogDataRef: DataRef,
+      job: Job,
+      cliArgs: ConjureCliArgs,
+      sourcesConfig: SpringSourcesConfig,
+      formatConfig: ConjureFormatConfig): ApplicationRunner = {
     new ApplicationRunner {
       override def run(args: ApplicationArguments): Unit = {
-        ConjureSparkUtils.mainSpark(cliArgs, catalogDataRef, job, sourcesConfig)
+        val catalogFormat = formatConfig.getDatasetFormat
+        ConjureSparkUtils.mainSpark(cliArgs, catalogDataRef, job, sourcesConfig, catalogFormat)
       }
     }
   }

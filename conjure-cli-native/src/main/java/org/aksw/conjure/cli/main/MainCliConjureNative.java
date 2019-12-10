@@ -27,6 +27,7 @@ import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef;
 import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRefDcat;
 import org.aksw.jena_sparql_api.conjure.dataset.algebra.Op;
 import org.aksw.jena_sparql_api.conjure.dataset.algebra.OpDataRefResource;
+import org.aksw.jena_sparql_api.conjure.dataset.engine.ConjureFormatConfig;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.OpExecutorDefault;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
@@ -217,7 +218,8 @@ public class MainCliConjureNative {
 		Set<String> sources = config.getSources();
 		
 		SpringApplication app = new SpringApplicationBuilder()
-			.sources(ConfigCliConjureNative.class).bannerMode(Banner.Mode.OFF)
+			.sources(ConfigConjureSparkBase.class, ConfigCliConjureNative.class)
+			.bannerMode(Banner.Mode.OFF)
 			.headless(false)
 			.web(WebApplicationType.NONE)
 			.build();
@@ -237,8 +239,11 @@ public class MainCliConjureNative {
 	}
 	
 	public static List<TaskContext> createTasksContexts(DataRef catalogDataRef, Job job,
-			HttpResourceRepositoryFromFileSystem repo) throws Exception {
+			HttpResourceRepositoryFromFileSystem repo,
+			RDFFormat catalogFormat) throws Exception {
 
+		//RDFFormat rdfFormat = formatConfig.getCatalogFormat();
+		
 		// Create a copy of data catalogDataRef to prevent changing it
 		DataRef clone = JenaPluginUtils.polymorphicCast(clone(catalogDataRef), DataRef.class);
 		
@@ -255,7 +260,7 @@ public class MainCliConjureNative {
 		// HttpResourceRepositoryFromFileSystemImpl.createDefault();
 		// ResourceStore cacheStore = repo.getCacheStore();
 		OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo,
-				new TaskContext(job, new HashMap<>(), new HashMap<>()), new HashMap<>());
+				new TaskContext(job, new HashMap<>(), new HashMap<>()), new HashMap<>(), catalogFormat);
 
 		String queryStr = "CONSTRUCT {\n"
 						+ "        ?a ?b ?c .\n"
@@ -302,7 +307,8 @@ public class MainCliConjureNative {
 
 						DataRefDcat dr = DataRefDcat.create(xxmodel, r);
 
-						RDFDataMgr.write(System.err, dr.getModel(), RDFFormat.TURTLE_PRETTY);
+						// TODO Add option whether to log the input record
+						// RDFDataMgr.write(System.err, dr.getModel(), RDFFormat.TURTLE_PRETTY);
 
 						nameToDataRef.put("unnamedDataRef" + (i++), dr);
 					}
@@ -339,7 +345,13 @@ public class MainCliConjureNative {
 
 	}
 
-	public static List<DcatDataset> executeJob(DataRef catalogDataRef, Job job) throws Exception {
+	public static List<DcatDataset> executeJob(
+			DataRef catalogDataRef,
+			Job job,
+			ConjureFormatConfig formatConfig) throws Exception {
+		
+		RDFFormat catalogFormat = formatConfig.getCatalogFormat();
+		
 		// Function<String, SparqlStmt> parser =
 		// SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes,
 		// false);
@@ -348,10 +360,10 @@ public class MainCliConjureNative {
 		// OpExecutorDefault catalogExecutor = new OpExecutorDefault(repo, new
 		// TaskContext(job, new HashMap<>(), new HashMap<>()));
 
-		List<TaskContext> taskContexts = createTasksContexts(catalogDataRef, job, repo);
+		List<TaskContext> taskContexts = createTasksContexts(catalogDataRef, job, repo, catalogFormat);
 		
 		List<DcatDataset> result = taskContexts.stream()
-				.map(taskContext -> ExecutionUtils.executeJob(job, taskContext, repo, cacheStore))
+				.map(taskContext -> ExecutionUtils.executeJob(job, taskContext, repo, cacheStore, formatConfig))
 				.collect(Collectors.toList());
 		return result;
 	}

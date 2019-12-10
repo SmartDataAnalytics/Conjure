@@ -30,25 +30,9 @@ model = ModelFactory.createDefaultModel()
 varName = "dataRef";
 		
 beans {
-	dataref FactoryBeanObject, DataRefOp.create(
-		OpConstruct.create(model, OpDataRefResource.from(model, DataRefUrl.create(model, "file:///home/raven/public_html/medium.nt")),
-	    parser.apply("""
-CONSTRUCT {
-  ?a ?b ?c .
-  ?c ?d ?e 
-} {	    	
-  { SELECT DISTINCT ?a {
-    ?a dcat:distribution [
-      dcat:byteSize ?byteSize
-    ]
-#    FILTER(?byteSize < 100000)
-#  } LIMIT 1000 }
-  } }
-
-  ?a ?b ?c
-  OPTIONAL { ?c ?d ?e }
-}
-""").toString()));
+        dataref FactoryBeanObject, DataRefOp.create(
+                OpUpdateRequest.create(model, OpData.create(model),
+            parser.apply("INSERT DATA { <http://mylargedata> dataid:group eg:mygrp ; dcat:distribution [ dcat:downloadURL <file:///home/raven/.dcat/repository/downloads/localhost/5000/data/lodlaundromat/95/95388162d1fcf14963c670b560a40028/95388162d1fcf14963c670b560a40028.hdt/_content/data.hdt> ] }").toString()));
 
 	job FactoryBeanObject, Job.create(ctxModel)
 		.setOp(

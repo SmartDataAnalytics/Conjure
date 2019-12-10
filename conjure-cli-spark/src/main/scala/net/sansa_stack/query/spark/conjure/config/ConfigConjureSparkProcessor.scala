@@ -5,6 +5,7 @@ import java.nio.file.Path
 
 import org.aksw.conjure.cli.main.MainCliConjureNative
 import org.aksw.jena_sparql_api.common.DefaultPrefixes
+import org.aksw.jena_sparql_api.conjure.dataset.engine.ConjureFormatConfig
 import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils
 import org.aksw.jena_sparql_api.conjure.dataset.engine.{ TaskContext => ConjureTaskContext }
 import org.aksw.jena_sparql_api.conjure.job.api.Job
@@ -37,7 +38,7 @@ class ConfigConjureSparkProcessor {
   // configsBroadcast: Broadcast[java.util.Map[Path, Array[Byte]]]
   @Bean
   @Autowired
-  def conjureProcessor(job: Job): ConjureProcessor = {
+  def conjureProcessor(job: Job, formatConfig: ConjureFormatConfig): ConjureProcessor = {
 
     // val jobRdfNode: Resource = null;
 
@@ -75,7 +76,7 @@ class ConfigConjureSparkProcessor {
     val result = new ConjureProcessor() {
       def process(taskContext: ConjureTaskContext): ConjureResult = {
         // val taskContexts: java.util.List[ConjureTaskContext] = taskContextIt.toList.asJava
-        val dcatDataset = ExecutionUtils.executeJob(job, taskContext, repo, cacheStore)
+        val dcatDataset = ExecutionUtils.executeJob(job, taskContext, repo, cacheStore, formatConfig)
 
         val x = QueryExecutionTransformResult.applyNodeTransform(nodeTransform, dcatDataset)
 

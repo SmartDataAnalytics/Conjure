@@ -44,7 +44,12 @@ object ConjureSparkUtils extends LazyLogging {
     return key
   }
 
-  def mainSpark(cliArgs: ConjureCliArgs, catalogDataRef: DataRef, job: Job, sourcesConfig: SpringSourcesConfig): Unit = { /* args: Array[String]): Unit = { */
+  def mainSpark(
+      cliArgs: ConjureCliArgs,
+      catalogDataRef: DataRef,
+      job: Job,
+      sourcesConfig: SpringSourcesConfig,
+      catalogFormat: RDFFormat): Unit = { /* args: Array[String]): Unit = { */
 
     // val sourcePathToContent: java.util.Map[Path, Array[Byte]] = conjureConfig.getSourcePathToContent
 
@@ -149,7 +154,8 @@ object ConjureSparkUtils extends LazyLogging {
     val jobBroadcast: Broadcast[Resource] = sparkSession.sparkContext.broadcast(job.asResource)
 
     val repo = HttpResourceRepositoryFromFileSystemImpl.createDefault();
-    val initialTaskContexts = MainCliConjureNative.createTasksContexts(catalogDataRef, job, repo).asScala
+    val initialTaskContexts = MainCliConjureNative.createTasksContexts(
+        catalogDataRef, job, repo, catalogFormat).asScala
 
     // val url = DcatUtils.getFirstDownloadUrl(dcat)
     // r = MainCliConjureSimple.executeJob(taskContexts, job, repo, cacheStore);
