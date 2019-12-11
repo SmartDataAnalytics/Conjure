@@ -89,7 +89,7 @@ object ConjureSparkUtils extends LazyLogging {
     // File.createTempFile("spark-events")
     val numPartitions = numThreads * 1
 
-    val masterHostname = InetAddress.getLocalHost.getHostName
+    val masterHostName = InetAddress.getLocalHost.getHostName
 
     val builder = SparkSession.builder
 
@@ -224,7 +224,7 @@ object ConjureSparkUtils extends LazyLogging {
       taskContextIt.map(x => processor.process(x))
     })
 
-    val stopwatch = Stopwatch.createStarted()
+    val stopwatch = Stopwatch.createStarted
     val evalResult = resultCatalogRdd.collect
 
     val retrieveFiles = true
@@ -232,7 +232,24 @@ object ConjureSparkUtils extends LazyLogging {
     // Broadcast the catalog to all workers
     if(retrieveFiles) {
       // TODO Assemble the catalog into a single model
-      val catalog = evalResult.map(x => x.getDcatRecord).toSeq
+      val fullCatalog = evalResult.map(x => x.getDcatRecord).toSeq
+
+      // Remove all files that are in the local repository
+      val catalog = fullCatalog
+        .filter(dcatDataset => {
+            val downloadUrl = DcatUtils.getFirstDownloadUrl(dcatDataset)
+            val entityPath = MainCliConjureNative.resolveLocalUncFileUrl(downloadUrl, Collections.singleton(masterHostName))
+            val r = repo.getEntityForPath(entityPath) == null
+            // logger.info("Status " + r + " for " + downloadUrl + " on " + masterHostName)
+            r
+        })
+        .toSeq
+
+      val fullCatalogSize = fullCatalog.size
+      val retrievalCatalogSize = catalog.size
+      val localFileSize = fullCatalogSize - retrievalCatalogSize
+
+      logger.info("Retrieving " + retrievalCatalogSize + " remote files out of " + fullCatalogSize + " (" + localFileSize + " found locally)")
 
       val catalogBroadcast: Broadcast[Seq[Resource]] =
         sparkSession.sparkContext.broadcast(catalog)
@@ -242,7 +259,9 @@ object ConjureSparkUtils extends LazyLogging {
         .makeRDD(locations)
         .coalesce(numPartitions)
 
-      val itFile: Iterator[(String, String, Resource, Array[Byte])] = fileRetrievalRdd.mapPartitions(itHostName => {
+      val itFile: Iterator[(String, String, Resource, Array[Byte])] = fileRetrievalRdd
+        .mapPartitions(itHostName => {
+
         val workerHostName = InetAddress.getLocalHost.getHostName
         val catalog = catalogBroadcast.value
 
