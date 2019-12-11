@@ -2,6 +2,7 @@ package org.aksw.conjure.cli.main;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -388,7 +389,29 @@ public class MainCliConjureNative {
 ////			RDFDataMgr.write(System.out, closure.getModel(), RDFFormat.TURTLE_PRETTY);
 ////		}
 //	}
-
+	
+	public static Path resolveLocalUncFileUrl(String str, Set<String> localHostNames) {
+		Path result = null;
+		if(str.startsWith(URL_SCHEME_FILE)) {
+			URL url = null;
+			try {
+				url = new URL(str);
+			} catch (MalformedURLException e) {
+				logger.warn("Invalid URL", e);
+			}
+			
+			if(url != null) {
+				String host = url.getHost();
+				if(localHostNames.contains(host)) {
+					String pathStr = url.getPath();
+					result = Paths.get(pathStr);
+				}
+			}			
+		}
+		
+		return result;
+	}
+	
 	public static Path stringToPath(String str) {
 		Path result = str.startsWith(URL_SCHEME_FILE) ? Paths.get(str.substring(URL_SCHEME_FILE.length())) : null;
 		return result;

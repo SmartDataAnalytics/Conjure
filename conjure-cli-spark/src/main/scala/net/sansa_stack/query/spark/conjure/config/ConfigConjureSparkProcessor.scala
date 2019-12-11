@@ -1,6 +1,7 @@
 package net.sansa_stack.query.spark.conjure
 
 import java.net.InetAddress
+import java.nio.file.Files
 import java.nio.file.Path
 
 import org.aksw.conjure.cli.main.MainCliConjureNative
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Configuration
 import org.aksw.conjure.cli.config.ConjureProcessor
 import org.aksw.conjure.cli.config.ConjureResult
 import scala.compat.java8.FunctionConverters._
+import org.aksw.dcat.ap.utils.DcatUtils
 
 @Configuration
 class ConfigConjureSparkProcessor {
@@ -76,7 +78,8 @@ class ConfigConjureSparkProcessor {
     val publicBaseIri = "http://" + hostName + "/"
     val pathToUri: Path => String = p => {
       // println("GOT PATHS " + p + " - " + repoPath)
-      publicBaseIri + repoPath.relativize(p).toString()
+      // publicBaseIri + repoPath.relativize(p).toString()
+      "file://" + hostName + p.toAbsolutePath().toString()
     }
     val nodeTransform = MainCliConjureNative.asNodeTransform(pathToUri.asJava)
 
@@ -85,9 +88,24 @@ class ConfigConjureSparkProcessor {
         // val taskContexts: java.util.List[ConjureTaskContext] = taskContextIt.toList.asJava
         val dcatDataset = ExecutionUtils.executeJob(job, taskContext, repo, cacheStore, formatConfig)
 
+        // My impression is that transmitting data with a separate job is more efficient:
+        // We can use rdd.collect() to create the conjure result catalog
+        // and then use rdd.toLocalIterator() only for the dataset file retrieval
+        val yieldData = false
+        var fileMap: java.util.Map[String, Array[Byte]] = null
+        if(yieldData) {
+          // Load the referenced dcatData into the result
+          val url = DcatUtils.getFirstDownloadUrl(dcatDataset)
+          val absPath = MainCliConjureNative.stringToPath(url)
+          val byteContent = Files.readAllBytes(absPath);
+          val relPath = repoPath.relativize(absPath).toString
+
+          fileMap.put(relPath, byteContent)
+        }
+
         val x = QueryExecutionTransformResult.applyNodeTransform(nodeTransform, dcatDataset)
 
-        val r = new ConjureResult(x.asResource(), true, "")
+        val r = new ConjureResult(x.asResource(), true, "", fileMap)
         // r.dcatRecord = x.asResource
         // r.message = ""
         // r.success = true

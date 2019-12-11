@@ -6,8 +6,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
-import scala.collection.JavaConverters.asScalaBufferConverter
-
 import org.aksw.conjure.cli.config.ConjureCliArgs
 import org.aksw.conjure.cli.config.ConjureProcessor
 import org.aksw.conjure.cli.config.SpringSourcesConfig
@@ -16,11 +14,14 @@ import org.aksw.conjure.cli.main.MainCliConjureNative
 import org.aksw.dcat.ap.utils.DcatUtils
 import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef
 import org.aksw.jena_sparql_api.conjure.job.api.Job
+import org.aksw.jena_sparql_api.http.domain.api.RdfEntityInfo
 import org.aksw.jena_sparql_api.http.repository.impl.HttpResourceRepositoryFromFileSystemImpl
 import org.apache.jena.ext.com.google.common.base.StandardSystemProperty
 import org.apache.jena.ext.com.google.common.base.Stopwatch
 import org.apache.jena.ext.com.google.common.collect.ImmutableRangeSet
 import org.apache.jena.ext.com.google.common.collect.Range
+import org.apache.jena.graph.Node
+import org.apache.jena.graph.NodeFactory
 import org.apache.jena.rdf.model.ModelFactory
 import org.apache.jena.rdf.model.Resource
 import org.apache.jena.riot.RDFDataMgr
@@ -35,6 +36,10 @@ import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.ConfigurableApplicationContext
 import com.google.common.hash.Hashing
 import com.typesafe.scalalogging.LazyLogging
+import scala.collection.JavaConverters.asScalaBufferConverter
+import org.apache.jena.sparql.graph.NodeTransformLib
+import org.aksw.jena_sparql_api.transform.result_set.QueryExecutionTransformResult
+import org.apache.jena.sparql.graph.NodeTransform
 
 object ConjureSparkUtils extends LazyLogging {
 
@@ -220,6 +225,106 @@ object ConjureSparkUtils extends LazyLogging {
 
     val stopwatch = Stopwatch.createStarted()
     val evalResult = resultCatalogRdd.collect
+
+    val retrieveFiles = true
+
+    // Broadcast the catalog to all workers
+    if(retrieveFiles) {
+      // TODO Assemble the catalog into a single model
+      val catalog = evalResult.map(x => x.getDcatRecord).toSeq
+
+      val catalogBroadcast: Broadcast[Seq[Resource]] =
+        sparkSession.sparkContext.broadcast(catalog)
+
+      val locations = workerNodeHostNames.map(x => (x, Seq(x)))
+      val fileRetrievalRdd = sparkSession.sparkContext
+        .makeRDD(locations)
+        .coalesce(numPartitions)
+
+      val itFile: Iterator[(String, Resource, Array[Byte])] = fileRetrievalRdd.mapPartitions(itHostName => {
+        val workerHostName = InetAddress.getLocalHost.getHostName
+        val catalog = catalogBroadcast.value
+
+        logger.info("Commencing file retrieval on worker " + workerHostName)
+
+        val workerRepo = HttpResourceRepositoryFromFileSystemImpl.createDefault();
+
+        itHostName.flatMap(hostName => {
+          // TODO Skip if hostName is that of the master
+
+          // Filter the catalog to those entries that are on the worker
+          catalog.map(dcatRecord => {
+            // TODO We may want to check all download Urls for whether they are present on the server
+            val downloadUrl = DcatUtils.getFirstDownloadUrl(dcatRecord)
+
+            val entities = workerRepo.getEntities(downloadUrl)
+            val entity = if (entities.isEmpty()) { null } else { entities.iterator.next }
+
+            logger.info("On worker " + hostName + ": " + entities.size() + " entities for " + downloadUrl)
+
+            if(entity != null) {
+              val info = entity.getCombinedInfo
+              val path = entity.getAbsolutePath
+              val byteContent = Files.readAllBytes(path);
+              (downloadUrl, info, byteContent)
+            } else {
+              null
+            }
+
+            /*
+            // TODO Add sanity check to ensure there is at least one download URL in the dcat record
+            if (downloadUrl != null) {
+              // Try to resolve the url to a path on the current host
+
+              // TODO We should introduce some 'string to path mapper'
+              val path = MainCliConjureNative.stringToPath(downloadUrl, Collections.singletonSet(workerHostName))
+              if (path != null) {
+                val byteContent = Files.readAllBytes(path);
+                (downloadUrl, byteContent)
+              } else {
+                null
+              }
+            }
+            */
+          })
+          .filter(x => x != null)
+        })
+        // Get the catalog broadcast and return all files on the current host
+      })
+      .toLocalIterator
+
+      val urlMap = new java.util.HashMap[Node, Node]
+      for((uri, rawInfo, content) <- itFile) {
+        val downloadStore = repo.getDownloadStore
+        // TODO Extend the store with a put method that can stream the content
+        val tmpPath = Files.createTempFile("download-", ".dat")
+        Files.write(tmpPath, content)
+
+        val info = rawInfo.as(classOf[RdfEntityInfo])
+        // downloadStore.put(uri, )
+        val newEntity = repo.getDownloadStore.putWithMove(uri, info, tmpPath)
+        val newAbsPath = newEntity.getAbsolutePath
+
+        // Update the download URL in the catalog with the new entity
+        // val publicBaseIri = "http://" + hostName + "/"
+        val newUrl = MainCliConjureNative.toFileUri(newAbsPath)
+
+        urlMap.put(NodeFactory.createURI(uri), NodeFactory.createURI(newUrl))
+      }
+
+      logger.info("UrlMap: " + urlMap)
+
+      val nodeTransform = new NodeTransform() {
+        override def apply(node: Node): Node = {
+          urlMap.getOrDefault(node, node)
+        }
+      }
+
+      // Update the catalog items based on the url map
+      for(item <- evalResult) {
+        QueryExecutionTransformResult.applyNodeTransform(nodeTransform, item.getDcatRecord)
+      }
+    }
 
     logger.info("RESULTS: ----------------------------")
     for (item <- evalResult) {
