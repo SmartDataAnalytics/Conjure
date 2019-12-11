@@ -234,14 +234,25 @@ object ConjureSparkUtils extends LazyLogging {
       // TODO Assemble the catalog into a single model
       val fullCatalog = evalResult.map(x => x.getDcatRecord).toSeq
 
+      val urlMap = new java.util.HashMap[Node, Node]
+
       // Remove all files that are in the local repository
       val catalog = fullCatalog
         .filter(dcatDataset => {
             val downloadUrl = DcatUtils.getFirstDownloadUrl(dcatDataset)
             val entityPath = MainCliConjureNative.resolveLocalUncFileUrl(downloadUrl, Collections.singleton(masterHostName))
-            val r = entityPath == null || repo.getEntityForPath(entityPath) == null
-            // logger.info("Status " + r + " for " + downloadUrl + " on " + masterHostName)
-            r
+            
+            if (entityPath != null) {
+              val entity = repo.getEntityForPath(entityPath)
+              if (entity != null) {
+                val absPath = entity.getAbsolutePath
+                val newUrl = MainCliConjureNative.toFileUri(absPath)
+                urlMap.put(NodeFactory.createURI(downloadUrl), NodeFactory.createURI(newUrl))
+              }
+              false
+            } else {
+              true
+            }
         })
         .toSeq
 
@@ -318,7 +329,6 @@ object ConjureSparkUtils extends LazyLogging {
       })
       .toLocalIterator
 
-      val urlMap = new java.util.HashMap[Node, Node]
       for((uri, relPath, rawInfo, content) <- itFile) {
         val targetStore = repo.getCacheStore
         // TODO Extend the store with a put method that can stream the content
