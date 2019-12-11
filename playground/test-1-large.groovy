@@ -34,7 +34,7 @@ beans {
                 OpUpdateRequest.create(model, OpData.create(model),
             parser.apply("INSERT DATA { <http://mylargedata> dataid:group eg:mygrp ; dcat:distribution [ dcat:downloadURL <file:///home/raven/.dcat/repository/downloads/localhost/5000/data/lodlaundromat/95/95388162d1fcf14963c670b560a40028/95388162d1fcf14963c670b560a40028.hdt/_content/data.hdt> ] }").toString()));
 
-	job FactoryBeanObject, Job.create(ctxModel)
+	job FactoryBeanObject, Job.create(ctxModel, "tripleCount")
 		.setOp(
                    cj.coalesce(
 			cj.fromVar(varName).hdtHeader().construct("CONSTRUCT WHERE { ?s <http://rdfs.org/ns/void#triples> ?o }"),

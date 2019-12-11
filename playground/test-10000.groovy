@@ -50,7 +50,7 @@ CONSTRUCT {
 }
 """).toString()));
 
-	job FactoryBeanObject, Job.create(ctxModel)
+	job FactoryBeanObject, Job.create(ctxModel, "tripleCount")
 		.setOp(
                    cj.coalesce(
 			cj.fromVar(varName).hdtHeader().construct("CONSTRUCT WHERE { ?s <http://rdfs.org/ns/void#triples> ?o }"),
