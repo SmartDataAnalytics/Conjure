@@ -5,6 +5,7 @@ import java.net.InetAddress
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
+import java.util.Collections
 
 import org.aksw.conjure.cli.config.ConjureCliArgs
 import org.aksw.conjure.cli.config.ConjureProcessor
@@ -241,7 +242,7 @@ object ConjureSparkUtils extends LazyLogging {
         .makeRDD(locations)
         .coalesce(numPartitions)
 
-      val itFile: Iterator[(String, Resource, Array[Byte])] = fileRetrievalRdd.mapPartitions(itHostName => {
+      val itFile: Iterator[(String, String, Resource, Array[Byte])] = fileRetrievalRdd.mapPartitions(itHostName => {
         val workerHostName = InetAddress.getLocalHost.getHostName
         val catalog = catalogBroadcast.value
 
@@ -250,27 +251,32 @@ object ConjureSparkUtils extends LazyLogging {
         val workerRepo = HttpResourceRepositoryFromFileSystemImpl.createDefault();
 
         itHostName.flatMap(hostName => {
+          var r: (String, String, Resource, Array[Byte]) = null
           // TODO Skip if hostName is that of the master
 
           // Filter the catalog to those entries that are on the worker
           catalog.map(dcatRecord => {
             // TODO We may want to check all download Urls for whether they are present on the server
             val downloadUrl = DcatUtils.getFirstDownloadUrl(dcatRecord)
+            val entityPath = MainCliConjureNative.resolveLocalUncFileUrl(downloadUrl, Collections.singleton(workerHostName))
 
-            val entities = workerRepo.getEntities(downloadUrl)
-            val entity = if (entities.isEmpty()) { null } else { entities.iterator.next }
+            logger.info("Mapped " + downloadUrl + " to " + entityPath)
+            if(entityPath != null) {
+              val entity = workerRepo.getEntityForPath(entityPath)
+              val relPath = entity.getResource.getRelativePath.getParent.toString // .resolve(entity.getRelativePath).toString()
+              logger.info("Mapped " + entityPath + " to " + relPath)
+              // val entity = if (entities.isEmpty()) { null } else { entities.iterator.next }
 
-            logger.info("On worker " + hostName + ": " + entities.size() + " entities for " + downloadUrl)
+              // logger.info("On worker " + hostName + ": " + entities.size() + " entities for " + downloadUrl)
 
-            if(entity != null) {
-              val info = entity.getCombinedInfo
-              val path = entity.getAbsolutePath
-              val byteContent = Files.readAllBytes(path);
-              (downloadUrl, info, byteContent)
-            } else {
-              null
+              if(entity != null) {
+                val info = entity.getCombinedInfo
+                val path = entity.getAbsolutePath
+                val byteContent = Files.readAllBytes(path);
+                r = (downloadUrl, relPath, info, byteContent)
+              }
             }
-
+            r
             /*
             // TODO Add sanity check to ensure there is at least one download URL in the dcat record
             if (downloadUrl != null) {
@@ -294,15 +300,15 @@ object ConjureSparkUtils extends LazyLogging {
       .toLocalIterator
 
       val urlMap = new java.util.HashMap[Node, Node]
-      for((uri, rawInfo, content) <- itFile) {
-        val downloadStore = repo.getDownloadStore
+      for((uri, relPath, rawInfo, content) <- itFile) {
+        val targetStore = repo.getCacheStore
         // TODO Extend the store with a put method that can stream the content
         val tmpPath = Files.createTempFile("download-", ".dat")
         Files.write(tmpPath, content)
 
         val info = rawInfo.as(classOf[RdfEntityInfo])
         // downloadStore.put(uri, )
-        val newEntity = repo.getDownloadStore.putWithMove(uri, info, tmpPath)
+        val newEntity = targetStore.putWithMove(relPath, info, tmpPath)
         val newAbsPath = newEntity.getAbsolutePath
 
         // Update the download URL in the catalog with the new entity
