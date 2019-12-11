@@ -239,7 +239,7 @@ object ConjureSparkUtils extends LazyLogging {
         .filter(dcatDataset => {
             val downloadUrl = DcatUtils.getFirstDownloadUrl(dcatDataset)
             val entityPath = MainCliConjureNative.resolveLocalUncFileUrl(downloadUrl, Collections.singleton(masterHostName))
-            val r = repo.getEntityForPath(entityPath) == null
+            val r = entityPath == null || repo.getEntityForPath(entityPath) == null
             // logger.info("Status " + r + " for " + downloadUrl + " on " + masterHostName)
             r
         })
