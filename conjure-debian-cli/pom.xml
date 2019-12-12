@@ -27,7 +27,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.8.2</version>
+<!-- 				<version>2.8.2</version> -->
 				<configuration>
 					<skip>true</skip>
 				</configuration>
@@ -36,7 +36,7 @@
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.8</version>
+<!-- 				<version>1.6.8</version> -->
 				<configuration>
 					<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
 				</configuration>
@@ -45,7 +45,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.0.2</version>
+<!-- 				<version>3.0.2</version> -->
 				<executions>
 					<execution>
 						<phase>prepare-package</phase>
@@ -159,7 +159,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.aksw.conjure</groupId>
-			<artifactId>conjure-cli-spark</artifactId>
+			<artifactId>conjure-cli-native</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
