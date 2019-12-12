@@ -41,6 +41,7 @@ import scala.collection.JavaConverters.asScalaBufferConverter
 import org.apache.jena.sparql.graph.NodeTransformLib
 import org.aksw.jena_sparql_api.transform.result_set.QueryExecutionTransformResult
 import org.apache.jena.sparql.graph.NodeTransform
+import org.aksw.conjure.cli.main.ConfigCliConjureNative
 
 object ConjureSparkUtils extends LazyLogging {
 
@@ -362,10 +363,29 @@ object ConjureSparkUtils extends LazyLogging {
     }
 
     logger.info("RESULTS: ----------------------------")
+    val resultModel = ModelFactory.createDefaultModel
     for (item <- evalResult) {
-      // logger.info("Result status: " + item)
-      RDFDataMgr.write(System.out, item.getDcatRecord.getModel, RDFFormat.TURTLE_PRETTY)
+      val contribModel = item.getDcatRecord.getModel
+      resultModel.add(contribModel)
     }
+
+    ConfigCliConjureNative.postProcessResultModel(resultModel, job)
+
+    // logger.info("Result status: " + item)
+    // resultModel.add(item.getDcatRecord.getModel)
+    // }
+    RDFDataMgr.write(System.out, resultModel, RDFFormat.TURTLE_PRETTY)
+
+    // Resource inputRecordX = inputRecord.inModel(resultModel.add(inputRecord.getModel()));
+
+    // TODO We only need to output the job model once if it was the same for every task
+    // Resource jobX = job.inModel(resultModel.add(job.getModel()));
+
+    // RDFDataMgr.write(System.out, job.getModel, RDFFormat.TURTLE_PRETTY)
+    // for (item <- evalResult) {
+    //   logger.info("Result status: " + item)
+    //   RDFDataMgr.write(System.out, item.getDcatRecord.getModel, RDFFormat.TURTLE_PRETTY)
+    // }
 
     logger.info("Processed " + evalResult.length + " items in " + (stopwatch.stop.elapsed(TimeUnit.MILLISECONDS) * 0.001) + " seconds")
 
