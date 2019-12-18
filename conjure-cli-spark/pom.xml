@@ -40,27 +40,6 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.jena</groupId>
-			<artifactId>jena-arq</artifactId>
-
-			<exclusions>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-core</artifactId>
-				</exclusion>
-
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-databind</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-annotations</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
 
 		<!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-core</artifactId> 
 			</dependency> <dependency> <groupId>com.fasterxml.jackson.core</groupId> 
@@ -71,11 +50,6 @@
 		<!-- <groupId>org.apache.spark</groupId> -->
 		<!-- <artifactId>spark-sql_${scala.binary.version}</artifactId> -->
 		<!-- </dependency> -->
-
-		<dependency>
-			<groupId>org.aksw.conjure</groupId>
-			<artifactId>conjure-cli-native</artifactId>
-		</dependency>
 
 		<!-- <dependency> -->
 		<!-- <groupId>com.beust</groupId> -->
@@ -185,6 +159,28 @@
 		<!-- <artifactId>jena-sparql-api-views</artifactId> -->
 		<!-- <version>${jsa.version}</version> -->
 		<!-- </dependency> -->
+
+		<dependency>
+			<groupId>org.aksw.conjure</groupId>
+			<artifactId>conjure-cli-native</artifactId>
+
+			<exclusions>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-core</artifactId>
+				</exclusion>
+
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-annotations</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
