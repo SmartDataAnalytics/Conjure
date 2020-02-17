@@ -290,7 +290,7 @@ public class MainCliConjureNative {
 
 				// For every input record is a dcat entry, assign an anonymous dataref
 				for (Resource catalogRecord : catalogRecords) {
-					Map<String, DataRef> nameToDataRef = new HashMap<>();
+					Map<String, Op> nameToDataRef = new HashMap<>();
 
 					Query q = parser.apply("SELECT DISTINCT ?x { ?x dcat:distribution [] }").getQuery();
 					Model m = catalogRecord.getModel();
@@ -307,11 +307,12 @@ public class MainCliConjureNative {
 						r = r.inModel(xxmodel);
 
 						DataRefDcat dr = DataRefDcat.create(xxmodel, r);
+						Op drOp = OpDataRefResource.from(xxmodel, dr);
 
 						// TODO Add option whether to log the input record
 						// RDFDataMgr.write(System.err, dr.getModel(), RDFFormat.TURTLE_PRETTY);
 
-						nameToDataRef.put("unnamedDataRef" + (i++), dr);
+						nameToDataRef.put("unnamedDataRef" + (i++), drOp);
 					}
 
 					logger.info("Registered data refs for input " + catalogRecord + " are: " + nameToDataRef);

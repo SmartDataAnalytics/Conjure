@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.aksw.conjure.cli.main.CommandMain;
 import org.aksw.conjure.cli.main.MainCliConjureNative;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.ConjureFormatConfig;
-import org.aksw.jena_sparql_api.utils.hdt.JenaPluginHdt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.annotation.Bean;

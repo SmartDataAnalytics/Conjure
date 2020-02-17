@@ -32,7 +32,7 @@ public class ConfigCliConjureId {
 			Job job,
 			ConjureFormatConfig formatConfig) {
 		return args -> {
-			String jobId = ExecutionUtils.getJobId(job);
+			String jobId = ExecutionUtils.createDefaultJobHash(job);
 
 			Model m = ModelFactory.createDefaultModel();
 			Resource r = m.createResource();

@@ -14,17 +14,18 @@ import org.apache.jena.rdf.model.ModelFactory
 // Useful information about bean definitions in groovy:
 // https://spring.io/blog/2014/03/03/groovy-bean-configuration-in-spring-framework-4
 
-url = "http://localhost/~raven/test.hdt"
-ctx = new ConjureContext()
+//url = "http://localhost/~raven/test.hdt"
+//ctx = new ConjureContext()
+cj = new ConjureBuilderImpl()
+ctx = cj.getContext()
 ctxModel = ctx.getModel()
-cj = new ConjureBuilderImpl(ctx)
+parser = ctx.getSparqlStmtParser()
 
-
-parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false)
+//parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false)
 model = ModelFactory.createDefaultModel()
 
 //v = OpVar.create(model, "dataRef");
-varName = "dataRef";
+varName = "dataRef"
 		
 beans {
 	dataref FactoryBeanObject, DataRefOp.create(

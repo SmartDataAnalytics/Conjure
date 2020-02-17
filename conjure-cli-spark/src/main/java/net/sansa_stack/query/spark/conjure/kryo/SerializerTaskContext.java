@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef;
+import org.aksw.jena_sparql_api.conjure.dataset.algebra.Op;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.TaskContext;
 import org.aksw.jena_sparql_api.mapper.proxy.JenaPluginUtils;
 import org.apache.jena.rdf.model.Model;
@@ -35,8 +35,8 @@ public class SerializerTaskContext
 		Resource inputRecord = (Resource)kryo.readClassAndObject(input);
 		@SuppressWarnings("unchecked")
 		Map<String, Resource> tmpDataRefMap = (Map<String, Resource>)kryo.readClassAndObject(input);
-		Map<String, DataRef> dataRefMap = tmpDataRefMap.entrySet().stream()
-				.collect(Collectors.toMap(Entry::getKey, e -> JenaPluginUtils.polymorphicCast(e.getValue(), DataRef.class)));
+		Map<String, Op> dataRefMap = tmpDataRefMap.entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey, e -> JenaPluginUtils.polymorphicCast(e.getValue(), Op.class)));
 
 		@SuppressWarnings("unchecked")
 		Map<String, Model> cxtModels = (Map<String, Model>)kryo.readClassAndObject(input);
