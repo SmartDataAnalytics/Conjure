@@ -162,6 +162,11 @@
 			<artifactId>conjure-cli-native</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.aksw.conjure</groupId>
+			<artifactId>conjure-cli-spark</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>
 
