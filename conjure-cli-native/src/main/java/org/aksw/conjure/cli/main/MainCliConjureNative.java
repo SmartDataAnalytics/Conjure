@@ -39,6 +39,7 @@ import org.aksw.jena_sparql_api.http.repository.impl.HttpResourceRepositoryFromF
 import org.aksw.jena_sparql_api.mapper.proxy.JenaPluginUtils;
 import org.aksw.jena_sparql_api.rx.SparqlRx;
 import org.aksw.jena_sparql_api.stmt.SparqlStmt;
+import org.aksw.jena_sparql_api.stmt.SparqlStmtParser;
 import org.aksw.jena_sparql_api.stmt.SparqlStmtParserImpl;
 import org.aksw.jena_sparql_api.utils.Vars;
 import org.apache.jena.graph.Node;
@@ -255,8 +256,8 @@ public class MainCliConjureNative {
 
 		// Op catalogCreationWorkflow = job.getOp();
 
-		Function<String, SparqlStmt> parser = SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes,
-				false);
+		Function<String, SparqlStmt> parser = SparqlStmtParser.wrapWithOptimizePrefixes(
+				SparqlStmtParserImpl.create(Syntax.syntaxARQ, DefaultPrefixes.prefixes, false));
 		// HttpResourceRepositoryFromFileSystemImpl repo =
 		// HttpResourceRepositoryFromFileSystemImpl.createDefault();
 		// ResourceStore cacheStore = repo.getCacheStore();
