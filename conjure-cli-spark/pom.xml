@@ -294,22 +294,12 @@
 		<plugins>
 			<!-- Plugins that need to be repeated on every submodule -->
 
-			<plugin>
-				<groupId>org.scalastyle</groupId>
-				<artifactId>scalastyle-maven-plugin</artifactId>
-			</plugin>
-
 
 			<!-- General plugins suitable for declaration in parent pom -->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-
-			<plugin>
-				<groupId>net.alchim31.maven</groupId>
-				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
 
 			<plugin>
@@ -363,60 +353,6 @@
 		<pluginManagement>
 			<plugins>
 
-				<!-- Scala Maven -->
-				<plugin>
-					<groupId>net.alchim31.maven</groupId>
-					<artifactId>scala-maven-plugin</artifactId>
-					<version>4.0.2</version>
-					<executions>
-						<execution>
-							<goals>
-								<goal>add-source</goal>
-								<goal>compile</goal>
-								<goal>testCompile</goal>
-							</goals>
-							<configuration>
-								<scalaVersion>${scala.version}</scalaVersion>
-								<recompileMode>incremental</recompileMode>
-								<useZincServer>true</useZincServer>
-								<args>
-									<arg>-target:jvm-1.8</arg>
-									<arg>-unchecked</arg>
-									<arg>-deprecation</arg>
-									<arg>-feature</arg>
-									<arg>-dependencyfile</arg>
-									<arg>${project.build.directory}/.scala_dependencies</arg>
-									<arg>-Xmax-classfile-name</arg>
-									<arg>128</arg>
-								</args>
-								<jvmArgs>
-									<jvmArg>-Xss10m</jvmArg>
-									<jvmArg>-Xms1024m</jvmArg>
-									<jvmArg>-Xmx1024m</jvmArg>
-									<jvmArg>-XX:PermSize=${PermGen}</jvmArg>
-									<jvmArg>-XX:MaxPermSize=${MaxPermGen}</jvmArg>
-									<jvmArg>-XX:ReservedCodeCacheSize=${CodeCacheSize}</jvmArg>
-								</jvmArgs>
-								<!--<javacArgs> -->
-								<!--<javacArg>-source</javacArg> -->
-								<!--<javacArg>${java.version}</javacArg> -->
-								<!--<javacArg>-target</javacArg> -->
-								<!--<javacArg>${java.version}</javacArg> -->
-								<!--<javacArg>-Xlint:all,-serial,-path</javacArg> -->
-								<!--</javacArgs> -->
-
-							</configuration>
-						</execution>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals>
-								<goal>doc-jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-
-
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.1</version>
@@ -462,27 +398,6 @@
 					<version>2.20</version>
 				</plugin>
 
-				<!-- Scalatest -->
-				<plugin>
-					<groupId>org.scalatest</groupId>
-					<artifactId>scalatest-maven-plugin</artifactId>
-					<version>2.0.0</version>
-					<configuration>
-						<tagsToExclude>net.sansa_stack.test.conformance.IntegrationTestSuite</tagsToExclude>
-						<reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-						<junitxml>.</junitxml>
-						<filereports>SANSA-RDF-Tests.txt</filereports>
-					</configuration>
-					<executions>
-						<execution>
-							<id>test</id>
-							<goals>
-								<goal>test</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-
 				<!-- <plugin> -->
 				<!-- <groupId>org.scalatest</groupId> -->
 				<!-- <artifactId>scalatest-maven-plugin</artifactId> -->
@@ -518,67 +433,6 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>versions-maven-plugin</artifactId>
 					<version>2.5</version>
-				</plugin>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>3.0.0-M1</version>
-					<executions>
-						<execution>
-							<id>enforce-versions</id>
-							<goals>
-								<goal>enforce</goal>
-							</goals>
-							<configuration>
-								<rules>
-									<requireMavenVersion>
-										<version>${maven.version}</version>
-									</requireMavenVersion>
-									<!--<requireJavaVersion> -->
-									<!--<version>${java.version}</version> -->
-									<!--</requireJavaVersion> -->
-									<bannedDependencies>
-										<excludes>
-											<!-- Akka depends on io.netty:netty, which puts classes under 
-												the org.jboss.netty package. This conflicts with the classes in org.jboss.netty:netty 
-												artifact, so we have to ban that artifact here. In Netty 4.x, the classes 
-												are under the io.netty package, so it's fine for us to depend on both io.netty:netty 
-												and io.netty:netty-all. -->
-											<exclude>org.jboss.netty</exclude>
-											<exclude>org.codehaus.groovy</exclude>
-										</excludes>
-										<searchTransitive>true</searchTransitive>
-									</bannedDependencies>
-								</rules>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>3.0.0</version>
-					<executions>
-						<execution>
-							<id>add-source</id>
-							<phase>generate-sources</phase>
-							<goals>
-								<goal>add-source</goal>
-							</goals>
-							<configuration>
-								<sources>
-									<source>src/main/scala_${scala.binary.version}</source>
-								</sources>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>com.versioneye</groupId>
-					<artifactId>versioneye-maven-plugin</artifactId>
-					<version>3.11.4</version>
 				</plugin>
 
 
@@ -671,60 +525,8 @@
 
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>cobertura-maven-plugin</artifactId>
-					<version>2.7</version>
-					<configuration>
-						<format>xml</format>
-						<maxmem>256m</maxmem>
-						<!-- aggregated reports for multi-module projects -->
-						<aggregate>true</aggregate>
-					</configuration>
-				</plugin>
-
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-pmd-plugin</artifactId>
-					<version>3.8</version>
-					<configuration>
-						<linkXref>true</linkXref>
-						<sourceEncoding>utf-8</sourceEncoding>
-						<minimumTokens>100</minimumTokens>
-						<targetJdk>1.8</targetJdk>
-					</configuration>
-				</plugin>
-
-
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>jdepend-maven-plugin</artifactId>
 					<version>2.0</version>
-				</plugin>
-
-				<!-- Scalastyle -->
-				<plugin>
-					<groupId>org.scalastyle</groupId>
-					<artifactId>scalastyle-maven-plugin</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<verbose>false</verbose>
-						<failOnViolation>true</failOnViolation>
-						<includeTestSourceDirectory>true</includeTestSourceDirectory>
-						<failOnWarning>false</failOnWarning>
-						<sourceDirectory>${project.basedir}/src/main/scala</sourceDirectory>
-						<testSourceDirectory>${project.basedir}/src/test/scala</testSourceDirectory>
-						<!-- we use a central config located in the root directory -->
-						<configLocation>${scalastyle.config.path}</configLocation>
-						<outputFile>${project.basedir}/scalastyle-output.xml</outputFile>
-						<outputEncoding>UTF-8</outputEncoding>
-					</configuration>
-					<executions>
-						<execution>
-							<goals>
-								<goal>check</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 
 
