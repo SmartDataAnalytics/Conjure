@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.aksw.commons.io.util.PathUtils;
+import org.aksw.jenax.arq.connection.core.RDFConnectionUtils;
+import org.aksw.jenax.arq.connection.link.RDFLinkDelegateWithWorkerThread;
 import org.aksw.jenax.arq.datasource.RdfDataSourceFactory;
 import org.aksw.jenax.arq.datasource.RdfDataSourceFromDataset;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasic;
@@ -105,7 +107,10 @@ public class RdfDataSourceFactoryTdb2
 
             result = RdfDataSourceFromDataset.create(
                     dataset,
-                    RDFConnection::connect,
+                    ds -> {
+                        RDFConnection raw = RDFConnection.connect(dataset);
+                        return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkDelegateWithWorkerThread::wrap);
+                    },
                     finalDeleteAction);
         } catch (Exception e) {
             partialCloseAction.close();

@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import org.aksw.commons.io.util.FileUtils;
 import org.aksw.commons.io.util.PathUtils;
 import org.aksw.commons.io.util.symlink.SymbolicLinkStrategies;
-import org.aksw.commons.util.exception.FinallyAll;
+import org.aksw.commons.util.exception.FinallyRunAll;
 import org.aksw.difs.builder.DifsFactory;
 import org.aksw.difs.system.domain.StoreDefinition;
 import org.aksw.jena_sparql_api.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
@@ -111,7 +111,7 @@ public class RdfDataSourceFactoryDifs
                 ds -> RDFConnectionFactoryQuadForm.connect(ds, cxt), () -> {
                     if (deleteWhenDone) {
                         logger.info(String.format("Deleting difs files based at %s", basePath));
-                        FinallyAll.run(
+                        FinallyRunAll.run(
                             () -> FileUtils.deleteRecursivelyIfExists(dftIndexPath),
                             () -> FileUtils.deleteRecursivelyIfExists(dftStorePath),
                             () -> FileUtils.deleteRecursivelyIfExists(dftTxnsPath),

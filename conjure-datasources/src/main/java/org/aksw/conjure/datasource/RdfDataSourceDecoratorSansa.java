@@ -44,7 +44,8 @@ public class RdfDataSourceDecoratorSansa
 
                 RDFLink rawUpdateLink = RDFLinkAdapterEx.adapt(rawConn);
 
-                boolean enforceSameThreadOnLink = true;
+                // The underlying engines should enforce same thread on link
+                boolean enforceSameThreadOnLink = false;
                 RDFLink updateLink = enforceSameThreadOnLink
                         ? RDFLinkDelegateWithWorkerThread.wrap(rawUpdateLink)
                         : rawUpdateLink;

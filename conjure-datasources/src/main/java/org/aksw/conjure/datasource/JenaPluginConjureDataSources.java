@@ -25,6 +25,7 @@ public class JenaPluginConjureDataSources
         registry.putFactory("tdb2", new RdfDataSourceFactoryTdb2());
         registry.putFactory("remote", new RdfDataSourceFactoryRemote());
         registry.putFactory("difs", new RdfDataSourceFactoryDifs());
+        registry.putFactory("partitioned", new RdfDataSourceFactoryPartitioned());
 
         return registry;
     }
