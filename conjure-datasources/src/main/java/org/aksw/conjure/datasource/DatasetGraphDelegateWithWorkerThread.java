@@ -14,11 +14,10 @@ import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.util.Context;
 
 public class DatasetGraphDelegateWithWorkerThread
-    extends TransactionalDelegateWithWorkerThread
+    extends TransactionalDelegateWithWorkerThread<DatasetGraph>
     implements DatasetGraph
 {
     protected DatasetGraph delegate;
-    protected ExecutorService es;
 
     public DatasetGraphDelegateWithWorkerThread(DatasetGraph delegate) {
         super();

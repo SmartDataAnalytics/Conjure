@@ -73,7 +73,7 @@ public class RdfDataSourceFactoryPartitioned
             }
         }
 
-        String delegateEngine = Objects.requireNonNull((String)config.get(RdfDataSourceSpecTerms.DELEGATE),
+        String delegateEngine = Objects.requireNonNull((String)props.get(RdfDataSourceSpecTerms.DELEGATE),
                 "No delegate engine set which to use for partitioning");
 
         RdfDataSourceFactory delegateFactory = new RdfDataSourceFactoryRailed(); // RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
