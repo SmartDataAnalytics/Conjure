@@ -22,6 +22,7 @@ import org.aksw.jenax.arq.datasource.RdfDataSourceSpecTerms;
 import org.aksw.jenax.connection.datasource.RdfDataSource;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
+import org.apache.jena.query.TxnType;
 import org.apache.jena.riot.other.G;
 import org.apache.jena.riot.system.PrefixMap;
 import org.apache.jena.sparql.core.DatasetGraph;
@@ -71,6 +72,23 @@ public class DatasetGraphRailed
     protected RdfDataSourceFactory memberFactory;
 
 
+    protected void checkTxn() {
+        DatasetGraph master = delegates.get(0);
+        if (master.isInTransaction()) {
+            TxnType type = null;
+            for (int i = 1; i < delegates.size(); ++i) {
+                DatasetGraph slave = delegates.get(i);
+                if (!slave.isInTransaction()) {
+                    if (type == null) {
+                        type = master.transactionType();
+                    }
+                    slave.begin(type);
+                }
+            }
+        }
+    }
+
+
     public static long getNumRailMembers(Properties props) {
         String numRailMembersStr = (String)props.get(RdfDataSourceSpecTerms.NUM_RAIL_MEMBERS);
         long numRailMembers = numRailMembersStr == null ? 0 : Long.parseLong(numRailMembersStr);
@@ -88,7 +106,10 @@ public class DatasetGraphRailed
 
         this.transactional = new TransactionalMultiplex<>(delegates) {
             protected <X> X forEachR(java.util.function.Function<? super Transactional, X> handler) {
-                return LockUtils.runWithLock(delegatesLock.readLock(), () -> super.forEachR(handler));
+                return LockUtils.runWithLock(delegatesLock.readLock(), () -> {
+                    checkTxn();
+                    return super.forEachR(handler);
+                });
             };
         };
 
@@ -174,11 +195,12 @@ public class DatasetGraphRailed
         }
 
         DatasetGraph tmp = ((HasDataset)member).getDataset().asDatasetGraph();
-        delegates.add(tmp);
 
-        if (isInTransaction()) {
-            tmp.begin(transactionType());
-        }
+//        if (isInTransaction()) {
+//            tmp.begin(transactionType());
+//        }
+//
+        delegates.add(tmp);
     }
 
 
@@ -187,8 +209,12 @@ public class DatasetGraphRailed
          long cnt = newRailCheckCount.incrementAndGet();
 
          long byteSize = -1;
+
+         boolean usedWriteLock = false;
          try {
             delegatesLock.readLock().lock();
+            checkTxn();
+
             int numDelegates = delegates.size();
             DatasetGraph delegate = delegates.get(numDelegates - 1);
 
@@ -210,6 +236,8 @@ public class DatasetGraphRailed
                     delegatesLock.readLock().unlock();
 
                     logger.info(String.format("Adding rail graph; size %d >= threshold %d", byteSize, railMemberSizeLimit));
+
+                    usedWriteLock = true;
                     delegatesLock.writeLock().lock();
                     try {
                         // Recheck the condition as maybe another thread acquired the write lock just when
@@ -224,13 +252,17 @@ public class DatasetGraphRailed
             }
 
         } finally {
-            delegatesLock.readLock().unlock();
+            if (!usedWriteLock) {
+                delegatesLock.readLock().unlock();
+            }
         }
     }
 
     @Override
     public void delete(Quad quad) {
         LockUtils.runWithLock(delegatesLock.readLock(), () -> {
+            checkTxn();
+
             for (DatasetGraph delegate : delegates) {
                 delegate.delete(quad);
             }
@@ -239,14 +271,18 @@ public class DatasetGraphRailed
 
     @Override
     public Iterator<Quad> find(Node g, Node s, Node p, Node o) {
-        return LockUtils.runWithLock(delegatesLock.readLock(), () ->
-            DatasetGraphHashPartitioned.find(delegates, g, s, p, o));
+        return LockUtils.runWithLock(delegatesLock.readLock(), () -> {
+            checkTxn();
+            return DatasetGraphHashPartitioned.find(delegates, g, s, p, o);
+        });
     }
 
     @Override
     public Iterator<Quad> findNG(Node g, Node s, Node p, Node o) {
-        return LockUtils.runWithLock(delegatesLock.readLock(), () ->
-            DatasetGraphHashPartitioned.findNG(delegates, g, s, p, o));
+        return LockUtils.runWithLock(delegatesLock.readLock(), () -> {
+            checkTxn();
+            return DatasetGraphHashPartitioned.findNG(delegates, g, s, p, o);
+        });
     }
 
     @Override
