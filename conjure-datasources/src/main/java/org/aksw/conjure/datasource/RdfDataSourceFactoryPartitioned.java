@@ -1,8 +1,6 @@
 package org.aksw.conjure.datasource;
 
 import java.io.Closeable;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -17,7 +15,6 @@ import org.aksw.commons.io.util.PathUtils;
 import org.aksw.commons.util.exception.FinallyRunAll;
 import org.aksw.jenax.arq.datasource.HasDataset;
 import org.aksw.jenax.arq.datasource.RdfDataSourceFactory;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFactoryRegistry;
 import org.aksw.jenax.arq.datasource.RdfDataSourceFromDataset;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasicFromMap;
@@ -45,10 +42,6 @@ public class RdfDataSourceFactoryPartitioned
         Path path = fsInfo.getKey();
 
 
-        String numPartitionsStr = (String)config.get(RdfDataSourceSpecTerms.PARTITIONS);
-        Integer numPartitions =  numPartitionsStr == null ? Runtime.getRuntime().availableProcessors() : Integer.parseInt(numPartitionsStr);
-
-
         // Check for an existing partitioned db at the given path
         Properties props = new Properties();
         if (path != null) {
@@ -66,7 +59,11 @@ public class RdfDataSourceFactoryPartitioned
                  }
 
                  props.putAll(config);
-                 props.put(RdfDataSourceSpecTerms.PARTITIONS, Integer.toString(numPartitions));
+
+
+                 if (!props.containsKey(RdfDataSourceSpecTerms.PARTITIONS)) {
+                     props.setProperty(RdfDataSourceSpecTerms.PARTITIONS, Integer.toString(Runtime.getRuntime().availableProcessors()));
+                 }
 
                  Files.createDirectories(path);
                  PropertiesUtils.write(confFile, props);
@@ -75,6 +72,10 @@ public class RdfDataSourceFactoryPartitioned
 
         String delegateEngine = Objects.requireNonNull((String)props.get(RdfDataSourceSpecTerms.DELEGATE),
                 "No delegate engine set which to use for partitioning");
+
+
+        int numPartitions = Integer.parseInt(
+                Objects.requireNonNull(props.getProperty(RdfDataSourceSpecTerms.PARTITIONS), "Number of partitions not specified"));
 
         RdfDataSourceFactory delegateFactory = new RdfDataSourceFactoryRailed(); // RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
 
