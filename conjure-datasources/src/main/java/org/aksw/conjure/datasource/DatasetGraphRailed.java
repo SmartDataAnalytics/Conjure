@@ -87,10 +87,6 @@ public class DatasetGraphRailed
         this.memberFactory = delegateFactory;
 
         this.transactional = new TransactionalMultiplex<>(delegates) {
-            protected void forEach(Consumer<? super Transactional> handler) {
-                LockUtils.runWithLock(delegatesLock.readLock(), () -> super.forEach(handler));
-            };
-
             protected <X> X forEachR(java.util.function.Function<? super Transactional, X> handler) {
                 return LockUtils.runWithLock(delegatesLock.readLock(), () -> super.forEachR(handler));
             };
@@ -196,7 +192,17 @@ public class DatasetGraphRailed
             int numDelegates = delegates.size();
             DatasetGraph delegate = delegates.get(numDelegates - 1);
 
-            delegate.add(quad);
+            boolean doAdd = true;
+            for (int i = 0; i < numDelegates - 1; ++i) {
+                if (delegates.get(i).contains(quad)) {
+                    doAdd = false;
+                    break;
+                }
+            }
+
+            if (doAdd) {
+                delegate.add(quad);
+            }
 
             if (cnt % newRailCheckIntervalSize == 1) {
                 byteSize = ((HasByteSize)delegate).getByteSize();
