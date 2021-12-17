@@ -54,10 +54,8 @@ public class RdfDataSourceFactoryPartitioned
         if (path != null) {
 
             Path confFile = path.resolve("rpt-partition.properties");
-            if (Files.exists(path)) {
-                try (InputStream in = Files.newInputStream(confFile)) {
-                    props.load(in);
-                }
+            if (Files.exists(confFile)) {
+                PropertiesUtils.read(confFile, props);
             } else {
                  if (Files.exists(path)) {
                     boolean isEmptyDir = Files.list(path).anyMatch(x -> true);
@@ -71,16 +69,14 @@ public class RdfDataSourceFactoryPartitioned
                  props.put(RdfDataSourceSpecTerms.PARTITIONS, Integer.toString(numPartitions));
 
                  Files.createDirectories(path);
-                 try (OutputStream out = Files.newOutputStream(confFile)) {
-                     props.store(out, null);
-                 }
+                 PropertiesUtils.write(confFile, props);
             }
         }
 
         String delegateEngine = Objects.requireNonNull((String)config.get(RdfDataSourceSpecTerms.DELEGATE),
                 "No delegate engine set which to use for partitioning");
 
-        RdfDataSourceFactory delegateFactory = RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
+        RdfDataSourceFactory delegateFactory = new RdfDataSourceFactoryRailed(); // RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
 
         List<RdfDataSource> partitions = new ArrayList<>();
         FinallyRunAll closePartAction = FinallyRunAll.create();

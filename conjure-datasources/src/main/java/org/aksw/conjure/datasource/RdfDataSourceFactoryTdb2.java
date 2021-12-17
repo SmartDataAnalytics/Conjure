@@ -3,6 +3,7 @@ package org.aksw.conjure.datasource;
 import java.io.Closeable;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,7 +18,9 @@ import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasicFromMap;
 import org.aksw.jenax.connection.datasource.RdfDataSource;
 import org.apache.jena.dboe.base.file.Location;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.tdb2.TDB2Factory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +97,14 @@ public class RdfDataSourceFactoryTdb2
 
         Location location = Location.create(finalDbPath);
         try {
-            Dataset dataset = TDB2Factory.connectDataset(location);
+            DatasetGraph dg = TDB2Factory.connectDataset(location).asDatasetGraph();
+
+//            PathMatcher fileMatcher = path -> {
+//                String fileName = path.getFileName().toString().toLowerCase();
+//                return fileName.contains("spo").
+//            };
+
+            Dataset dataset = DatasetFactory.wrap(new DatasetGraphWrapperWithSize(dg, finalDbPath, null));
 
             logger.info("Connecting to TDB2 database in folder " + finalDbPath);
             Closeable finalDeleteAction = () -> {

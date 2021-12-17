@@ -1,5 +1,6 @@
 package org.aksw.conjure.datasource;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -21,6 +22,13 @@ import org.apache.jena.sparql.core.Transactional;
 import org.apache.jena.util.iterator.WrappedIterator;
 
 
+/**
+ * A dataset graph with a fixed number of child graphs and a hash functions
+ * that determines for every quad deterministically in which child graph to place it.
+ *
+ * @author raven
+ *
+ */
 public class DatasetGraphHashPartitioned
     extends DatasetGraphQuads
     implements TransactionalDelegate
@@ -66,6 +74,19 @@ public class DatasetGraphHashPartitioned
         return transactional;
     }
 
+
+    public static Iterator<Quad> findNG(Collection<DatasetGraph> delegates, Node g, Node s, Node p, Node o) {
+        List<Iterator<Quad>> iters = delegates.stream().map(dg -> dg.findNG(g, s, p, o)).collect(Collectors.toList());
+        Iterator<Quad> result = WrappedIterator.createIteratorIterator(iters.iterator());
+        return result;
+    }
+
+    public static Iterator<Quad> find(Collection<DatasetGraph> delegates, Node g, Node s, Node p, Node o) {
+        List<Iterator<Quad>> iters = delegates.stream().map(dg -> dg.find(g, s, p, o)).collect(Collectors.toList());
+        Iterator<Quad> result = WrappedIterator.createIteratorIterator(iters.iterator());
+        return result;
+    }
+
     @Override
     public Iterator<Quad> find(Node g, Node s, Node p, Node o) {
         Quad quad = new Quad(g, s, p, o);
@@ -73,8 +94,7 @@ public class DatasetGraphHashPartitioned
 
         Iterator<Quad> result;
         if (hash == null) {
-            List<Iterator<Quad>> iters = delegates.stream().map(dg -> dg.find(g, s, p, o)).collect(Collectors.toList());
-            result = WrappedIterator.createIteratorIterator(iters.iterator());
+            result = find(delegates, g, s, p, o);
         } else {
             int index = hash % delegates.size();
             DatasetGraph dg = delegates.get(index);
@@ -91,8 +111,7 @@ public class DatasetGraphHashPartitioned
 
         Iterator<Quad> result;
         if (hash == null) {
-            List<Iterator<Quad>> iters = delegates.stream().map(dg -> dg.findNG(g, s, p, o)).collect(Collectors.toList());
-            result = WrappedIterator.createIteratorIterator(iters.iterator());
+            result = findNG(delegates, g, s, p, o);
         } else {
             int index = hashToIndex(hash);
             DatasetGraph dg = delegates.get(index);
