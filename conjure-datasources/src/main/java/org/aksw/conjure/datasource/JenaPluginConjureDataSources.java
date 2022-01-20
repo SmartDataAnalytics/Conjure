@@ -21,11 +21,14 @@ public class JenaPluginConjureDataSources
     }
 
     public static RdfDataSourceFactoryRegistry addDefaults(RdfDataSourceFactoryRegistry registry) {
-        registry.putFactory("mem", new RdfDataSourceFactoryMem());
-        registry.putFactory("tdb2", new RdfDataSourceFactoryTdb2());
-        registry.putFactory("remote", new RdfDataSourceFactoryRemote());
-        registry.putFactory("difs", new RdfDataSourceFactoryDifs());
-        registry.putFactory("partitioned", new RdfDataSourceFactoryPartitioned());
+
+        synchronized (JenaPluginConjureDataSources.class) {
+            registry.putFactory("mem", new RdfDataSourceFactoryMem());
+            registry.putFactory("tdb2", new RdfDataSourceFactoryTdb2());
+            registry.putFactory("remote", new RdfDataSourceFactoryRemote());
+            registry.putFactory("difs", new RdfDataSourceFactoryDifs());
+            registry.putFactory("partitioned", new RdfDataSourceFactoryPartitioned());
+        }
 
         return registry;
     }
