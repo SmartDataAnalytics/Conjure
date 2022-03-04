@@ -149,7 +149,7 @@ public class DatasetGraphDelegateWithWorkerThread
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         if (es == null || !es.isShutdown()) {
             submit(() -> getDelegate().close());
             es.shutdownNow();

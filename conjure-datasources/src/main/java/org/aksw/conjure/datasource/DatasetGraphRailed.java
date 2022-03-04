@@ -12,8 +12,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
-import org.aksw.commons.lock.LockUtils;
 import org.aksw.commons.util.exception.FinallyRunAll;
+import org.aksw.commons.util.lock.LockUtils;
 import org.aksw.jenax.arq.connection.TransactionalDelegate;
 import org.aksw.jenax.arq.connection.TransactionalMultiplex;
 import org.aksw.jenax.arq.datasource.HasDataset;

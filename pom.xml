@@ -54,13 +54,12 @@
 	</developers>
 
 	<properties>
-		<jena.version>4.3.2</jena.version>
-		<jenax.version>4.3.2-1-SNAPSHOT</jenax.version>
+		<jena.version>4.5.0-SNAPSHOT</jena.version>
+		<jenax.version>4.5.0-1-SNAPSHOT</jenax.version>
 
-		<sansa.version>0.8.0-RC2-SNAPSHOT</sansa.version>
-		<difs.version>1.0.0-SNAPSHOT</difs.version>
+		<sansa.version>0.8.0-RC3-SNAPSHOT</sansa.version>
 		<slf4j.version>1.8.0-beta4</slf4j.version>
-		<log4j.version>2.17.1</log4j.version>
+		<log4j.version>2.17.2</log4j.version>
 
 		<junit.version>4.13</junit.version>
 		<spring-boot.version>2.2.1.RELEASE</spring-boot.version>
@@ -110,9 +109,9 @@
 
 
 			<dependency>
-				<groupId>org.aksw.difs</groupId>
-				<artifactId>difs-system</artifactId>
-				<version>${difs.version}</version>
+				<groupId>org.aksw.jenax</groupId>
+				<artifactId>jenax-fsrdfstore-system</artifactId>
+				<version>${jenax.version}</version>
 			</dependency>
 
 			<dependency>
