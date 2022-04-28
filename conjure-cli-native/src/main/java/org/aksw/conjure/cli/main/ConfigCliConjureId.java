@@ -1,6 +1,6 @@
 package org.aksw.conjure.cli.main;
 
-import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef;
+import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.RdfDataRef;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.ConjureFormatConfig;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.ExecutionUtils;
 import org.aksw.jena_sparql_api.conjure.job.api.Job;
@@ -28,7 +28,7 @@ public class ConfigCliConjureId {
 	@Bean
 	@Autowired
 	public ApplicationRunner applicationRunner(
-			DataRef catalogDataRef,
+			RdfDataRef catalogDataRef,
 			Job job,
 			ConjureFormatConfig formatConfig) {
 		return args -> {

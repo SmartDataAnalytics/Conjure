@@ -12,9 +12,12 @@ import org.aksw.jenax.arq.datasource.RdfDataEngineFromDataset;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasicFromMap;
 import org.aksw.jenax.connection.dataengine.RdfDataEngine;
+import org.aksw.jenax.connection.update.UpdateEngineFactoryCore;
 import org.apache.jena.query.ARQ;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.sparql.modify.UpdateEngineMain;
+import org.apache.jena.sparql.modify.request.UpdateVisitor;
 import org.apache.jena.sparql.util.Context;
 
 public class RdfDataEngineFactoryMem
@@ -30,9 +33,17 @@ public class RdfDataEngineFactoryMem
         Context cxt = ARQ.getContext().copy();
         ServiceExecutorFactoryRegistratorVfs.register(cxt);
 
+        UpdateEngineFactoryCore uef = (d, b, c) -> new UpdateEngineMain(d, b,c) {
+            @Override
+            protected UpdateVisitor prepareWorker() {
+                return new UpdateEngineWorkerLoadAsGiven(d, b, c) ;
+            }
+        };
+
         DatasetRDFConnectionFactory connector = DatasetRDFConnectionFactoryBuilder.create()
                 .setDefaultQueryEngineFactoryProvider()
-                .setDefaultUpdateEngineFactoryProvider()
+                .setUpdateEngineFactoryCore(uef)
+                // .setDefaultUpdateEngineFactoryProvider()
                 .setContext(cxt)
                 .build();
 
