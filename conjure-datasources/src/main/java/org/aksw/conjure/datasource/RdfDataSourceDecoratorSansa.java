@@ -2,7 +2,7 @@ package org.aksw.conjure.datasource;
 
 import java.util.Map;
 
-import org.aksw.jenax.arq.connection.core.RDFLinkAdapterEx;
+import org.aksw.jenax.arq.connection.fix.RDFLinkAdapterFix;
 import org.aksw.jenax.arq.connection.link.RDFLinkDelegateWithWorkerThread;
 import org.aksw.jenax.arq.connection.link.RDFLinkUtils;
 import org.aksw.jenax.arq.datasource.RdfDataSourceDecorator;
@@ -42,7 +42,7 @@ public class RdfDataSourceDecoratorSansa
                 // If true then the graphstore LOAD action may acquire multiple update connections for the INSERT requests
                 // Multiple concurrent update transaction are prone to deadlocks
 
-                RDFLink rawUpdateLink = RDFLinkAdapterEx.adapt(rawConn);
+                RDFLink rawUpdateLink = RDFLinkAdapterFix.adapt(rawConn);
 
                 // The underlying engines should enforce same thread on link
                 boolean enforceSameThreadOnLink = false;
@@ -55,9 +55,9 @@ public class RdfDataSourceDecoratorSansa
 
                 LinkDatasetGraph linkDg;
                 if (allowMultipleConnections) {
-                    linkDg = LinkDatasetGraphSansa.create(createDefaultHadoopConfiguration(), () -> RDFLinkAdapterEx.adapt(dataSource.getConnection()));
+                    linkDg = LinkDatasetGraphSansa.create(createDefaultHadoopConfiguration(), () -> RDFLinkAdapterFix.adapt(dataSource.getConnection()));
                 } else {
-                    linkDg = LinkDatasetGraphSansa.create(createDefaultHadoopConfiguration(), () -> new RDFLinkAdapterEx(RDFConnectionAdapter.adapt(updateLink)) {
+                    linkDg = LinkDatasetGraphSansa.create(createDefaultHadoopConfiguration(), () -> new RDFLinkAdapterFix(RDFConnectionAdapter.adapt(updateLink)) {
                         @Override
                         public void close() {
                             // noop as we reuse the primary connection - the primary one has to be closed
