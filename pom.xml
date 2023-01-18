@@ -6,7 +6,7 @@
 
 	<groupId>org.aksw.conjure</groupId>
 	<artifactId>conjure-parent</artifactId>
-	<version>4.7.0-1-SNAPSHOT</version>
+	<version>4.8.0-1-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -54,8 +54,8 @@
 	</developers>
 
 	<properties>
-		<jena.version>4.7.0-SNAPSHOT</jena.version>
-		<jenax.version>4.7.0-1-SNAPSHOT</jenax.version>
+		<jena.version>4.8.0-SNAPSHOT</jena.version>
+		<jenax.version>4.8.0-1-SNAPSHOT</jenax.version>
 
 		<sansa.version>0.8.0-RC3-SNAPSHOT</sansa.version>
 		<slf4j.version>1.7.36</slf4j.version>
