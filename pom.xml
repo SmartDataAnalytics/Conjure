@@ -18,7 +18,7 @@
 		<module>conjure-datasources</module>
 		<module>conjure-cli-native</module>
 		<module>conjure-cli-spark</module>
-		<module>conjure-debian-cli</module>
+		<!-- <module>conjure-debian-cli</module> -->
 		<!-- <module>sparql-integrate-bundle</module> <module>sparql-integrate-dummy</module> -->
 	</modules>
 
@@ -55,9 +55,9 @@
 
 	<properties>
 		<jena.version>4.8.0</jena.version>
-		<jenax.version>4.8.0-1-SNAPSHOT</jenax.version>
+		<jenax.version>4.8.0-2</jenax.version>
 
-		<sansa.version>0.8.0-RC3-SNAPSHOT</sansa.version>
+		<sansa.version>0.8.7</sansa.version>
 		<slf4j.version>1.7.36</slf4j.version>
 		<log4j.version>2.18.0</log4j.version>
 
