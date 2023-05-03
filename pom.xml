@@ -6,7 +6,7 @@
 
 	<groupId>org.aksw.conjure</groupId>
 	<artifactId>conjure-parent</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>4.8.0-1-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -18,7 +18,7 @@
 		<module>conjure-datasources</module>
 		<module>conjure-cli-native</module>
 		<module>conjure-cli-spark</module>
-		<module>conjure-debian-cli</module>
+		<!-- <module>conjure-debian-cli</module> -->
 		<!-- <module>sparql-integrate-bundle</module> <module>sparql-integrate-dummy</module> -->
 	</modules>
 
@@ -54,25 +54,19 @@
 	</developers>
 
 	<properties>
-		<jena.version>4.5.0-SNAPSHOT</jena.version>
-		<jenax.version>4.5.0-1-SNAPSHOT</jenax.version>
+		<jena.version>4.8.0</jena.version>
+		<jenax.version>4.8.0-2</jenax.version>
 
-		<sansa.version>0.8.0-RC3-SNAPSHOT</sansa.version>
-		<slf4j.version>1.8.0-beta4</slf4j.version>
-		<log4j.version>2.17.2</log4j.version>
+		<sansa.version>0.8.7</sansa.version>
+		<slf4j.version>1.7.36</slf4j.version>
+		<log4j.version>2.18.0</log4j.version>
 
 		<junit.version>4.13</junit.version>
 		<spring-boot.version>2.2.1.RELEASE</spring-boot.version>
 
-<!--
-		<scala.version>2.11.12</scala.version>
-		<scala.binary.version>2.11</scala.binary.version>
-		<scala.classifier>${scala.binary.version}</scala.classifier>
-		<scala.version.suffix>_${scala.binary.version}</scala.version.suffix>
-
-		<spark.version>2.4.3</spark.version>
-		<hadoop.version>2.9.2</hadoop.version>
--->
+		<!-- <scala.version>2.11.12</scala.version> <scala.binary.version>2.11</scala.binary.version> 
+			<scala.classifier>${scala.binary.version}</scala.classifier> <scala.version.suffix>_${scala.binary.version}</scala.version.suffix> 
+			<spark.version>2.4.3</spark.version> <hadoop.version>2.9.2</hadoop.version> -->
 
 		<!-- Project Settings -->
 		<maven.compiler.release>11</maven.compiler.release>
@@ -86,33 +80,20 @@
 
 	<dependencyManagement>
 		<dependencies>
-<!--
-			<dependency>
-				<groupId>org.apache.jena</groupId>
-				<artifactId>jena-arq</artifactId>
-				<version>${jena.version}</version>
-			</dependency>
--->
+			<!-- <dependency> <groupId>org.apache.jena</groupId> <artifactId>jena-arq</artifactId> 
+				<version>${jena.version}</version> </dependency> -->
+
+			<!-- <dependency> <groupId>org.aksw.jenax</groupId> <artifactId>jenax-bom</artifactId> 
+				<version>${jenax.version}</version> <type>pom</type> <scope>import</scope> 
+				</dependency> -->
 
 
-                <dependency>
-                        <groupId>org.aksw.jenax</groupId>
-                        <artifactId>jenax-arq-connection-core</artifactId>
-			<version>${jenax.version}</version>
-                </dependency>
-
-                <dependency>
-                        <groupId>org.aksw.jenax</groupId>
-                        <artifactId>jenax-arq-plugins-service-vfs</artifactId>
-			<version>${jenax.version}</version>
-                </dependency>
-
-
-			<dependency>
-				<groupId>org.aksw.jenax</groupId>
-				<artifactId>jenax-fsrdfstore-system</artifactId>
-				<version>${jenax.version}</version>
-			</dependency>
+			<!-- <dependency> <groupId>org.aksw.jenax</groupId> <artifactId>jenax-arq-connection-core</artifactId> 
+				<version>${jenax.version}</version> </dependency> <dependency> <groupId>org.aksw.jenax</groupId> 
+				<artifactId>jenax-arq-plugins-service-vfs</artifactId> <version>${jenax.version}</version> 
+				</dependency> -->
+			<!-- <dependency> <groupId>org.aksw.jenax</groupId> <artifactId>jenax-fsrdfstore-system</artifactId> 
+				<version>${jenax.version}</version> </dependency> -->
 
 			<dependency>
 				<groupId>net.sansa-stack</groupId>
@@ -127,7 +108,24 @@
 						<groupId>org.slf4j</groupId>
 						<artifactId>slf4j-log4j12</artifactId>
 					</exclusion>
+					<exclusion>
+						<groupId>ch.qos.reload4j</groupId>
+						<artifactId>reload4j</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-reload4j</artifactId>
+					</exclusion>
+
 				</exclusions>
+			</dependency>
+
+			<dependency>
+				<groupId>org.aksw.jenax</groupId>
+				<artifactId>jenax-bom</artifactId>
+				<version>${jenax.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 
 			<dependency>
@@ -143,6 +141,13 @@
 				<dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-annotations</artifactId> 
 				<version>2.6.7</version> </dependency> -->
 
+
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot</artifactId>
+				<version>${spring-boot.version}</version>
+			</dependency>
+
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-autoconfigure</artifactId>
@@ -156,11 +161,8 @@
 			</dependency>
 
 
-			<dependency>
-				<groupId>org.aksw.jenax</groupId>
-				<artifactId>jenax-conjure-core</artifactId>
-				<version>${jenax.version}</version>
-			</dependency>
+			<!-- <dependency> <groupId>org.aksw.jenax</groupId> <artifactId>jenax-conjure-core</artifactId> 
+				<version>${jenax.version}</version> </dependency> -->
 
 			<dependency>
 				<groupId>org.aksw.conjure</groupId>
@@ -202,12 +204,8 @@
 							<artifactId>maven-project-info-reports-plugin</artifactId>
 							<version>2.9</version>
 						</plugin>
-<!--
-						<plugin>
-							<groupId>net.alchim31.maven</groupId>
-							<artifactId>scala-maven-plugin</artifactId>
-						</plugin>
--->
+						<!-- <plugin> <groupId>net.alchim31.maven</groupId> <artifactId>scala-maven-plugin</artifactId> 
+							</plugin> -->
 					</reportPlugins>
 				</configuration>
 			</plugin>

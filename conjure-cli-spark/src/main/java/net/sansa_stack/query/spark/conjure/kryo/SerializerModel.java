@@ -11,26 +11,28 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 public class SerializerModel
-	extends Serializer<Model>
+    extends Serializer<Model>
 {
 
-	protected RDFFormat format;
+    protected RDFFormat format;
 
-	public SerializerModel(RDFFormat format) {
-		super();
-		this.format = format;
-	}
+    public SerializerModel(RDFFormat format) {
+        super();
+        this.format = format;
+    }
 
-	public Model read(Kryo kryo, Input input, Class<Model> clazz) {
-		kryo.readClass(input);
-		Model result = ModelFactory.createDefaultModel();
-		RDFDataMgr.read(result, input, format.getLang());
-		return result;
-	}
+    @Override
+    public Model read(Kryo kryo, Input input, Class<Model> clazz) {
+        kryo.readClass(input);
+        Model result = ModelFactory.createDefaultModel();
+        RDFDataMgr.read(result, input, format.getLang());
+        return result;
+    }
 
-	public void write(Kryo kryo, Output output, Model model) {
-		kryo.writeClass(output, Model.class);
-		RDFDataMgr.write(output, model, format);
-	}
+    @Override
+    public void write(Kryo kryo, Output output, Model model) {
+        kryo.writeClass(output, Model.class);
+        RDFDataMgr.write(output, model, format);
+    }
 
 }
