@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.aksw.conjure</groupId>
 		<artifactId>conjure-parent</artifactId>
-		<version>4.8.0-1-SNAPSHOT</version>
+		<version>4.8.0-2</version>
 	</parent>
 	<artifactId>conjure-cli-spark</artifactId>
 	<packaging>jar</packaging>
