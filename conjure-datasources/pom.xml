@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.aksw.conjure</groupId>
 		<artifactId>conjure-parent</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>4.8.0-2</version>
 	</parent>
 
 	<dependencies>
@@ -25,8 +25,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.aksw.difs</groupId>
-			<artifactId>difs-system</artifactId>
+			<groupId>org.aksw.jenax</groupId>
+			<artifactId>jenax-fsrdfstore-system</artifactId>
 		</dependency>
 
 		<dependency>

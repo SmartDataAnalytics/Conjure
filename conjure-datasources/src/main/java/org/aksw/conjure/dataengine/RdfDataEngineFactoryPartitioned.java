@@ -1,4 +1,4 @@
-package org.aksw.conjure.datasource;
+package org.aksw.conjure.dataengine;
 
 import java.io.Closeable;
 import java.nio.file.Files;
@@ -13,12 +13,16 @@ import java.util.stream.Collectors;
 
 import org.aksw.commons.io.util.PathUtils;
 import org.aksw.commons.util.exception.FinallyRunAll;
+import org.aksw.conjure.datasource.DatasetGraphDelegateWithWorkerThread;
+import org.aksw.conjure.datasource.DatasetGraphHashPartitioned;
+import org.aksw.conjure.datasource.PropertiesUtils;
 import org.aksw.jenax.arq.datasource.HasDataset;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFactory;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFromDataset;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFromDataset;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasicFromMap;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecTerms;
+import org.aksw.jenax.connection.dataengine.RdfDataEngine;
 import org.aksw.jenax.connection.datasource.RdfDataSource;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -29,14 +33,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
-public class RdfDataSourceFactoryPartitioned
-    implements RdfDataSourceFactory
+public class RdfDataEngineFactoryPartitioned
+    implements RdfDataEngineFactory
 {
-    private static final Logger logger = LoggerFactory.getLogger(RdfDataSourceFactoryPartitioned.class);
+    private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryPartitioned.class);
 
 
     @Override
-    public RdfDataSource create(Map<String, Object> config) throws Exception {
+    public RdfDataEngine create(Map<String, Object> config) throws Exception {
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
         Entry<Path, Closeable> fsInfo = PathUtils.resolveFsAndPath(spec.getLocationContext(), spec.getLocation());
         Path path = fsInfo.getKey();
@@ -77,7 +81,7 @@ public class RdfDataSourceFactoryPartitioned
         int numPartitions = Integer.parseInt(
                 Objects.requireNonNull(props.getProperty(RdfDataSourceSpecTerms.PARTITIONS), "Number of partitions not specified"));
 
-        RdfDataSourceFactory delegateFactory = new RdfDataSourceFactoryRailed(); // RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
+        RdfDataEngineFactory delegateFactory = new RdfDataEngineFactoryRailed(); // RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
 
         List<RdfDataSource> partitions = new ArrayList<>();
         FinallyRunAll closePartAction = FinallyRunAll.create();
@@ -91,7 +95,10 @@ public class RdfDataSourceFactoryPartitioned
             Map<String, Object> partMap = Maps.transformValues(Maps.fromProperties(partProps), v -> (Object)v);
             RdfDataSource dataSource = delegateFactory.create(partMap);
 
-            closePartAction.addThrowing(dataSource::close);
+            if (dataSource instanceof AutoCloseable) {
+                AutoCloseable closable = (AutoCloseable)dataSource;
+                closePartAction.addThrowing(closable::close);
+            }
 
             if (!(dataSource instanceof HasDataset)) {
                 throw new RuntimeException("Partitioning currently requires backing engines to be backed by datasets");
@@ -112,7 +119,7 @@ public class RdfDataSourceFactoryPartitioned
         // Set up a datasource for which connections are created in a peculiar way:
         // Each partition member graph gets a wrapper such that access via the connection
         // always uses the same thread
-        RdfDataSource result = RdfDataSourceFromDataset.create(ds, dummyDs -> {
+        RdfDataEngine result = RdfDataEngineFromDataset.create(ds, dummyDs -> {
             List<DatasetGraph> guardedDsgs = dsgs.stream()
                     .map(DatasetGraphDelegateWithWorkerThread::wrap)
                     .collect(Collectors.toList());

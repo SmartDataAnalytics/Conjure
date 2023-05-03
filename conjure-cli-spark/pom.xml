@@ -3,173 +3,139 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>org.aksw.conjure</groupId>
 		<artifactId>conjure-parent</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>4.8.0-2</version>
 	</parent>
-
 	<artifactId>conjure-cli-spark</artifactId>
 	<packaging>jar</packaging>
-
 	<properties>
 		<!-- shaded jar and deb package will be build with dist profile (mvn -P 
 			dist package) -->
 		<deb.packageName>conjure-rdf-spark-cli</deb.packageName>
 		<deb.jarFile>${project.artifactId}-${project.version}-jar-with-dependencies.jar</deb.jarFile>
-
-
 		<maven.version>3.1</maven.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
 		<scala.version>2.11.11</scala.version>
 		<scala.binary.version>2.11</scala.binary.version>
 		<scala.classifier>${scala.binary.version}</scala.classifier>
 		<scala.version.suffix>_${scala.binary.version}</scala.version.suffix>
-
 		<spark.version>2.4.3</spark.version>
 		<spark.scope>compile</spark.scope>
 		<hadoop.version>2.9.2</hadoop.version>
-
 		<!-- <jena.version>3.12.0</jena.version> <jsa.subversion>2-SNAPSHOT</jsa.subversion> 
 			<jsa.version>${jena.version}-${jsa.subversion}</jsa.version> -->
 		<scalastyle.config.path>${project.basedir}/scalastyle-config.xml</scalastyle.config.path>
 	</properties>
-
 	<dependencies>
-
 		<!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-core</artifactId> 
 			</dependency> <dependency> <groupId>com.fasterxml.jackson.core</groupId> 
 			<artifactId>jackson-databind</artifactId> </dependency> <dependency> <groupId>com.fasterxml.jackson.core</groupId> 
 			<artifactId>jackson-annotations</artifactId> </dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.apache.spark</groupId> -->
 		<!-- <artifactId>spark-sql_${scala.binary.version}</artifactId> -->
 		<!-- </dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>com.beust</groupId> -->
 		<!-- <artifactId>jcommander</artifactId> -->
 		<!-- </dependency> -->
-
-
 		<dependency>
 			<groupId>org.scala-lang.modules</groupId>
 			<artifactId>scala-java8-compat_${scala.binary.version}</artifactId>
 			<version>0.9.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_${scala.binary.version}</artifactId>
 			<version>${spark.version}</version>
 			<scope>${spark.scope}</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_${scala.binary.version}</artifactId>
 			<version>${spark.version}</version>
 			<scope>${spark.scope}</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.typesafe.scala-logging</groupId>
 			<artifactId>scala-logging_${scala.binary.version}</artifactId>
 			<version>3.9.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.scalatest</groupId>
 			<artifactId>scalatest_${scala.binary.version}</artifactId>
 			<version>3.0.5</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>de.javakaffee</groupId>
 			<artifactId>kryo-serializers</artifactId>
 			<version>0.41</version>
 		</dependency>
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.apache.jena</groupId> -->
 		<!-- <artifactId>jena-core</artifactId> -->
 		<!-- <version>${jena.version}</version> -->
 		<!-- </dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.apache.jena</groupId> -->
 		<!-- <artifactId>jena-fuseki-server</artifactId> -->
 		<!-- <version>${jena.version}</version> -->
 		<!-- </dependency> -->
-
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.apache.jena</groupId> -->
 		<!-- <artifactId>jena-tdb</artifactId> -->
 		<!-- <version>${jena.version}</version> -->
 		<!-- </dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.apache.jena</groupId> -->
 		<!-- <artifactId>apache-jena-libs</artifactId> -->
 		<!-- <type>pom</type> -->
 		<!-- <version>${jena.version}</version> -->
 		<!-- </dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>com.google.guava</groupId> -->
 		<!-- <artifactId>guava</artifactId> -->
 		<!-- <version>27.0.1-jre</version> -->
 		<!-- </dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
 		<!-- <artifactId>jena-sparql-api-core</artifactId> -->
 		<!-- </dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
 		<!-- <artifactId>jena-sparql-api-conjure</artifactId> -->
 		<!-- </dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
 		<!-- <artifactId>jena-sparql-api-mapper-annotations</artifactId> -->
 		<!-- </dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
 		<!-- <artifactId>jena-sparql-api-virtuoso</artifactId> -->
 		<!-- <version>${jsa.version}</version> -->
 		<!-- </dependency> -->
-
 		<!-- <dependency> <groupId>org.aksw.jena-sparql-api</groupId> <artifactId>jena-sparql-api-server-standalone</artifactId> 
 			<version>${jsa.version}</version> </dependency> <dependency> <groupId>org.aksw.jena-sparql-api</groupId> 
 			<artifactId>jena-sparql-api-algebra</artifactId> <version>${jsa.version}</version> 
 			</dependency> -->
-
 		<!-- <dependency> -->
 		<!-- <groupId>org.aksw.jena-sparql-api</groupId> -->
 		<!-- <artifactId>jena-sparql-api-views</artifactId> -->
 		<!-- <version>${jsa.version}</version> -->
 		<!-- </dependency> -->
-
 		<dependency>
 			<groupId>org.aksw.conjure</groupId>
 			<artifactId>conjure-cli-native</artifactId>
-
 			<exclusions>
 				<exclusion>
 					<groupId>com.fasterxml.jackson.core</groupId>
 					<artifactId>jackson-core</artifactId>
 				</exclusion>
-
 				<exclusion>
 					<groupId>com.fasterxml.jackson.core</groupId>
 					<artifactId>jackson-databind</artifactId>
@@ -180,10 +146,56 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+		<dependency>
+			<groupId>org.aksw.jenax</groupId>
+			<artifactId>jenax-io-json</artifactId>
+		</dependency>
 	</dependencies>
-
 	<profiles>
+		<profile>
+			<id>standalone</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-shade-plugin</artifactId>
+						<version>3.1.1</version>
+						<executions>
+							<!-- Run shade goal on package phase -->
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>shade</goal>
+								</goals>
+								<configuration>
+									<!-- <minimizeJar>true</minimizeJar> -->
+									<shadedArtifactAttached>true</shadedArtifactAttached>
+									<shadedClassifierName>jar-with-dependencies</shadedClassifierName>
+									<filters>
+										<filter>
+											<artifact>*:*</artifact>
+											<excludes>
+												<exclude>META-INF/*.SF</exclude>
+												<exclude>META-INF/*.DSA</exclude>
+												<exclude>META-INF/*.RSA</exclude>
+											</excludes>
+										</filter>
+									</filters>
+									<transformers>
+										<transformer
+											implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+										<transformer
+											implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+											<mainClass>net.sansa_stack.query.spark.conjure.MainCliConjureSpark</mainClass>
+										</transformer>
+									</transformers>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>dist</id>
 			<properties>
@@ -195,7 +207,6 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-shade-plugin</artifactId>
 					</plugin>
-
 					<plugin>
 						<artifactId>jdeb</artifactId>
 						<groupId>org.vafer</groupId>
@@ -209,20 +220,16 @@
 								<configuration>
 									<deb>${project.build.directory}/${deb.packageName}_[[version]]_all.deb</deb>
 									<changesOut>${project.build.directory}/${deb.packageName}_[[version]]_all.changes</changesOut>
-
 									<!-- <timestamped>true</timestamped> -->
 									<snapshotExpand>true</snapshotExpand>
 									<snapshotEnv />
-
 									<signPackage>${jdeb.signPackage}</signPackage>
 									<signMethod>dpkg-sig</signMethod>
 									<signRole>builder</signRole>
 									<keyring>${jdeb.keyring}</keyring>
 									<key>${jdeb.key}</key>
 									<passphrase>${jdeb.passphrase}</passphrase>
-
 									<dataSet>
-
 										<!-- Uncomment for including an existing etc folder -->
 										<!-- <data> -->
 										<!-- <type>directory</type> -->
@@ -232,7 +239,6 @@
 										<!-- <prefix>/etc</prefix> -->
 										<!-- </mapper> -->
 										<!-- </data> -->
-
 										<data>
 											<type>directory</type>
 											<src>${basedir}/src/deb/resources/usr/bin</src>
@@ -242,7 +248,6 @@
 												<filemode>755</filemode>
 											</mapper>
 										</data>
-
 										<data>
 											<type>file</type>
 											<src>${project.build.directory}/${deb.jarFile}</src>
@@ -251,7 +256,6 @@
 												<prefix>/usr/share/lib/${deb.packageName}</prefix>
 											</mapper>
 										</data>
-
 										<!-- <data> -->
 										<!-- <type>directory</type> -->
 										<!-- <src>${project.build.directory}/lib</src> -->
@@ -261,15 +265,12 @@
 										<!-- <filemode>755</filemode> -->
 										<!-- </mapper> -->
 										<!-- </data> -->
-
 										<data>
 											<type>link</type>
 											<symlink>true</symlink>
 											<linkName>/usr/share/lib/${deb.packageName}/${deb.packageName}.jar</linkName>
 											<linkTarget>/usr/share/lib/${deb.packageName}/${deb.jarFile}</linkTarget>
 										</data>
-
-
 										<!-- <data> <type>file</type> <src>${basedir}/../sparqlify-core/target/sparqlify-core-${version}.jar</src> 
 											<mapper> <type>perm</type> <prefix>/usr/share/lib/${deb.packageName}</prefix> 
 											</mapper> </data> -->
@@ -277,82 +278,63 @@
 											<mapper> <type>perm</type> <prefix>/usr/share/lib/${deb.packageName}</prefix> 
 											</mapper> </data> -->
 									</dataSet>
-
 								</configuration>
 							</execution>
 						</executions>
 					</plugin>
 				</plugins>
-
-
 			</build>
 		</profile>
 	</profiles>
-
 	<build>
-
 		<plugins>
 			<!-- Plugins that need to be repeated on every submodule -->
-
-
 			<!-- General plugins suitable for declaration in parent pom -->
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
-
 			<plugin>
 				<groupId>com.amashchenko.maven.plugin</groupId>
 				<artifactId>gitflow-maven-plugin</artifactId>
 			</plugin>
-
 			<plugin>
 				<groupId>org.scalatest</groupId>
 				<artifactId>scalatest-maven-plugin</artifactId>
 			</plugin>
-
 			<plugin>
 				<groupId>org.eluder.coveralls</groupId>
 				<artifactId>coveralls-maven-plugin</artifactId>
 			</plugin>
-
+			<!--
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
 			</plugin>
-
+			-->
 			<!-- <plugin> <groupId>org.jacoco</groupId> <artifactId>jacoco-maven-plugin</artifactId> 
 				</plugin> -->
 		</plugins>
-
-
 		<!-- <sourceDirectory>src/main/java</sourceDirectory> -->
 		<!-- <sourceDirectory>src/main/scala</sourceDirectory> -->
 		<!-- <build> <plugins> <plugin> <groupId>org.apache.maven.plugins</groupId> 
 			<artifactId>maven-compiler-plugin</artifactId> </plugin> <plugin> <groupId>net.alchim31.maven</groupId> 
 			<artifactId>scala-maven-plugin</artifactId> </plugin> <plugin> <groupId>org.scalastyle</groupId> 
 			<artifactId>scalastyle-maven-plugin</artifactId> </plugin> </plugins> </build> -->
-
-
 		<pluginManagement>
 			<plugins>
-
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.1</version>
@@ -362,14 +344,12 @@
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
 				</plugin>
-
 				<!-- Surefire -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<!-- <version>2.18.1</version> -->
 					<version>2.20.1</version>
-
 					<configuration>
 						<useFile>false</useFile>
 						<disableXmlReport>true</disableXmlReport>
@@ -381,7 +361,6 @@
 						</includes>
 					</configuration>
 				</plugin>
-
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-project-info-reports-plugin</artifactId>
@@ -391,13 +370,11 @@
 						<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
 					</configuration>
 				</plugin>
-
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-report-plugin</artifactId>
 					<version>2.20</version>
 				</plugin>
-
 				<!-- <plugin> -->
 				<!-- <groupId>org.scalatest</groupId> -->
 				<!-- <artifactId>scalatest-maven-plugin</artifactId> -->
@@ -406,8 +383,6 @@
 				<!-- <tagsToExclude>net.sansa_stack.test.conformance.IntegrationTestSuite</tagsToExclude> -->
 				<!-- </configuration> -->
 				<!-- </plugin> -->
-
-
 				<!-- Legacy scalatest dependency - remove if the newer one works -->
 				<!-- <plugin> -->
 				<!-- <groupId>org.scalatest</groupId> -->
@@ -427,15 +402,11 @@
 				<!-- </execution> -->
 				<!-- </executions> -->
 				<!-- </plugin> -->
-
-
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>versions-maven-plugin</artifactId>
 					<version>2.5</version>
 				</plugin>
-
-
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
@@ -450,7 +421,6 @@
 						</execution>
 					</executions>
 				</plugin>
-
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
@@ -467,69 +437,23 @@
 						</execution>
 					</executions>
 				</plugin>
-
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-shade-plugin</artifactId>
-					<version>3.1.1</version>
-					<executions>
-						<!-- Run shade goal on package phase -->
-						<execution>
-							<phase>package</phase>
-							<goals>
-								<goal>shade</goal>
-							</goals>
-							<configuration>
-								<!-- <minimizeJar>true</minimizeJar> -->
-								<shadedArtifactAttached>true</shadedArtifactAttached>
-								<shadedClassifierName>jar-with-dependencies</shadedClassifierName>
-								<filters>
-									<filter>
-										<artifact>*:*</artifact>
-										<excludes>
-											<exclude>META-INF/*.SF</exclude>
-											<exclude>META-INF/*.DSA</exclude>
-											<exclude>META-INF/*.RSA</exclude>
-										</excludes>
-									</filter>
-								</filters>
-								<transformers>
-									<transformer
-										implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-									<transformer
-										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-										<mainClass>net.sansa_stack.query.spark.conjure.MainCliConjureSpark</mainClass>
-									</transformer>
-								</transformers>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.0.2</version>
 				</plugin>
-
 				<plugin>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>3.1.0</version>
 				</plugin>
-
 				<plugin>
 					<artifactId>maven-dependency-plugin</artifactId>
 					<version>3.0.2</version>
 				</plugin>
-
-
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>jdepend-maven-plugin</artifactId>
 					<version>2.0</version>
 				</plugin>
-
-
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
@@ -564,8 +488,6 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-
-
 				<plugin>
 					<groupId>org.eluder.coveralls</groupId>
 					<artifactId>coveralls-maven-plugin</artifactId>
@@ -579,7 +501,6 @@
 						</sourceDirectories>
 					</configuration>
 				</plugin>
-
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
@@ -593,7 +514,6 @@
 						</execution>
 					</executions>
 				</plugin>
-
 				<plugin>
 					<groupId>org.basepom.maven</groupId>
 					<artifactId>duplicate-finder-maven-plugin</artifactId>
@@ -621,24 +541,19 @@
 						<useResultFile>true</useResultFile>
 						<resultFileMinClasspathCount>2</resultFileMinClasspathCount>
 						<resultFile>${project.build.directory}/duplicate-finder-result.xml</resultFile>
-
 						<!-- Version 1.1.1+ -->
 						<includeBootClasspath>false</includeBootClasspath>
 						<bootClasspathProperty>sun.boot.class.path</bootClasspathProperty>
 						<useDefaultResourceIgnoreList>true</useDefaultResourceIgnoreList>
 						<!-- Version 1.1.1+ -->
-
 						<!-- Version 1.2.0+ -->
 						<includePomProjects>false</includePomProjects>
 						<!-- Version 1.2.0+ -->
-
 						<!-- Version 1.2.1+ -->
 						<useDefaultResourceIgnoreList>true</useDefaultResourceIgnoreList>
 					</configuration>
 				</plugin>
-
 			</plugins>
 		</pluginManagement>
 	</build>
 </project>
-

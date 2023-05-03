@@ -3,7 +3,7 @@ package org.aksw.conjure.cli.main;
 import java.util.List;
 
 import org.aksw.dcat.jena.domain.api.DcatDataset;
-import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.DataRef;
+import org.aksw.jena_sparql_api.conjure.dataref.rdf.api.RdfDataRef;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.ConjureConstants;
 import org.aksw.jena_sparql_api.conjure.dataset.engine.ConjureFormatConfig;
 import org.aksw.jena_sparql_api.conjure.job.api.Job;
@@ -29,7 +29,7 @@ public class ConfigCliConjureNative {
     @Bean
     @Autowired
     public ApplicationRunner applicationRunner(
-            DataRef catalogDataRef,
+            RdfDataRef catalogDataRef,
             Job job,
             ConjureFormatConfig formatConfig) {
         return args -> {

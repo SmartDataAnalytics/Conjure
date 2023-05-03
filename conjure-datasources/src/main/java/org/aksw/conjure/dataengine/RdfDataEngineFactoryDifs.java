@@ -1,4 +1,4 @@
-package org.aksw.conjure.datasource;
+package org.aksw.conjure.dataengine;
 
 import java.io.Closeable;
 import java.nio.file.FileSystems;
@@ -15,12 +15,12 @@ import org.aksw.commons.util.exception.FinallyRunAll;
 import org.aksw.difs.builder.DifsFactory;
 import org.aksw.difs.system.domain.StoreDefinition;
 import org.aksw.jena_sparql_api.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFactory;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFromDataset;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFromDataset;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasicFromMap;
 import org.aksw.jenax.arq.engine.quad.RDFConnectionFactoryQuadForm;
-import org.aksw.jenax.connection.datasource.RdfDataSource;
+import org.aksw.jenax.connection.dataengine.RdfDataEngine;
 import org.apache.jena.query.ARQ;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -28,13 +28,13 @@ import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RdfDataSourceFactoryDifs
-    implements RdfDataSourceFactory
+public class RdfDataEngineFactoryDifs
+    implements RdfDataEngineFactory
 {
-    private static final Logger logger = LoggerFactory.getLogger(RdfDataSourceFactoryDifs.class);
+    private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryDifs.class);
 
     @Override
-    public RdfDataSource create(Map<String, Object> config) throws Exception {
+    public RdfDataEngine create(Map<String, Object> config) throws Exception {
 
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
 
@@ -107,7 +107,7 @@ public class RdfDataSourceFactoryDifs
             .setMaximumNamedGraphCacheSize(10000)
             .connectAsDataset();
 
-        RdfDataSource result = RdfDataSourceFromDataset.create(dataset,
+        RdfDataEngine result = RdfDataEngineFromDataset.create(dataset,
                 ds -> RDFConnectionFactoryQuadForm.connect(ds, cxt), () -> {
                     if (deleteWhenDone) {
                         logger.info(String.format("Deleting difs files based at %s", basePath));

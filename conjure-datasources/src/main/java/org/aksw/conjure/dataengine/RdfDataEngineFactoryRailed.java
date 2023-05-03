@@ -1,30 +1,25 @@
-package org.aksw.conjure.datasource;
+package org.aksw.conjure.dataengine;
 
 import java.io.Closeable;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import org.aksw.commons.io.util.PathUtils;
-import org.aksw.commons.util.exception.FinallyRunAll;
+import org.aksw.conjure.datasource.DatasetGraphRailed;
+import org.aksw.conjure.datasource.PropertiesUtils;
 import org.aksw.jenax.arq.connection.core.RDFConnectionUtils;
 import org.aksw.jenax.arq.connection.link.RDFLinkDelegateWithWorkerThread;
-import org.aksw.jenax.arq.datasource.HasDataset;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFactory;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFactoryRegistry;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFromDataset;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFactoryRegistry;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFromDataset;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasicFromMap;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecTerms;
-import org.aksw.jenax.connection.datasource.RdfDataSource;
+import org.aksw.jenax.connection.dataengine.RdfDataEngine;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
@@ -32,16 +27,14 @@ import org.apache.jena.sparql.core.DatasetGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
-
-public class RdfDataSourceFactoryRailed
-    implements RdfDataSourceFactory
+public class RdfDataEngineFactoryRailed
+    implements RdfDataEngineFactory
 {
-    private static final Logger logger = LoggerFactory.getLogger(RdfDataSourceFactoryRailed.class);
+    private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryRailed.class);
 
 
     @Override
-    public RdfDataSource create(Map<String, Object> config) throws Exception {
+    public RdfDataEngine create(Map<String, Object> config) throws Exception {
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
         Entry<Path, Closeable> fsInfo = PathUtils.resolveFsAndPath(spec.getLocationContext(), spec.getLocation());
         Path path = fsInfo.getKey();
@@ -83,12 +76,12 @@ public class RdfDataSourceFactoryRailed
         String delegateEngine = Objects.requireNonNull((String)config.get(RdfDataSourceSpecTerms.DELEGATE),
                 "No delegate engine set which to use for railing");
 
-        RdfDataSourceFactory delegateFactory = RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
+        RdfDataEngineFactory delegateFactory = RdfDataEngineFactoryRegistry.get().getFactory(delegateEngine);
 
         DatasetGraph dg = new DatasetGraphRailed(confFile, delegateFactory);
         Dataset ds = DatasetFactory.wrap(dg);
 
-        RdfDataSource result = RdfDataSourceFromDataset.create(ds, dss -> {
+        RdfDataEngine result = RdfDataEngineFromDataset.create(ds, dss -> {
             RDFConnection raw = RDFConnection.connect(dss);
             return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkDelegateWithWorkerThread::wrap);
         }, null);

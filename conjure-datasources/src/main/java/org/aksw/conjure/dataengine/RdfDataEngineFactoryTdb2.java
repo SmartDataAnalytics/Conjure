@@ -1,21 +1,21 @@
-package org.aksw.conjure.datasource;
+package org.aksw.conjure.dataengine;
 
 import java.io.Closeable;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.aksw.commons.io.util.PathUtils;
+import org.aksw.conjure.datasource.DatasetGraphWrapperWithSize;
 import org.aksw.jenax.arq.connection.core.RDFConnectionUtils;
 import org.aksw.jenax.arq.connection.link.RDFLinkDelegateWithWorkerThread;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFactory;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFromDataset;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFromDataset;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasicFromMap;
-import org.aksw.jenax.connection.datasource.RdfDataSource;
+import org.aksw.jenax.connection.dataengine.RdfDataEngine;
 import org.apache.jena.dboe.base.file.Location;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -28,15 +28,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.io.MoreFiles;
 
-public class RdfDataSourceFactoryTdb2
-    implements RdfDataSourceFactory
+public class RdfDataEngineFactoryTdb2
+    implements RdfDataEngineFactory
 {
-    private static final Logger logger = LoggerFactory.getLogger(RdfDataSourceFactoryTdb2.class);
+    private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryTdb2.class);
 
 
     @Override
-    public RdfDataSource create(Map<String, Object> config) throws Exception {
-        RdfDataSource result;
+    public RdfDataEngine create(Map<String, Object> config) throws Exception {
+        RdfDataEngine result;
 
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
         Entry<Path, Closeable> fsInfo = PathUtils.resolveFsAndPath(spec.getLocationContext(), spec.getLocation());
@@ -115,7 +115,7 @@ public class RdfDataSourceFactoryTdb2
                 }
             };
 
-            result = RdfDataSourceFromDataset.create(
+            result = RdfDataEngineFromDataset.create(
                     dataset,
                     ds -> {
                         RDFConnection raw = RDFConnection.connect(dataset);

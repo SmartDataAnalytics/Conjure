@@ -12,12 +12,12 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
-import org.aksw.commons.lock.LockUtils;
 import org.aksw.commons.util.exception.FinallyRunAll;
+import org.aksw.commons.util.lock.LockUtils;
 import org.aksw.jenax.arq.connection.TransactionalDelegate;
 import org.aksw.jenax.arq.connection.TransactionalMultiplex;
 import org.aksw.jenax.arq.datasource.HasDataset;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFactory;
+import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
 import org.aksw.jenax.arq.datasource.RdfDataSourceSpecTerms;
 import org.aksw.jenax.connection.datasource.RdfDataSource;
 import org.apache.jena.graph.Graph;
@@ -69,7 +69,7 @@ public class DatasetGraphRailed
 
     // In memory copy of the file
     protected Properties railProperties;
-    protected RdfDataSourceFactory memberFactory;
+    protected RdfDataEngineFactory memberFactory;
 
 
     protected void checkTxn() {
@@ -99,7 +99,7 @@ public class DatasetGraphRailed
         props.put(RdfDataSourceSpecTerms.NUM_RAIL_MEMBERS, Long.toString(count));
     }
 
-    public DatasetGraphRailed(Path railPropertiesFile, RdfDataSourceFactory delegateFactory) {
+    public DatasetGraphRailed(Path railPropertiesFile, RdfDataEngineFactory delegateFactory) {
         super();
         this.railPropertiesFile = railPropertiesFile;
         this.memberFactory = delegateFactory;
