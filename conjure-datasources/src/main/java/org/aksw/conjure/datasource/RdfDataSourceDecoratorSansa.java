@@ -2,7 +2,6 @@ package org.aksw.conjure.datasource;
 
 import java.util.Map;
 
-import org.aksw.jenax.arq.connection.fix.RDFLinkAdapterFix;
 import org.aksw.jenax.arq.connection.link.RDFLinkDelegateWithWorkerThread;
 import org.aksw.jenax.arq.connection.link.RDFLinkUtils;
 import org.aksw.jenax.arq.datasource.RdfDataSourceDecorator;
