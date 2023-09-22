@@ -57,7 +57,7 @@
 		<jena.version>4.9.0</jena.version>
 		<jenax.version>4.9.0-1-SNAPSHOT</jenax.version>
 
-		<sansa.version>0.8.8-SNAPSHOT</sansa.version>
+		<sansa.version>0.9.0-SNAPSHOT</sansa.version>
 		<slf4j.version>1.7.36</slf4j.version>
 		<log4j.version>2.18.0</log4j.version>
 
