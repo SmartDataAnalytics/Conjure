@@ -1,8 +1,8 @@
 package org.aksw.conjure.dataengine;
 
-import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
-import org.aksw.jenax.arq.datasource.RdfDataEngineFactoryRegistry;
-import org.aksw.jenax.arq.datasource.RdfDataSourceFactoryRemote;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactoryRegistry;
+import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceFactoryRemote;
 import org.apache.jena.sys.JenaSubsystemLifecycle;
 
 public class JenaPluginConjureDataEngines

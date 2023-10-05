@@ -7,8 +7,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.aksw.commons.util.exception.FinallyRunAll;
-import org.aksw.jenax.arq.connection.TransactionalDelegate;
-import org.aksw.jenax.arq.connection.TransactionalMultiplex;
+import org.aksw.jenax.dataaccess.sparql.common.TransactionalDelegate;
+import org.aksw.jenax.dataaccess.sparql.common.TransactionalMultiplex;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.other.G;

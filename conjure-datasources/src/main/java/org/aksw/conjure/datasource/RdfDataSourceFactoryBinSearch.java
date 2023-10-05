@@ -2,8 +2,8 @@ package org.aksw.conjure.datasource;
 
 import java.util.Map;
 
-import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
-import org.aksw.jenax.connection.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
 
 // TODO Implement
 public class RdfDataSourceFactoryBinSearch

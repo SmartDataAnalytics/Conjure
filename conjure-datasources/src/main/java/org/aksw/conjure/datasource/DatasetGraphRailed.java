@@ -14,12 +14,12 @@ import java.util.function.Consumer;
 
 import org.aksw.commons.util.exception.FinallyRunAll;
 import org.aksw.commons.util.lock.LockUtils;
-import org.aksw.jenax.arq.connection.TransactionalDelegate;
-import org.aksw.jenax.arq.connection.TransactionalMultiplex;
-import org.aksw.jenax.arq.datasource.HasDataset;
-import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
-import org.aksw.jenax.arq.datasource.RdfDataSourceSpecTerms;
-import org.aksw.jenax.connection.datasource.RdfDataSource;
+import org.aksw.jenax.arq.util.dataset.HasDataset;
+import org.aksw.jenax.dataaccess.sparql.common.TransactionalDelegate;
+import org.aksw.jenax.dataaccess.sparql.common.TransactionalMultiplex;
+import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSource;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecTerms;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.TxnType;

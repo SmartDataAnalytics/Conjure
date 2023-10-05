@@ -3,8 +3,8 @@ package org.aksw.conjure.datasource;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 
-import org.aksw.jenax.arq.connection.link.IteratorDelegateWithWorkerThread;
-import org.aksw.jenax.arq.connection.link.TransactionalDelegateWithWorkerThread;
+import org.aksw.jenax.dataaccess.sparql.common.TransactionalDelegateWithWorkerThread;
+import org.aksw.jenax.dataaccess.sparql.link.query.IteratorDelegateWithWorkerThread;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.system.PrefixMap;

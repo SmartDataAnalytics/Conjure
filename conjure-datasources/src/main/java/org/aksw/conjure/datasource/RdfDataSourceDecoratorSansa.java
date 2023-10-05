@@ -2,11 +2,11 @@ package org.aksw.conjure.datasource;
 
 import java.util.Map;
 
-import org.aksw.jenax.arq.connection.link.RDFLinkDelegateWithWorkerThread;
-import org.aksw.jenax.arq.connection.link.RDFLinkUtils;
-import org.aksw.jenax.arq.datasource.RdfDataSourceDecorator;
-import org.aksw.jenax.connection.datasource.RdfDataSource;
-import org.aksw.jenax.connection.datasource.RdfDataSourceDelegateBase;
+import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSource;
+import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSourceDelegateBase;
+import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceDecorator;
+import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkDelegateWithWorkerThread;
+import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdflink.LinkDatasetGraph;
