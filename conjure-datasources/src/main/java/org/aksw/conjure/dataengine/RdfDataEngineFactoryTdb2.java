@@ -15,7 +15,7 @@ import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
-import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkDelegateWithWorkerThread;
+import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkWrapperWithWorkerThread;
 import org.apache.jena.dboe.base.file.Location;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -119,7 +119,7 @@ public class RdfDataEngineFactoryTdb2
                     dataset,
                     ds -> {
                         RDFConnection raw = RDFConnection.connect(dataset);
-                        return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkDelegateWithWorkerThread::wrap);
+                        return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkWrapperWithWorkerThread::wrap);
                     },
                     finalDeleteAction);
         } catch (Exception e) {

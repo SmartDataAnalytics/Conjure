@@ -10,26 +10,25 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
 
 import org.aksw.commons.util.exception.FinallyRunAll;
 import org.aksw.commons.util.lock.LockUtils;
 import org.aksw.jenax.arq.util.dataset.HasDataset;
-import org.aksw.jenax.dataaccess.sparql.common.TransactionalDelegate;
 import org.aksw.jenax.dataaccess.sparql.common.TransactionalMultiplex;
+import org.aksw.jenax.dataaccess.sparql.common.TransactionalWrapper;
 import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSource;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecTerms;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.TxnType;
-import org.apache.jena.riot.other.G;
 import org.apache.jena.riot.system.PrefixMap;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphQuads;
 import org.apache.jena.sparql.core.GraphView;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.core.Transactional;
+import org.apache.jena.system.G;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DatasetGraphRailed
     extends DatasetGraphQuads
-    implements TransactionalDelegate
+    implements TransactionalWrapper
 {
     private static final Logger logger = LoggerFactory.getLogger(DatasetGraphRailed.class);
 

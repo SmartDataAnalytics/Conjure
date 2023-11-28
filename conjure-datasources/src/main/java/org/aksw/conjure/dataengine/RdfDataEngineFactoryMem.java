@@ -5,14 +5,14 @@ import java.util.Map;
 import org.aksw.jena_sparql_api.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
 import org.aksw.jenax.dataaccess.sparql.connection.common.RDFConnectionUtils;
 import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
-import org.aksw.jenax.dataaccess.sparql.engine.factory.update.UpdateEngineFactoryCore;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.dataset.connection.DatasetRDFConnectionFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataset.connection.DatasetRDFConnectionFactoryBuilder;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
-import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkDelegateWithWorkerThread;
+import org.aksw.jenax.dataaccess.sparql.factory.engine.update.UpdateEngineFactoryCore;
+import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkWrapperWithWorkerThread;
 import org.apache.jena.query.ARQ;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
@@ -50,7 +50,7 @@ public class RdfDataEngineFactoryMem
 
         RdfDataEngine result = RdfDataEngineFromDataset.create(DatasetFactory.create(), ds -> {
             RDFConnection raw = connector.connect(ds);
-            return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkDelegateWithWorkerThread::wrap);
+            return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkWrapperWithWorkerThread::wrap);
         }, null);
 
         return result;

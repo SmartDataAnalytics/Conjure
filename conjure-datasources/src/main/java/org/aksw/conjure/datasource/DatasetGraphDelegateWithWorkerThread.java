@@ -3,7 +3,7 @@ package org.aksw.conjure.datasource;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 
-import org.aksw.jenax.dataaccess.sparql.common.TransactionalDelegateWithWorkerThread;
+import org.aksw.jenax.dataaccess.sparql.common.TransactionalWrapperWithWorkerThread;
 import org.aksw.jenax.dataaccess.sparql.link.query.IteratorDelegateWithWorkerThread;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
@@ -14,7 +14,7 @@ import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.util.Context;
 
 public class DatasetGraphDelegateWithWorkerThread
-    extends TransactionalDelegateWithWorkerThread<DatasetGraph>
+    extends TransactionalWrapperWithWorkerThread<DatasetGraph>
     implements DatasetGraph
 {
     protected DatasetGraph delegate;
@@ -53,10 +53,10 @@ public class DatasetGraphDelegateWithWorkerThread
         return submit(() -> getDelegate().containsGraph(graphNode));
     }
 
-    @Override
-    public void setDefaultGraph(Graph g) {
-        submit(() -> getDelegate().setDefaultGraph(g));
-    }
+//    @Override
+//    public void setDefaultGraph(Graph g) {
+//        submit(() -> getDelegate().setDefaultGraph(g));
+//    }
 
     @Override
     public void addGraph(Node graphName, Graph graph) {

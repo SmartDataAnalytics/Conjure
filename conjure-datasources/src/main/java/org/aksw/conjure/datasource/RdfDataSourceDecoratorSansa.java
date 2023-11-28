@@ -3,10 +3,10 @@ package org.aksw.conjure.datasource;
 import java.util.Map;
 
 import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSource;
-import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSourceDelegateBase;
+import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSourceWrapperBase;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceDecorator;
-import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkDelegateWithWorkerThread;
 import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkUtils;
+import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkWrapperWithWorkerThread;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdflink.LinkDatasetGraph;
@@ -30,7 +30,7 @@ public class RdfDataSourceDecoratorSansa
     public RdfDataSource decorate(RdfDataSource dataSource, Map<String, Object> config) {
         // RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
 
-        RdfDataSource result = new RdfDataSourceDelegateBase(dataSource) {
+        RdfDataSource result = new RdfDataSourceWrapperBase(dataSource) {
             @Override
             public org.apache.jena.rdfconnection.RDFConnection getConnection() {
                 RDFConnection rawConn = dataSource.getConnection();
@@ -48,7 +48,7 @@ public class RdfDataSourceDecoratorSansa
                 // Note: The input dataset should take care of wrapping with 'DatasetGraphDelegateWithWorkerThread'
                 boolean enforceSameThreadOnLink = false;
                 RDFLink updateLink = enforceSameThreadOnLink
-                        ? RDFLinkDelegateWithWorkerThread.wrap(rawUpdateLink)
+                        ? RDFLinkWrapperWithWorkerThread.wrap(rawUpdateLink)
                         : rawUpdateLink;
 
 

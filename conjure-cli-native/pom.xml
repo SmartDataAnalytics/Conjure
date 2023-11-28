@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.aksw.conjure</groupId>
 		<artifactId>conjure-parent</artifactId>
-		<version>4.9.0-1-SNAPSHOT</version>
+		<version>5.0.0-1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>conjure-cli-native</artifactId>
