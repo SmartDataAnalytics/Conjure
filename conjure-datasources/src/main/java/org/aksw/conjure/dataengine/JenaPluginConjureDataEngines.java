@@ -22,7 +22,6 @@ public class JenaPluginConjureDataEngines
     }
 
     public static RdfDataEngineFactoryRegistry addDefaults(RdfDataEngineFactoryRegistry registry) {
-
         synchronized (JenaPluginConjureDataEngines.class) {
             registry.putFactory("mem", new RdfDataEngineFactoryMem());
             registry.putFactory("tdb2", new RdfDataEngineFactoryTdb2());
@@ -30,7 +29,6 @@ public class JenaPluginConjureDataEngines
             registry.putFactory("difs", new RdfDataEngineFactoryDifs());
             registry.putFactory("partitioned", new RdfDataEngineFactoryPartitioned());
         }
-
         return registry;
     }
 }

@@ -11,7 +11,8 @@
 	<packaging>pom</packaging>
 
 	<name>Conjure - Parent</name>
-	<description>A declarative approach to conjure RDF datasets from RDF datasets using SPARQL with caching of repeated operations</description>
+	<description>A declarative approach to conjure RDF datasets from RDF
+		datasets using SPARQL with caching of repeated operations</description>
 	<url>https://github.com/SmartDataAnalytics/Conjure</url>
 
 	<modules>
@@ -19,7 +20,8 @@
 		<module>conjure-cli-native</module>
 		<module>conjure-cli-spark</module>
 		<!-- <module>conjure-debian-cli</module> -->
-		<!-- <module>sparql-integrate-bundle</module> <module>sparql-integrate-dummy</module> -->
+		<!-- <module>sparql-integrate-bundle</module>
+		<module>sparql-integrate-dummy</module> -->
 	</modules>
 
 	<issueManagement>
@@ -35,12 +37,14 @@
 		</license>
 	</licenses>
 
-	<!-- scm section needs to be duplicated on child module for github-release-plugin; 
+	<!-- scm section needs to be duplicated on child module for
+	github-release-plugin; 
 		see https://github.com/jutzig/github-release-plugin/issues/14 -->
 	<scm>
 		<url>https://github.com/SmartDataAnalytics/Conjure</url>
 		<connection>scm:git:git@github.com:SmartDataAnalytics/Conjure.git</connection>
-		<developerConnection>scm:git:git@github.com:SmartDataAnalytics/Conjure.git</developerConnection>
+		<developerConnection>
+			scm:git:git@github.com:SmartDataAnalytics/Conjure.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -62,14 +66,16 @@
 		<log4j.version>2.21.0</log4j.version>
 
 		<junit.version>4.13</junit.version>
-		<spring-boot.version>2.2.1.RELEASE</spring-boot.version>
+		<spring-boot.version>3.1.5</spring-boot.version>
 
-		<!-- <scala.version>2.11.12</scala.version> <scala.binary.version>2.11</scala.binary.version> 
-			<scala.classifier>${scala.binary.version}</scala.classifier> <scala.version.suffix>_${scala.binary.version}</scala.version.suffix> 
+		<!-- <scala.version>2.11.12</scala.version>
+		<scala.binary.version>2.11</scala.binary.version> 
+			<scala.classifier>${scala.binary.version}</scala.classifier>
+		<scala.version.suffix>_${scala.binary.version}</scala.version.suffix> 
 			<spark.version>2.4.3</spark.version> <hadoop.version>2.9.2</hadoop.version> -->
 
 		<!-- Project Settings -->
-		<maven.compiler.release>11</maven.compiler.release>
+		<maven.compiler.release>17</maven.compiler.release>
 		<java.version.javadoc>http://java.sun.com/javase/8/docs/api/</java.version.javadoc>
 		<file.encoding>UTF-8</file.encoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -80,19 +86,25 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- <dependency> <groupId>org.apache.jena</groupId> <artifactId>jena-arq</artifactId> 
+			<!-- <dependency> <groupId>org.apache.jena</groupId>
+			<artifactId>jena-arq</artifactId> 
 				<version>${jena.version}</version> </dependency> -->
 
-			<!-- <dependency> <groupId>org.aksw.jenax</groupId> <artifactId>jenax-bom</artifactId> 
+			<!-- <dependency> <groupId>org.aksw.jenax</groupId>
+			<artifactId>jenax-bom</artifactId> 
 				<version>${jenax.version}</version> <type>pom</type> <scope>import</scope> 
 				</dependency> -->
 
 
-			<!-- <dependency> <groupId>org.aksw.jenax</groupId> <artifactId>jenax-arq-connection-core</artifactId> 
-				<version>${jenax.version}</version> </dependency> <dependency> <groupId>org.aksw.jenax</groupId> 
-				<artifactId>jenax-arq-plugins-service-vfs</artifactId> <version>${jenax.version}</version> 
+			<!-- <dependency> <groupId>org.aksw.jenax</groupId>
+			<artifactId>jenax-arq-connection-core</artifactId> 
+				<version>${jenax.version}</version> </dependency> <dependency>
+			<groupId>org.aksw.jenax</groupId> 
+				<artifactId>jenax-arq-plugins-service-vfs</artifactId>
+			<version>${jenax.version}</version> 
 				</dependency> -->
-			<!-- <dependency> <groupId>org.aksw.jenax</groupId> <artifactId>jenax-fsrdfstore-system</artifactId> 
+			<!-- <dependency> <groupId>org.aksw.jenax</groupId>
+			<artifactId>jenax-fsrdfstore-system</artifactId> 
 				<version>${jenax.version}</version> </dependency> -->
 
 			<dependency>
@@ -135,10 +147,14 @@
 			</dependency>
 
 
-			<!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-core</artifactId> 
-				<version>2.6.7</version> </dependency> <dependency> <groupId>com.fasterxml.jackson.core</groupId> 
-				<artifactId>jackson-databind</artifactId> <version>2.6.7</version> </dependency> 
-				<dependency> <groupId>com.fasterxml.jackson.core</groupId> <artifactId>jackson-annotations</artifactId> 
+			<!-- <dependency> <groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId> 
+				<version>2.6.7</version> </dependency> <dependency>
+			<groupId>com.fasterxml.jackson.core</groupId> 
+				<artifactId>jackson-databind</artifactId> <version>2.6.7</version>
+			</dependency> 
+				<dependency> <groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId> 
 				<version>2.6.7</version> </dependency> -->
 
 
@@ -161,7 +177,8 @@
 			</dependency>
 
 
-			<!-- <dependency> <groupId>org.aksw.jenax</groupId> <artifactId>jenax-conjure-core</artifactId> 
+			<!-- <dependency> <groupId>org.aksw.jenax</groupId>
+			<artifactId>jenax-conjure-core</artifactId> 
 				<version>${jenax.version}</version> </dependency> -->
 
 			<dependency>
@@ -185,7 +202,7 @@
 				<scope>import</scope>
 				<type>pom</type>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -208,7 +225,8 @@
 							<artifactId>maven-project-info-reports-plugin</artifactId>
 							<version>2.9</version>
 						</plugin>
-						<!-- <plugin> <groupId>net.alchim31.maven</groupId> <artifactId>scala-maven-plugin</artifactId> 
+						<!-- <plugin> <groupId>net.alchim31.maven</groupId>
+						<artifactId>scala-maven-plugin</artifactId> 
 							</plugin> -->
 					</reportPlugins>
 				</configuration>
@@ -260,10 +278,14 @@
 							<!-- These values should be defaults -->
 							<!-- <productionBranch>master</productionBranch> -->
 							<!-- <developmentBranch>develop</developmentBranch> -->
-							<!-- <featureBranchPrefix>feature/</featureBranchPrefix> -->
-							<!-- <releaseBranchPrefix>release/</releaseBranchPrefix> -->
-							<!-- <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix> -->
-							<!-- <supportBranchPrefix>support/</supportBranchPrefix> -->
+							<!--
+							<featureBranchPrefix>feature/</featureBranchPrefix> -->
+							<!--
+							<releaseBranchPrefix>release/</releaseBranchPrefix> -->
+							<!--
+							<hotfixBranchPrefix>hotfix/</hotfixBranchPrefix> -->
+							<!--
+							<supportBranchPrefix>support/</supportBranchPrefix> -->
 							<!-- <origin>origin</origin> -->
 						</gitFlowConfig>
 					</configuration>
@@ -272,10 +294,10 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.11.0</version>
 					<configuration>
 						<release>${maven.compiler.release}</release>
-						<!-- <encoding>${project.build.sourceEncoding}</encoding> -->
+						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
 					<!-- <executions> -->
 					<!-- <execution> -->
@@ -347,7 +369,8 @@
 						<!-- <forkCount>1C</forkCount> -->
 						<!-- <reuseForks>true</reuseForks> -->
 						<useSystemClassLoader>false</useSystemClassLoader>
-						<!-- <forkCount>1</forkCount> <reuseForks>false</reuseForks> -->
+						<!-- <forkCount>1</forkCount>
+						<reuseForks>false</reuseForks> -->
 						<argLine>-Xms256m -Xmx512m</argLine>
 						<testFailureIgnore>false</testFailureIgnore>
 						<skipTests>false</skipTests>
@@ -372,11 +395,14 @@
 								<goal>shade</goal>
 							</goals>
 							<configuration>
-								<!-- TODO Shading is currently needed for the debian packages, which 
+								<!-- TODO Shading is currently needed for the
+								debian packages, which 
 									is slow and causes huge deployments -->
-								<!-- The deb packaging should be modified to work similar to the 
+								<!-- The deb packaging should be modified to
+								work similar to the 
 									dockerfile maven plugin: -->
-								<!-- Use the resource plugin to copy deps to a lib folder and adjust 
+								<!-- Use the resource plugin to copy deps to a
+								lib folder and adjust 
 									the bash scripts -->
 								<shadedArtifactAttached>true</shadedArtifactAttached>
 								<shadedClassifierName>jar-with-dependencies</shadedClassifierName>
@@ -394,8 +420,10 @@
 									<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
 									<!-- add Main-Class to manifest file -->
-									<!-- <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
-									<!-- <mainClass>com.mkyong.core.utils.App</mainClass> -->
+									<!-- <transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
+									<!--
+									<mainClass>com.mkyong.core.utils.App</mainClass> -->
 									<!-- </transformer> -->
 								</transformers>
 							</configuration>
@@ -468,12 +496,17 @@
 	</build>
 
 	<profiles>
-		<!-- <profile> <id>doclint-java8-disable</id> <activation> <jdk>[1.8,)</jdk> 
-			</activation> <build> <plugins> <plugin> <groupId>org.apache.maven.plugins</groupId> 
-			<artifactId>maven-javadoc-plugin</artifactId> <version>2.10.4</version> <executions> 
-			<execution> <id>attach-javadocs</id> <goals> <goal>jar</goal> </goals> <configuration> 
+		<!-- <profile> <id>doclint-java8-disable</id> <activation>
+		<jdk>[1.8,)</jdk> 
+			</activation> <build> <plugins> <plugin>
+		<groupId>org.apache.maven.plugins</groupId> 
+			<artifactId>maven-javadoc-plugin</artifactId> <version>2.10.4</version>
+		<executions> 
+			<execution> <id>attach-javadocs</id> <goals> <goal>jar</goal> </goals>
+		<configuration> 
 			<failOnError>false</failOnError> </configuration> </execution> </executions> 
-			<configuration> <additionalparam>-Xdoclint:none</additionalparam> </configuration> 
+			<configuration> <additionalparam>-Xdoclint:none</additionalparam>
+		</configuration> 
 			</plugin> </plugins> </build> </profile> -->
 
 		<profile>

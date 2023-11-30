@@ -1,7 +1,6 @@
 package org.aksw.conjure.datasource;
 
 import java.util.Iterator;
-import java.util.concurrent.ExecutorService;
 
 import org.aksw.jenax.dataaccess.sparql.common.TransactionalWrapperWithWorkerThread;
 import org.aksw.jenax.dataaccess.sparql.link.query.IteratorDelegateWithWorkerThread;

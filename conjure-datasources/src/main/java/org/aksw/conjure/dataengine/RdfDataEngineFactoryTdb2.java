@@ -13,6 +13,7 @@ import org.aksw.jenax.dataaccess.sparql.connection.common.RDFConnectionUtils;
 import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngines;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
 import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkWrapperWithWorkerThread;
@@ -106,7 +107,9 @@ public class RdfDataEngineFactoryTdb2
 
             Dataset dataset = DatasetFactory.wrap(new DatasetGraphWrapperWithSize(dg, finalDbPath, null));
 
-            logger.info("Connecting to TDB2 database in folder " + finalDbPath);
+            if (logger.isInfoEnabled()) {
+                logger.info("Connecting to TDB2 database in folder " + finalDbPath);
+            }
             Closeable finalDeleteAction = () -> {
                 try {
                     dataset.close();
@@ -117,11 +120,13 @@ public class RdfDataEngineFactoryTdb2
 
             result = RdfDataEngineFromDataset.create(
                     dataset,
-                    ds -> {
-                        RDFConnection raw = RDFConnection.connect(dataset);
-                        return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkWrapperWithWorkerThread::wrap);
-                    },
+                    RDFConnection::connect,
                     finalDeleteAction);
+
+            // Requests first have to go through the worker thread so that
+            // automatically started transactions run on the right thread
+            result = RdfDataEngines.wrapWithAutoTxn(result, dataset);
+            result = RdfDataEngines.wrapWithWorkerThread(result);
         } catch (Exception e) {
             partialCloseAction.close();
             throw new RuntimeException(e);
