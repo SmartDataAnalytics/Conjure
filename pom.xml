@@ -58,10 +58,10 @@
 	</developers>
 
 	<properties>
-		<jena.version>5.0.0-SNAPSHOT</jena.version>
-		<jenax.version>5.0.0-1-SNAPSHOT</jenax.version>
+		<jena.version>5.0.0</jena.version>
+		<jenax.version>5.0.0-1</jenax.version>
 
-		<sansa.version>0.9.5-SNAPSHOT</sansa.version>
+		<sansa.version>0.9.5</sansa.version>
 		<slf4j.version>2.0.9</slf4j.version>
 		<log4j.version>2.21.0</log4j.version>
 

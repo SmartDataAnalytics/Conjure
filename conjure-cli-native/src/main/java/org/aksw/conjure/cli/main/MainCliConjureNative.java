@@ -286,7 +286,7 @@ public class MainCliConjureNative {
         try (RdfDataPod catalog = catalogWorkflow.accept(catalogExecutor)) {
             try (RDFConnection conn = catalog.getConnection()) {
 
-                List<Resource> catalogRecords = SparqlRx.execConstructGrouped(conn, dcatQuery, Vars.a)
+                List<Resource> catalogRecords = SparqlRx.execConstructGrouped(q -> conn.query(q), dcatQuery, Vars.a)
                         .map(RDFNode::asResource).toList().blockingGet();
 
                 // For every input record is a dcat entry, assign an anonymous dataref
