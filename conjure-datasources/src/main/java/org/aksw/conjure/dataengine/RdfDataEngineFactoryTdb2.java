@@ -9,13 +9,13 @@ import java.util.Map.Entry;
 
 import org.aksw.commons.io.util.PathUtils;
 import org.aksw.conjure.datasource.DatasetGraphWrapperWithSize;
-import org.aksw.jenax.arq.connection.core.RDFConnectionUtils;
-import org.aksw.jenax.arq.connection.link.RDFLinkDelegateWithWorkerThread;
-import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
-import org.aksw.jenax.arq.datasource.RdfDataEngineFromDataset;
-import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasic;
-import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasicFromMap;
-import org.aksw.jenax.connection.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineWithDataset;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngines;
+import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
+import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
 import org.apache.jena.dboe.base.file.Location;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -106,7 +106,9 @@ public class RdfDataEngineFactoryTdb2
 
             Dataset dataset = DatasetFactory.wrap(new DatasetGraphWrapperWithSize(dg, finalDbPath, null));
 
-            logger.info("Connecting to TDB2 database in folder " + finalDbPath);
+            if (logger.isInfoEnabled()) {
+                logger.info("Connecting to TDB2 database in folder " + finalDbPath);
+            }
             Closeable finalDeleteAction = () -> {
                 try {
                     dataset.close();
@@ -117,11 +119,37 @@ public class RdfDataEngineFactoryTdb2
 
             result = RdfDataEngineFromDataset.create(
                     dataset,
-                    ds -> {
-                        RDFConnection raw = RDFConnection.connect(dataset);
-                        return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkDelegateWithWorkerThread::wrap);
-                    },
+                    RDFConnection::connect,
                     finalDeleteAction);
+
+            // Requests first have to go through the worker thread so that
+            // automatically started transactions run on the right thread
+            result = RdfDataEngines.wrapWithAutoTxn(result, dataset);
+            result = RdfDataEngines.wrapWithWorkerThread(result);
+
+            // Make sure to expose the underlying dataset
+            if (!(result instanceof RdfDataEngineWithDataset)) {
+                RdfDataEngine tmp = result;
+
+                result = new RdfDataEngineWithDataset() {
+                    @Override
+                    public Dataset getDataset() {
+                        return dataset;
+                    }
+
+                    @Override
+                    public void close() throws Exception {
+                        tmp.close();
+                    }
+
+                    @Override
+                    public RDFConnection getConnection() {
+                        return tmp.getConnection();
+                    }
+                };
+            }
+
+
         } catch (Exception e) {
             partialCloseAction.close();
             throw new RuntimeException(e);

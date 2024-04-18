@@ -7,11 +7,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.aksw.commons.util.exception.FinallyRunAll;
-import org.aksw.jenax.arq.connection.TransactionalDelegate;
-import org.aksw.jenax.arq.connection.TransactionalMultiplex;
+import org.aksw.jenax.dataaccess.sparql.common.TransactionalMultiplex;
+import org.aksw.jenax.dataaccess.sparql.common.TransactionalWrapper;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
-import org.apache.jena.riot.other.G;
 import org.apache.jena.riot.system.PrefixMap;
 import org.apache.jena.riot.system.PrefixMapFactory;
 import org.apache.jena.sparql.core.DatasetGraph;
@@ -19,6 +18,7 @@ import org.apache.jena.sparql.core.DatasetGraphQuads;
 import org.apache.jena.sparql.core.GraphView;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.core.Transactional;
+import org.apache.jena.system.G;
 import org.apache.jena.util.iterator.WrappedIterator;
 
 
@@ -31,7 +31,7 @@ import org.apache.jena.util.iterator.WrappedIterator;
  */
 public class DatasetGraphHashPartitioned
     extends DatasetGraphQuads
-    implements TransactionalDelegate
+    implements TransactionalWrapper
 {
     protected PrefixMap prefixes;
 

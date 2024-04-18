@@ -11,15 +11,15 @@ import java.util.Properties;
 import org.aksw.commons.io.util.PathUtils;
 import org.aksw.conjure.datasource.DatasetGraphRailed;
 import org.aksw.conjure.datasource.PropertiesUtils;
-import org.aksw.jenax.arq.connection.core.RDFConnectionUtils;
-import org.aksw.jenax.arq.connection.link.RDFLinkDelegateWithWorkerThread;
-import org.aksw.jenax.arq.datasource.RdfDataEngineFactory;
-import org.aksw.jenax.arq.datasource.RdfDataEngineFactoryRegistry;
-import org.aksw.jenax.arq.datasource.RdfDataEngineFromDataset;
-import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasic;
-import org.aksw.jenax.arq.datasource.RdfDataSourceSpecBasicFromMap;
-import org.aksw.jenax.arq.datasource.RdfDataSourceSpecTerms;
-import org.aksw.jenax.connection.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.connection.common.RDFConnectionUtils;
+import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactoryRegistry;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
+import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
+import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
+import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecTerms;
+import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkWrapperWithWorkerThread;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdfconnection.RDFConnection;
@@ -83,7 +83,7 @@ public class RdfDataEngineFactoryRailed
 
         RdfDataEngine result = RdfDataEngineFromDataset.create(ds, dss -> {
             RDFConnection raw = RDFConnection.connect(dss);
-            return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkDelegateWithWorkerThread::wrap);
+            return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkWrapperWithWorkerThread::wrap);
         }, null);
 
 //        x -> {

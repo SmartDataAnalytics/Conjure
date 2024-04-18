@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.aksw.conjure</groupId>
 		<artifactId>conjure-parent</artifactId>
-		<version>4.8.0-2</version>
+		<version>5.0.0-1</version>
 	</parent>
 
 	<dependencies>
