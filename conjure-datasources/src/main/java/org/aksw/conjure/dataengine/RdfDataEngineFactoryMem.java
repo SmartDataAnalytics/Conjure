@@ -89,7 +89,7 @@ public class RdfDataEngineFactoryMem
 
         RdfDataEngine result = RdfDataEngineFromDataset.create(DatasetFactory.create(), ds -> {
             RDFConnection raw = connector.connect(ds);
-            return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkWrapperWithWorkerThread::wrap);
+            return RDFConnectionUtils.wrapWithLinkTransform(raw, RDFLinkWrapperWithWorkerThread::wrap);
         }, null);
 
         return result;

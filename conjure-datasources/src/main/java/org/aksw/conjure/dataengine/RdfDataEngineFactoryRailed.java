@@ -83,7 +83,7 @@ public class RdfDataEngineFactoryRailed
 
         RdfDataEngine result = RdfDataEngineFromDataset.create(ds, dss -> {
             RDFConnection raw = RDFConnection.connect(dss);
-            return RDFConnectionUtils.wrapWithLinkDecorator(raw, RDFLinkWrapperWithWorkerThread::wrap);
+            return RDFConnectionUtils.wrapWithLinkTransform(raw, RDFLinkWrapperWithWorkerThread::wrap);
         }, null);
 
 //        x -> {
