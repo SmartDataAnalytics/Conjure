@@ -39,7 +39,7 @@ public class RdfDataEngineFactoryDifs
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
 
         if (spec.getLocation() == null) {
-            throw new IllegalArgumentException("Difs engine requires the location of a store config file");
+            throw new IllegalArgumentException("Dataset-in-FileSystem (Difs) engine requires the location of a store config file");
         }
 
         Entry<Path, Closeable> fsInfo = PathUtils.resolveFsAndPath(spec.getLocationContext(), spec.getLocation());
