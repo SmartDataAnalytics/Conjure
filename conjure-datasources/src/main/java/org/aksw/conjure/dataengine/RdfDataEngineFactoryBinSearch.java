@@ -1,6 +1,8 @@
 package org.aksw.conjure.dataengine;
 
 import java.io.Closeable;
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,7 +10,8 @@ import java.util.Map.Entry;
 import org.aksw.commons.io.util.PathUtils;
 import org.aksw.jena_sparql_api.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
 import org.aksw.jena_sparql_api.arq.service.vfs.ServiceExecutorFactoryVfsUtils;
-import org.aksw.jenax.arq.util.graph.StageGeneratorGraphFindRaw;
+import org.aksw.jena_sparql_api.io.binseach.GraphFindCache;
+import org.aksw.jena_sparql_api.io.binseach.StageGeneratorGraphFindRaw;
 import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
@@ -20,13 +23,11 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.apache.jena.sparql.util.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RdfDataEngineFactoryBinSearch
     implements RdfDataEngineFactory
 {
-    private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryDifs.class);
+    // private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryBinSearch.class);
 
     @Override
     public RdfDataEngine create(Map<String, Object> config) throws Exception {
@@ -38,17 +39,21 @@ public class RdfDataEngineFactoryBinSearch
         }
 
         Entry<Path, Closeable> fsInfo = PathUtils.resolveFsAndPath(spec.getLocationContext(), spec.getLocation());
-        Path confFile = fsInfo.getKey();
+        Path dataFile = fsInfo.getKey();
 
-        // boolean canWrite = confFile.getFileSystem().equals(FileSystems.getDefault());
+        if (!Files.exists(dataFile)) {
+            throw new FileNotFoundException("File does not exist: " + dataFile.toAbsolutePath());
+        }
 
         Context cxt = ARQ.getContext().copy();
         ServiceExecutorFactoryRegistratorVfs.register(cxt);
 
-        Graph graph = ServiceExecutorFactoryVfsUtils.createGraphBinSearch(confFile, cxt);
+        Graph graph = ServiceExecutorFactoryVfsUtils.createGraphBinSearch(dataFile, cxt);
         Dataset ds = DatasetFactory.wrap(DatasetGraphFactory.wrap(graph));
 
         ds.getContext().set(ARQ.stageGenerator, new StageGeneratorGraphFindRaw());
+        ds.getContext().set(GraphFindCache.graphCache, new GraphFindCache(10000));
+
         RdfDataEngine result = RdfDataEngineFromDataset.create(ds, true);
         return result;
     }
