@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.aksw.commons.io.util.PathUtils;
-import org.aksw.jena_sparql_api.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
-import org.aksw.jena_sparql_api.arq.service.vfs.ServiceExecutorFactoryVfsUtils;
 import org.aksw.jena_sparql_api.io.binseach.GraphFindCache;
 import org.aksw.jena_sparql_api.io.binseach.StageGeneratorGraphFindRaw;
+import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
+import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryVfsUtils;
 import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
