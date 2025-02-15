@@ -13,7 +13,8 @@ import org.aksw.conjure.datasource.DatasetGraphRailed;
 import org.aksw.conjure.datasource.PropertiesUtils;
 import org.aksw.jenax.dataaccess.sparql.connection.common.RDFConnectionUtils;
 import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactoryRegistry;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
@@ -28,10 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RdfDataEngineFactoryRailed
-    implements RdfDataEngineFactory
+    extends RDFEngineFactoryLegacyBase
 {
     private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryRailed.class);
-
 
     @Override
     public RdfDataEngine create(Map<String, Object> config) throws Exception {
@@ -76,7 +76,7 @@ public class RdfDataEngineFactoryRailed
         String delegateEngine = Objects.requireNonNull((String)config.get(RdfDataSourceSpecTerms.DELEGATE),
                 "No delegate engine set which to use for railing");
 
-        RdfDataEngineFactory delegateFactory = RdfDataEngineFactoryRegistry.get().getFactory(delegateEngine);
+        RDFEngineFactory delegateFactory = RdfDataEngineFactoryRegistry.get().getFactory(delegateEngine);
 
         DatasetGraph dg = new DatasetGraphRailed(confFile, delegateFactory);
         Dataset ds = DatasetFactory.wrap(dg);

@@ -6,7 +6,7 @@
 
 	<groupId>org.aksw.conjure</groupId>
 	<artifactId>conjure-parent</artifactId>
-	<version>5.2.0-1-SNAPSHOT</version>
+	<version>5.4.0-1-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -58,8 +58,8 @@
 	</developers>
 
 	<properties>
-		<jena.version>5.2.0-SNAPSHOT</jena.version>
-		<jenax.version>5.2.0-1-SNAPSHOT</jenax.version>
+		<jena.version>5.4.0-SNAPSHOT</jena.version>
+		<jenax.version>5.4.0-1-SNAPSHOT</jenax.version>
 
 		<sansa.version>0.9.6-SNAPSHOT</sansa.version>
 		<slf4j.version>2.0.9</slf4j.version>
@@ -123,7 +123,7 @@
 
 			<dependency>
 				<groupId>net.sansa-stack</groupId>
-				<artifactId>sansa-spark-jena-java_2.12</artifactId>
+				<artifactId>sansa-spark-jena-java_2.13</artifactId>
 				<version>${sansa.version}</version>
 				<exclusions>
 					<exclusion>

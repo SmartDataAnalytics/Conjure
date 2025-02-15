@@ -17,7 +17,7 @@ import org.aksw.jenax.arq.util.dataset.HasDataset;
 import org.aksw.jenax.dataaccess.sparql.common.TransactionalMultiplex;
 import org.aksw.jenax.dataaccess.sparql.common.TransactionalWrapper;
 import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSource;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecTerms;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
@@ -68,7 +68,7 @@ public class DatasetGraphRailed
 
     // In memory copy of the file
     protected Properties railProperties;
-    protected RdfDataEngineFactory memberFactory;
+    protected RDFEngineFactory memberFactory;
 
 
     protected void checkTxn() {
@@ -98,7 +98,7 @@ public class DatasetGraphRailed
         props.put(RdfDataSourceSpecTerms.NUM_RAIL_MEMBERS, Long.toString(count));
     }
 
-    public DatasetGraphRailed(Path railPropertiesFile, RdfDataEngineFactory delegateFactory) {
+    public DatasetGraphRailed(Path railPropertiesFile, RDFEngineFactory delegateFactory) {
         super();
         this.railPropertiesFile = railPropertiesFile;
         this.memberFactory = delegateFactory;

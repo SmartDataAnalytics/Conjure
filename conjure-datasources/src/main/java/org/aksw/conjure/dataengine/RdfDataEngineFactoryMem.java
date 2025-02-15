@@ -6,7 +6,7 @@ import java.util.Map;
 import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
 import org.aksw.jenax.dataaccess.sparql.connection.common.RDFConnectionUtils;
 import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.dataset.connection.DatasetRDFConnectionFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataset.connection.DatasetRDFConnectionFactoryBuilder;
@@ -32,7 +32,7 @@ import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.util.Context;
 
 public class RdfDataEngineFactoryMem
-    implements RdfDataEngineFactory
+    extends RDFEngineFactoryLegacyBase
 {
     @Override
     public RdfDataEngine create(Map<String, Object> config) {

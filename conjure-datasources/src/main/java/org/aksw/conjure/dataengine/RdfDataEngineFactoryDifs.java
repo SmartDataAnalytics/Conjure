@@ -17,7 +17,7 @@ import org.aksw.difs.system.domain.StoreDefinition;
 import org.aksw.jenax.arq.engine.quad.RDFConnectionFactoryQuadForm;
 import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
 import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RdfDataEngineFactoryDifs
-    implements RdfDataEngineFactory
+    extends RDFEngineFactoryLegacyBase
 {
     private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryDifs.class);
 

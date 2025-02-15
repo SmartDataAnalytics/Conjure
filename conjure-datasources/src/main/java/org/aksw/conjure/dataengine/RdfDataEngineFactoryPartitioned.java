@@ -19,7 +19,8 @@ import org.aksw.conjure.datasource.PropertiesUtils;
 import org.aksw.jenax.arq.util.dataset.HasDataset;
 import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
 import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSource;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
@@ -34,10 +35,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 
 public class RdfDataEngineFactoryPartitioned
-    implements RdfDataEngineFactory
+    extends RDFEngineFactoryLegacyBase
 {
     private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryPartitioned.class);
-
 
     @Override
     public RdfDataEngine create(Map<String, Object> config) throws Exception {
@@ -81,7 +81,7 @@ public class RdfDataEngineFactoryPartitioned
         int numPartitions = Integer.parseInt(
                 Objects.requireNonNull(props.getProperty(RdfDataSourceSpecTerms.PARTITIONS), "Number of partitions not specified"));
 
-        RdfDataEngineFactory delegateFactory = new RdfDataEngineFactoryRailed(); // RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
+        RDFEngineFactory delegateFactory = new RdfDataEngineFactoryRailed(); // RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
 
         List<RdfDataSource> partitions = new ArrayList<>();
         FinallyRunAll closePartAction = FinallyRunAll.create();

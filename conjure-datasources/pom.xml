@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.aksw.conjure</groupId>
 		<artifactId>conjure-parent</artifactId>
-		<version>5.2.0-1-SNAPSHOT</version>
+		<version>5.4.0-1-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -31,7 +31,7 @@
 
 		<dependency>
 			<groupId>net.sansa-stack</groupId>
-			<artifactId>sansa-spark-jena-java_2.12</artifactId>
+			<artifactId>sansa-spark-jena-java_2.13</artifactId>
 		</dependency>
 
 		<dependency>

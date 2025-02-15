@@ -13,7 +13,7 @@ import org.aksw.jena_sparql_api.io.binseach.StageGeneratorGraphFindRaw;
 import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
 import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryVfsUtils;
 import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactory;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
@@ -25,7 +25,7 @@ import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.apache.jena.sparql.util.Context;
 
 public class RdfDataEngineFactoryBinSearch
-    implements RdfDataEngineFactory
+    extends RDFEngineFactoryLegacyBase
 {
     // private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryBinSearch.class);
 
