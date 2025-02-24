@@ -4,10 +4,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
-import org.aksw.jenax.dataaccess.sparql.connection.common.RDFConnectionUtils;
-import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngines;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.dataset.connection.DatasetRDFConnectionFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataset.connection.DatasetRDFConnectionFactoryBuilder;
 import org.aksw.jenax.dataaccess.sparql.factory.dataset.connection.QueryExecDatasetBuilderEx;
@@ -15,12 +14,11 @@ import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasi
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
 import org.aksw.jenax.dataaccess.sparql.factory.engine.query.QueryEngineFactoryProvider;
 import org.aksw.jenax.dataaccess.sparql.factory.engine.update.UpdateEngineFactoryCore;
-import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkWrapperWithWorkerThread;
+import org.aksw.jenax.dataaccess.sparql.link.transform.RDFLinkTransforms;
 import org.apache.jena.atlas.iterator.Iter;
 import org.apache.jena.query.ARQ;
-import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.Query;
-import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.apache.jena.sparql.engine.QueryEngineRegistry;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.binding.BindingRoot;
@@ -31,11 +29,11 @@ import org.apache.jena.sparql.modify.request.UpdateVisitor;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.util.Context;
 
-public class RdfDataEngineFactoryMem
+public class RDFEngineFactoryMem
     extends RDFEngineFactoryLegacyBase
 {
     @Override
-    public RdfDataEngine create(Map<String, Object> config) {
+    public RDFEngine create(Map<String, Object> config) {
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
         if (spec.getLocation() != null) {
             throw new IllegalArgumentException("In-Memory data source does not accept a location.");
@@ -86,11 +84,14 @@ public class RdfDataEngineFactoryMem
             .setContext(cxt)
             .build();
 
+        RDFEngine result = RDFEngines.decorate(RDFEngines.of(DatasetGraphFactory.create()))
+            .decorate(RDFLinkTransforms.withWorkerThread())
+            .build();
 
-        RdfDataEngine result = RdfDataEngineFromDataset.create(DatasetFactory.create(), ds -> {
-            RDFConnection raw = connector.connect(ds);
-            return RDFConnectionUtils.wrapWithLinkTransform(raw, RDFLinkWrapperWithWorkerThread::wrap);
-        }, null);
+//        RDFEngine result = RdfDataEngineFromDataset.create(DatasetFactory.create(), ds -> {
+//            RDFConnection raw = connector.connect(ds);
+//            return RDFConnectionUtils.wrapWithLinkTransform(raw, RDFLinkWrapperWithWorkerThread::wrap);
+//        }, null);
 
         return result;
     }

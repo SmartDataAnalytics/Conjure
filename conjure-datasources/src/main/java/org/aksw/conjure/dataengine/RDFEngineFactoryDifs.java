@@ -16,25 +16,32 @@ import org.aksw.difs.builder.DifsFactory;
 import org.aksw.difs.system.domain.StoreDefinition;
 import org.aksw.jenax.arq.engine.quad.RDFConnectionFactoryQuadForm;
 import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
-import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngines;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
+import org.aksw.jenax.dataaccess.sparql.linksource.RDFLinkSource;
+import org.aksw.jenax.dataaccess.sparql.linksource.RDFLinkSourceOverDatasetGraph;
 import org.apache.jena.query.ARQ;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdfconnection.RDFConnection;
+import org.apache.jena.rdflink.RDFLink;
+import org.apache.jena.rdflink.RDFLinkAdapter;
+import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RdfDataEngineFactoryDifs
+public class RDFEngineFactoryDifs
     extends RDFEngineFactoryLegacyBase
 {
-    private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryDifs.class);
+    private static final Logger logger = LoggerFactory.getLogger(RDFEngineFactoryDifs.class);
 
     @Override
-    public RdfDataEngine create(Map<String, Object> config) throws Exception {
+    public RDFEngine create(Map<String, Object> config) throws Exception {
 
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
 
@@ -98,31 +105,42 @@ public class RdfDataEngineFactoryDifs
                 .setIndexPath("index")
                 .setAllowEmptyGraphs(true);
 
-        Dataset dataset = DifsFactory.newInstance()
+        DatasetGraph dataset = DifsFactory.newInstance()
             .setStoreDefinition(defaultDefinition)
             .setUseJournal(canWrite)
             .setSymbolicLinkStrategy(SymbolicLinkStrategies.FILE)
             .setConfigFile(confFile)
             .setCreateIfNotExists(true)
             .setMaximumNamedGraphCacheSize(10000)
-            .connectAsDataset();
+            .connect();
 
-        RdfDataEngine result = RdfDataEngineFromDataset.create(dataset,
-                ds -> RDFConnectionFactoryQuadForm.connect(ds, cxt), () -> {
-                    if (deleteWhenDone) {
-                        logger.info(String.format("Deleting difs files based at %s", basePath));
-                        FinallyRunAll.run(
-                            () -> FileUtils.deleteRecursivelyIfExists(dftIndexPath),
-                            () -> FileUtils.deleteRecursivelyIfExists(dftStorePath),
-                            () -> FileUtils.deleteRecursivelyIfExists(dftTxnsPath),
-                            () -> FileUtils.deleteRecursivelyIfExists(dftLocksPath),
-                            () -> Files.deleteIfExists(confFile),
-                            () -> FileUtils.deleteEmptyFolders(basePath, ancestorPath, false),
-                            () -> fsInfo.getValue().close()
-                        );
-                    }
-                });
+        RDFLinkSource linkSource = new RDFLinkSourceOverDatasetGraph(dataset) {
+            @Override
+            public RDFLink newLink() {
+                // Legacy adapter
+                Dataset ds = DatasetFactory.wrap(getDatasetGraph());
+                RDFConnection conn = RDFConnectionFactoryQuadForm.connect(ds, cxt);
+                RDFLink r = RDFLinkAdapter.adapt(conn);
+                return r;
+            }
+        };
 
+        Closeable closeAction = () -> {
+            if (deleteWhenDone) {
+                logger.info(String.format("Deleting difs files based at %s", basePath));
+                FinallyRunAll.run(
+                    () -> FileUtils.deleteRecursivelyIfExists(dftIndexPath),
+                    () -> FileUtils.deleteRecursivelyIfExists(dftStorePath),
+                    () -> FileUtils.deleteRecursivelyIfExists(dftTxnsPath),
+                    () -> FileUtils.deleteRecursivelyIfExists(dftLocksPath),
+                    () -> Files.deleteIfExists(confFile),
+                    () -> FileUtils.deleteEmptyFolders(basePath, ancestorPath, false),
+                    () -> fsInfo.getValue().close()
+                );
+            }
+        };
+
+        RDFEngine result = RDFEngines.of(linkSource, closeAction);
         return result;
     }
 }

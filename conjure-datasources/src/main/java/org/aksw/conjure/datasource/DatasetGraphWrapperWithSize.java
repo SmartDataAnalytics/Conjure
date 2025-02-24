@@ -8,6 +8,8 @@ import org.aksw.commons.io.util.FileUtils;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphWrapper;
 
+/** Will be superseded by roughly RDFEngine.getAttributes().get(RDFDatabase.class).getFileSet().byteSize() */
+@Deprecated
 public class DatasetGraphWrapperWithSize
     extends DatasetGraphWrapper
     implements HasByteSize

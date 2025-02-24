@@ -12,25 +12,24 @@ import org.aksw.jena_sparql_api.io.binseach.GraphFindCache;
 import org.aksw.jena_sparql_api.io.binseach.StageGeneratorGraphFindRaw;
 import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryRegistratorVfs;
 import org.aksw.jenax.arq.service.vfs.ServiceExecutorFactoryVfsUtils;
-import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngines;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.query.ARQ;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.apache.jena.sparql.util.Context;
 
-public class RdfDataEngineFactoryBinSearch
+public class RDFEngineFactoryBinSearch
     extends RDFEngineFactoryLegacyBase
 {
     // private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryBinSearch.class);
 
     @Override
-    public RdfDataEngine create(Map<String, Object> config) throws Exception {
+    public RDFEngine create(Map<String, Object> config) throws Exception {
 
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
 
@@ -49,12 +48,12 @@ public class RdfDataEngineFactoryBinSearch
         ServiceExecutorFactoryRegistratorVfs.register(cxt);
 
         Graph graph = ServiceExecutorFactoryVfsUtils.createGraphBinSearch(dataFile, cxt);
-        Dataset ds = DatasetFactory.wrap(DatasetGraphFactory.wrap(graph));
+        DatasetGraph ds = DatasetGraphFactory.wrap(graph);
 
         ds.getContext().set(ARQ.stageGenerator, new StageGeneratorGraphFindRaw());
         ds.getContext().set(GraphFindCache.graphCache, new GraphFindCache(10000));
 
-        RdfDataEngine result = RdfDataEngineFromDataset.create(ds, true);
+        RDFEngine result = RDFEngines.of(ds);
         return result;
     }
 }

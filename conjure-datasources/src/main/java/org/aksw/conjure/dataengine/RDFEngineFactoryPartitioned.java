@@ -17,30 +17,29 @@ import org.aksw.conjure.datasource.DatasetGraphDelegateWithWorkerThread;
 import org.aksw.conjure.datasource.DatasetGraphHashPartitioned;
 import org.aksw.conjure.datasource.PropertiesUtils;
 import org.aksw.jenax.arq.util.dataset.HasDataset;
-import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
-import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSource;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngines;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecTerms;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdfconnection.RDFConnection;
+import org.aksw.jenax.dataaccess.sparql.linksource.RDFLinkSource;
+import org.aksw.jenax.dataaccess.sparql.linksource.RDFLinkSourceOverDatasetGraph;
+import org.apache.jena.rdflink.RDFLink;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
-public class RdfDataEngineFactoryPartitioned
+public class RDFEngineFactoryPartitioned
     extends RDFEngineFactoryLegacyBase
 {
-    private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryPartitioned.class);
+    private static final Logger logger = LoggerFactory.getLogger(RDFEngineFactoryPartitioned.class);
 
     @Override
-    public RdfDataEngine create(Map<String, Object> config) throws Exception {
+    public RDFEngine create(Map<String, Object> config) throws Exception {
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
         Entry<Path, Closeable> fsInfo = PathUtils.resolveFsAndPath(spec.getLocationContext(), spec.getLocation());
         Path path = fsInfo.getKey();
@@ -81,9 +80,9 @@ public class RdfDataEngineFactoryPartitioned
         int numPartitions = Integer.parseInt(
                 Objects.requireNonNull(props.getProperty(RdfDataSourceSpecTerms.PARTITIONS), "Number of partitions not specified"));
 
-        RDFEngineFactory delegateFactory = new RdfDataEngineFactoryRailed(); // RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
+        RDFEngineFactory delegateFactory = new RDFEngineFactoryRailed(); // RdfDataSourceFactoryRegistry.get().getFactory(delegateEngine);
 
-        List<RdfDataSource> partitions = new ArrayList<>();
+        List<RDFEngine> partitions = new ArrayList<>();
         FinallyRunAll closePartAction = FinallyRunAll.create();
 
         for (int i = 0; i < numPartitions; ++i) {
@@ -93,49 +92,49 @@ public class RdfDataEngineFactoryPartitioned
             partProps.put(RdfDataSourceSpecTerms.LOCATION_KEY, partLoc.toString());
 
             Map<String, Object> partMap = Maps.transformValues(Maps.fromProperties(partProps), v -> (Object)v);
-            RdfDataSource dataSource = delegateFactory.create(partMap);
+            RDFEngine engine = delegateFactory.create(partMap);
 
-            if (dataSource instanceof AutoCloseable) {
-                AutoCloseable closable = (AutoCloseable)dataSource;
-                closePartAction.addThrowing(closable::close);
-            }
+            closePartAction.addThrowing(engine::close);
 
-            if (!(dataSource instanceof HasDataset)) {
+            if (engine.getLinkSource().getDatasetGraph() == null) {
                 throw new RuntimeException("Partitioning currently requires backing engines to be backed by datasets");
             }
 
-            partitions.add(dataSource);
-
-
+            partitions.add(engine);
         }
 
         List<DatasetGraph> dsgs = partitions.stream().map(x -> ((HasDataset)x).getDataset().asDatasetGraph())
                 .collect(Collectors.toList());
 
 
-        Dataset ds = DatasetFactory.wrap(DatasetGraphHashPartitioned.createBySubject(dsgs));
+        DatasetGraph ds = DatasetGraphHashPartitioned.createBySubject(dsgs);
 
 
         // Set up a datasource for which connections are created in a peculiar way:
         // Each partition member graph gets a wrapper such that access via the connection
         // always uses the same thread
-        RdfDataEngine result = RdfDataEngineFromDataset.create(ds, dummyDs -> {
-            List<DatasetGraph> guardedDsgs = dsgs.stream()
-                    .map(DatasetGraphDelegateWithWorkerThread::wrap)
-                    .collect(Collectors.toList());
+        RDFLinkSource linkSource = new RDFLinkSourceOverDatasetGraph(ds) {
+            @Override
+            public RDFLink newLink() {
+                List<DatasetGraph> guardedDsgs = dsgs.stream()
+                        .map(DatasetGraphDelegateWithWorkerThread::wrap)
+                        .collect(Collectors.toList());
 
-            Dataset xds = DatasetFactory.wrap(DatasetGraphHashPartitioned.createBySubject(guardedDsgs));
-            return RDFConnection.connect(xds);
-        }, () -> ds.close());
+                // FIXME It looks like closing the link does not close the underyling links.
+                DatasetGraph xds = DatasetGraphHashPartitioned.createBySubject(guardedDsgs);
+                return RDFLink.connect(xds);
+            }
+        };
 
-//        x -> {
-//            closePartAction.run();
-//        });
-//
-
+        RDFEngine result = RDFEngines.of(linkSource, ds::close);
         return result;
-
-//        Path dbPath = fsInfo == null ? null : fsInfo.getKey();
-//        Closeable fsCloseAction = fsInfo == null ? () -> {} : fsInfo.getValue();
     }
 }
+
+//Path dbPath = fsInfo == null ? null : fsInfo.getKey();
+//Closeable fsCloseAction = fsInfo == null ? () -> {} : fsInfo.getValue();
+//x -> {
+//closePartAction.run();
+//});
+//
+

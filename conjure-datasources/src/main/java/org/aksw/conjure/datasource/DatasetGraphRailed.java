@@ -13,10 +13,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.aksw.commons.util.exception.FinallyRunAll;
 import org.aksw.commons.util.lock.LockUtils;
-import org.aksw.jenax.arq.util.dataset.HasDataset;
 import org.aksw.jenax.dataaccess.sparql.common.TransactionalMultiplex;
 import org.aksw.jenax.dataaccess.sparql.common.TransactionalWrapper;
-import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSource;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngine;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecTerms;
 import org.apache.jena.graph.Graph;
@@ -138,10 +137,11 @@ public class DatasetGraphRailed
                 memberProps.put(RdfDataSourceSpecTerms.LOCATION_KEY, memberLoc.toString());
 
                 try {
-                    RdfDataSource member = memberFactory.create(PropertiesUtils.toStringObjectMap(memberProps));
+                    RDFEngine member = memberFactory.create(PropertiesUtils.toStringObjectMap(memberProps));
 
-                    HasDataset tmp = (HasDataset)member;
-                    delegates.add(tmp.getDataset().asDatasetGraph());
+                    // HasDataset tmp = (HasDataset)member;
+                    DatasetGraph dsg = Objects.requireNonNull(member.getLinkSource().getDatasetGraph());
+                    delegates.add(dsg);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -186,14 +186,14 @@ public class DatasetGraphRailed
 
         Path memberLoc = railPropertiesFile.resolveSibling("rail-" + nextId);
         memberProps.put(RdfDataSourceSpecTerms.LOCATION_KEY, memberLoc.toString());
-        RdfDataSource member;
+        RDFEngine member;
         try {
             member = memberFactory.create(PropertiesUtils.toStringObjectMap(memberProps));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        DatasetGraph tmp = ((HasDataset)member).getDataset().asDatasetGraph();
+        DatasetGraph tmp = Objects.requireNonNull(member.getLinkSource().getDatasetGraph());
 
 //        if (isInTransaction()) {
 //            tmp.begin(transactionType());

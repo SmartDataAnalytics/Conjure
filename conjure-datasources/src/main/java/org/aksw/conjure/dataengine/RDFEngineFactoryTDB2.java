@@ -7,22 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.aksw.conjure.datasource.DatasetGraphWrapperWithSize;
 import org.aksw.jenax.dataaccess.sparql.creator.FileSet;
 import org.aksw.jenax.dataaccess.sparql.creator.FileSetMatcher;
 import org.aksw.jenax.dataaccess.sparql.creator.FileSetOverPathMatcher;
 import org.aksw.jenax.dataaccess.sparql.creator.FileSets;
-import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngines;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineWithDataset;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngines;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
+import org.aksw.jenax.dataaccess.sparql.link.transform.RDFLinkTransforms;
+import org.aksw.jenax.dataaccess.sparql.linksource.RDFLinkSource;
+import org.aksw.jenax.dataaccess.sparql.linksource.RDFLinkSourceOverDatasetGraph;
 import org.apache.jena.dboe.base.file.Location;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.tdb2.TDB2Factory;
 import org.slf4j.Logger;
@@ -50,8 +47,8 @@ public class RDFEngineFactoryTDB2
     }
 
     @Override
-    public RdfDataEngine create(Map<String, Object> config) throws Exception {
-        RdfDataEngine result;
+    public RDFEngine create(Map<String, Object> config) throws Exception {
+        RDFEngine result;
 
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
         CloseablePath entry = RDFEngineFactoryLegacyBase.setupPath("rpt-tdb2-", spec);
@@ -73,14 +70,14 @@ public class RDFEngineFactoryTDB2
 //                return fileName.contains("spo").
 //            };
 
-            Dataset dataset = DatasetFactory.wrap(new DatasetGraphWrapperWithSize(dg, finalDbPath, null));
+            // Dataset dataset = DatasetFactory.wrap(new DatasetGraphWrapperWithSize(dg, finalDbPath, null));
 
             if (logger.isInfoEnabled()) {
                 logger.info("Connecting to TDB2 database in folder " + finalDbPath);
             }
             Closeable finalDeleteAction = () -> {
                 try {
-                    dataset.close();
+                    dg.close();
 
                     if (deleteOnClose) {
                         logger.info("Attempting to delete TDB2 folder");
@@ -92,37 +89,40 @@ public class RDFEngineFactoryTDB2
                 }
             };
 
-            result = RdfDataEngineFromDataset.create(
-                    dataset,
-                    RDFConnection::connect,
-                    finalDeleteAction);
+            RDFLinkSource linkSource = new RDFLinkSourceOverDatasetGraph(dg);
+            result = RDFEngines.of(linkSource, finalDeleteAction);
 
             // Requests first have to go through the worker thread so that
             // automatically started transactions run on the right thread
-            result = RdfDataEngines.wrapWithAutoTxn(result, dataset);
-            result = RdfDataEngines.wrapWithWorkerThread(result);
+//            result = RdfDataEngines.wrapWithAutoTxn(result, dataset);
+//            result = RdfDataEngines.wrapWithWorkerThread(result);
+
+            result = RDFEngines.decorate(result)
+                .decorate(RDFLinkTransforms.withAutoTxn())
+                .decorate(RDFLinkTransforms.withWorkerThread())
+                .build();
 
             // Make sure to expose the underlying dataset
-            if (!(result instanceof RdfDataEngineWithDataset)) {
-                RdfDataEngine tmp = result;
-
-                result = new RdfDataEngineWithDataset() {
-                    @Override
-                    public Dataset getDataset() {
-                        return dataset;
-                    }
-
-                    @Override
-                    public void close() throws Exception {
-                        tmp.close();
-                    }
-
-                    @Override
-                    public RDFConnection getConnection() {
-                        return tmp.getConnection();
-                    }
-                };
-            }
+//            if (!(result instanceof RdfDataEngineWithDataset)) {
+//                RDFEngine tmp = result;
+//
+//                result = new RdfDataEngineWithDataset() {
+//                    @Override
+//                    public Dataset getDataset() {
+//                        return dataset;
+//                    }
+//
+//                    @Override
+//                    public void close() throws Exception {
+//                        tmp.close();
+//                    }
+//
+//                    @Override
+//                    public RDFConnection getConnection() {
+//                        return tmp.getConnection();
+//                    }
+//                };
+//            }
         } catch (Exception e) {
             partialCloseAction.close();
             throw new RuntimeException(e);

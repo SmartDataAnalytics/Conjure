@@ -11,30 +11,26 @@ import java.util.Properties;
 import org.aksw.commons.io.util.PathUtils;
 import org.aksw.conjure.datasource.DatasetGraphRailed;
 import org.aksw.conjure.datasource.PropertiesUtils;
-import org.aksw.jenax.dataaccess.sparql.connection.common.RDFConnectionUtils;
-import org.aksw.jenax.dataaccess.sparql.dataengine.RdfDataEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngine;
+import org.aksw.jenax.dataaccess.sparql.engine.RDFEngines;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactory;
 import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryLegacyBase;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFactoryRegistry;
-import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RdfDataEngineFromDataset;
+import org.aksw.jenax.dataaccess.sparql.factory.dataengine.RDFEngineFactoryRegistry;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasic;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecBasicFromMap;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceSpecTerms;
-import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkWrapperWithWorkerThread;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdfconnection.RDFConnection;
+import org.aksw.jenax.dataaccess.sparql.link.transform.RDFLinkTransforms;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RdfDataEngineFactoryRailed
+public class RDFEngineFactoryRailed
     extends RDFEngineFactoryLegacyBase
 {
-    private static final Logger logger = LoggerFactory.getLogger(RdfDataEngineFactoryRailed.class);
+    private static final Logger logger = LoggerFactory.getLogger(RDFEngineFactoryRailed.class);
 
     @Override
-    public RdfDataEngine create(Map<String, Object> config) throws Exception {
+    public RDFEngine create(Map<String, Object> config) throws Exception {
         RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
         Entry<Path, Closeable> fsInfo = PathUtils.resolveFsAndPath(spec.getLocationContext(), spec.getLocation());
         Path path = fsInfo.getKey();
@@ -76,24 +72,28 @@ public class RdfDataEngineFactoryRailed
         String delegateEngine = Objects.requireNonNull((String)config.get(RdfDataSourceSpecTerms.DELEGATE),
                 "No delegate engine set which to use for railing");
 
-        RDFEngineFactory delegateFactory = RdfDataEngineFactoryRegistry.get().getFactory(delegateEngine);
+        RDFEngineFactory delegateFactory = RDFEngineFactoryRegistry.get().getFactory(delegateEngine);
 
         DatasetGraph dg = new DatasetGraphRailed(confFile, delegateFactory);
-        Dataset ds = DatasetFactory.wrap(dg);
 
-        RdfDataEngine result = RdfDataEngineFromDataset.create(ds, dss -> {
-            RDFConnection raw = RDFConnection.connect(dss);
-            return RDFConnectionUtils.wrapWithLinkTransform(raw, RDFLinkWrapperWithWorkerThread::wrap);
-        }, null);
-
-//        x -> {
-//            closePartAction.run();
-//        });
-//
+        RDFEngine result = RDFEngines.decorate(RDFEngines.of(dg))
+                .decorate(RDFLinkTransforms.withWorkerThread())
+                .build();
 
         return result;
-
-//        Path dbPath = fsInfo == null ? null : fsInfo.getKey();
-//        Closeable fsCloseAction = fsInfo == null ? () -> {} : fsInfo.getValue();
     }
 }
+
+//Path dbPath = fsInfo == null ? null : fsInfo.getKey();
+//Closeable fsCloseAction = fsInfo == null ? () -> {} : fsInfo.getValue();
+// Dataset ds = DatasetFactory.wrap(dg);
+
+//RDFEngine result = RdfDataEngineFromDataset.create(ds, dss -> {
+//RDFConnection raw = RDFConnection.connect(dss);
+//return RDFConnectionUtils.wrapWithLinkTransform(raw, RDFLinkWrapperWithWorkerThread::wrap);
+//}, null);
+
+//x -> {
+//closePartAction.run();
+//});
+//

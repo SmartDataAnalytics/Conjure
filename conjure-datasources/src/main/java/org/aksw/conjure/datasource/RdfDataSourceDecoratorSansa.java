@@ -2,8 +2,8 @@ package org.aksw.conjure.datasource;
 
 import java.util.Map;
 
-import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSource;
-import org.aksw.jenax.dataaccess.sparql.datasource.RdfDataSourceWrapperBase;
+import org.aksw.jenax.dataaccess.sparql.datasource.RDFDataSource;
+import org.aksw.jenax.dataaccess.sparql.datasource.RDFDataSourceWrapperBase;
 import org.aksw.jenax.dataaccess.sparql.factory.datasource.RdfDataSourceDecorator;
 import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkUtils;
 import org.aksw.jenax.dataaccess.sparql.link.common.RDFLinkWrapperWithWorkerThread;
@@ -27,10 +27,10 @@ public class RdfDataSourceDecoratorSansa
     }
 
     @Override
-    public RdfDataSource decorate(RdfDataSource dataSource, Map<String, Object> config) {
+    public RDFDataSource decorate(RDFDataSource dataSource, Map<String, Object> config) {
         // RdfDataSourceSpecBasic spec = RdfDataSourceSpecBasicFromMap.wrap(config);
 
-        RdfDataSource result = new RdfDataSourceWrapperBase(dataSource) {
+        RDFDataSource result = new RDFDataSourceWrapperBase(dataSource) {
             @Override
             public org.apache.jena.rdfconnection.RDFConnection getConnection() {
                 RDFConnection rawConn = dataSource.getConnection();
