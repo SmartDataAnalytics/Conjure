@@ -36,7 +36,7 @@ public class RDFEngineFactoryTDB2
         @Override
         public List<Path> match(Path basePath) throws IOException {
             List<Path> dataFolders = new ArrayList<>();
-            FileSets.accumulate(dataFolders, basePath, "Data*");
+            FileSets.accumulateFlat(dataFolders, basePath, "Data*");
             List<Path> result = new ArrayList<>();
             FileSets.accumulateIfExists(result, basePath.resolve("tdb.lock"));
             for (Path dataFolder : dataFolders) {
