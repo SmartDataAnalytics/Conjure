@@ -46,29 +46,29 @@ public class RDFEngineFactoryMem
         ServiceExecutorFactoryRegistratorVfs.register(cxt);
 
         QueryEngineFactoryProvider queryEngineFactoryProvider = QueryEngineRegistry::findFactory;
-        UpdateEngineFactoryCore uef = (d, b, c) -> new UpdateEngineMain(d, b, c) {
+        UpdateEngineFactoryCore uef = (d, c) -> new UpdateEngineMain(d, c) {
             @Override
             protected UpdateVisitor prepareWorker() {
-                return new UpdateEngineWorkerLoadAsGiven(d, b, c) {
+                return new UpdateEngineWorkerLoadAsGiven(d, c) {
                     @Override
                     protected Iterator<Binding> evalBindings(Element pattern) {
                         Query query = elementToQuery(pattern);
                         // The UpdateProcessorBase already copied the context and made it safe
                         // ... but that's going to happen again :-(
-                        if (query == null) {
-                            Binding binding = (null != inputBinding) ? inputBinding : BindingRoot.create();
-                            return Iter.singleton(binding);
-                        }
+//                        if (query == null) {
+//                            Binding binding = (null != inputBinding) ? inputBinding : BindingRoot.create();
+//                            return Iter.singleton(binding);
+//                        }
 
                         // Not QueryExecDataset.dataset(...) because of initialBinding.
 
                         QueryExecBuilder builder = new QueryExecDatasetBuilderEx<>(d, queryEngineFactoryProvider).context(context).query(query);
-                        if (inputBinding != null) {
-//                            // Must use initialBinding - it puts the input in the results, unlike substitution.
-                            builder.substitution(inputBinding);
-//                            // substitution does not put results in the output.
-//                            // builder.substitution(inputBinding);
-                        }
+//                        if (inputBinding != null) {
+////                            // Must use initialBinding - it puts the input in the results, unlike substitution.
+//                            builder.substitution(inputBinding);
+////                            // substitution does not put results in the output.
+////                            // builder.substitution(inputBinding);
+//                        }
                         QueryExec qExec = builder.build();
                         Iterator<Binding> r = Iter.onClose(qExec.select(), qExec::close);
                         return r;

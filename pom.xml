@@ -6,7 +6,7 @@
 
 	<groupId>org.aksw.conjure</groupId>
 	<artifactId>conjure-parent</artifactId>
-	<version>5.6.0-1-SNAPSHOT</version>
+	<version>6.1.0-1-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -58,28 +58,28 @@
 	</developers>
 
 	<properties>
-		<jena.version>5.6.0-SNAPSHOT</jena.version>
-		<jenax.version>5.6.0-1-SNAPSHOT</jenax.version>
+		<jena.version>6.1.0-SNAPSHOT</jena.version>
+		<jenax.version>6.1.0-1-SNAPSHOT</jenax.version>
 
-		<sansa.version>0.9.6-SNAPSHOT</sansa.version>
-		<slf4j.version>2.0.9</slf4j.version>
-		<log4j.version>2.21.0</log4j.version>
+		<sansa.version>0.9.7-SNAPSHOT</sansa.version>
+		<slf4j.version>2.1.0-alpha1</slf4j.version>
+		<log4j.version>2.25.3</log4j.version>
 
-		<junit.version>4.13</junit.version>
-		<spring-boot.version>3.1.5</spring-boot.version>
+		<junit.version>4.13.2</junit.version>
+		<spring-boot.version>3.5.13</spring-boot.version>
 
-		<maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
+		<maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
 		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-		<maven-source-plugin.version>3.3.0</maven-source-plugin.version>
-		<maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
-		<maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
+		<maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+		<maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+		<maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
 		<maven-release-plugin.version>3.0.1</maven-release-plugin.version>
-		<maven-site-plugin.version>3.6</maven-site-plugin.version>
-		<maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
+		<maven-site-plugin.version>3.21.0</maven-site-plugin.version>
+		<maven-dependency-plugin.version>3.10.0</maven-dependency-plugin.version>
 
-		<gitflow-maven-plugin.version>1.9.0</gitflow-maven-plugin.version>
-		<maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
-		<nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+		<gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
+		<maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+		<nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
 
 
 		<!-- <scala.version>2.11.12</scala.version>
@@ -89,7 +89,7 @@
 			<spark.version>2.4.3</spark.version> <hadoop.version>2.9.2</hadoop.version> -->
 
 		<!-- Project Settings -->
-		<maven.compiler.release>17</maven.compiler.release>
+		<maven.compiler.release>21</maven.compiler.release>
 		<java.version.javadoc>http://java.sun.com/javase/8/docs/api/</java.version.javadoc>
 		<file.encoding>UTF-8</file.encoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

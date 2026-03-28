@@ -38,8 +38,8 @@ import org.apache.jena.update.UpdateException;
 public class UpdateEngineWorkerLoadAsGiven
     extends UpdateEngineWorker
 {
-    public UpdateEngineWorkerLoadAsGiven(DatasetGraph datasetGraph, Binding inputBinding, Context context) {
-        super(datasetGraph, inputBinding, context);
+    public UpdateEngineWorkerLoadAsGiven(DatasetGraph datasetGraph, Context context) {
+        super(datasetGraph, context);
     }
 
     @Override

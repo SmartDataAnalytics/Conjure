@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.aksw.conjure</groupId>
 		<artifactId>conjure-parent</artifactId>
-		<version>5.6.0-1-SNAPSHOT</version>
+		<version>6.1.0-1-SNAPSHOT</version>
 	</parent>
 	<artifactId>conjure-cli-spark</artifactId>
 	<packaging>jar</packaging>
@@ -22,7 +22,7 @@
 		<scala.binary.version>2.12</scala.binary.version>
 		<scala.classifier>${scala.binary.version}</scala.classifier>
 		<scala.version.suffix>_${scala.binary.version}</scala.version.suffix>
-		<spark.version>3.5.1</spark.version>
+		<spark.version>3.5.8</spark.version>
 		<spark.scope>compile</spark.scope>
 		<hadoop.version>3.3.4</hadoop.version>
 		<!-- <jena.version>3.12.0</jena.version> <jsa.subversion>2-SNAPSHOT</jsa.subversion> 
