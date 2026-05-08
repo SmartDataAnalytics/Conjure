@@ -62,7 +62,7 @@
 		<log4j.version>2.18.0</log4j.version>
 
 		<junit.version>4.13</junit.version>
-		<spring-boot.version>2.2.1.RELEASE</spring-boot.version>
+		<spring-boot.version>3.0.0</spring-boot.version>
 
 		<!-- <scala.version>2.11.12</scala.version> <scala.binary.version>2.11</scala.binary.version> 
 			<scala.classifier>${scala.binary.version}</scala.classifier> <scala.version.suffix>_${scala.binary.version}</scala.version.suffix> 
